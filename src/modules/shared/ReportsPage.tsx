@@ -5,7 +5,7 @@ import { Badge } from '../../components/ui/badge';
 import { FileText, Download, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface ReportsPa geProps {
+interface ReportsPageProps {
   organizationId: string;
   userRole: string;
 }
@@ -18,7 +18,7 @@ interface Report {
   period: string;
 }
 
-export function ReportsPage({ organizationId, userRole }: ReportsPa geProps) {
+export function ReportsPage({ organizationId, userRole }: ReportsPageProps) {
   const [reports] = useState<Report[]>([
     {
       id: '1',
