@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Search, UserPlus, BookOpen, TrendingUp, Award, Calendar, Eye } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface TeacherStudentsPageProps {
   teacherId: string;

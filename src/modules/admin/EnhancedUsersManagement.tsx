@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase, isDemoMode } from '../../lib/supabase';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { IndividualStudentReports } from '../shared/IndividualStudentReports';
 import { ExportReportButton } from '../../components/ExportReportButton';
 import { type ReportData } from '../../lib/reportExport';
@@ -432,7 +432,7 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
         </div>
       </div>
 
-      {/* الإحصائيات العامة */}
+      {/* الإحصائيات ا��عامة */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
           <CardContent className="pt-6">

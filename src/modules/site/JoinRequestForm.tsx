@@ -7,7 +7,7 @@ import { BookOpen, ArrowRight, Building2, User, CheckCircle2 } from 'lucide-reac
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Textarea } from '../../components/ui/textarea';
 import { supabase, Organization, UserRole } from '../../lib/supabase';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface JoinRequestFormProps {
   organization: Organization;

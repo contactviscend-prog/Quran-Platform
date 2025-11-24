@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback } from '../../components/ui/avatar';
 import { Badge } from '../../components/ui/badge';
 import { Profile } from '../../lib/supabase';
 import { Save, User, Bell, Lock, Globe } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface SettingsPageProps {
   user: Profile;
@@ -126,7 +126,7 @@ export function SettingsPage({ user }: SettingsPageProps) {
                     className="bg-gray-50"
                     dir="ltr"
                   />
-                  <p className="text-xs text-gray-500">لا يمكن تغيير البريد الإلكتروني</p>
+                  <p className="text-xs text-gray-500">لا يمكن تغيير البريد ��لإلكتروني</p>
                 </div>
 
                 <div className="space-y-2">

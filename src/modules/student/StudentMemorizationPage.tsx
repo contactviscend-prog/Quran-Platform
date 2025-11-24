@@ -5,7 +5,7 @@ import { Progress } from '../../components/ui/progress';
 import { Badge } from '../../components/ui/badge';
 import { BookOpen, CheckCircle, Clock, Award, TrendingUp } from 'lucide-react';
 import { supabase, isDemoMode } from '../../lib/supabase';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface StudentMemorizationPageProps {
   studentId: string;
@@ -152,7 +152,7 @@ export function StudentMemorizationPage({ studentId, organizationId }: StudentMe
     return (
       <div className="text-center py-12">
         <div className="inline-block w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-gray-600 mt-4">جاري تحميل بيانات الحفظ...</p>
+        <p className="text-gray-600 mt-4">ج��ري تحميل بيانات الحفظ...</p>
       </div>
     );
   }

@@ -6,7 +6,7 @@ import { Label } from '../../components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Users, BookOpen, GraduationCap, ClipboardList, Plus, UserPlus } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { supabase, isDemoMode, Profile, Organization, Circle, UserRole, getRoleLabel } from '../../lib/supabase';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 
@@ -134,7 +134,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
 
   const statsData = [
     { title: 'إجمالي الطلاب', value: stats.totalStudents.toString(), icon: Users, color: 'bg-blue-500' },
-    { title: 'الحلقات النشطة', value: stats.activeCircles.toString(), icon: BookOpen, color: 'bg-emerald-500' },
+    { title: 'الحلقات النشط��', value: stats.activeCircles.toString(), icon: BookOpen, color: 'bg-emerald-500' },
     { title: 'المعلمون', value: stats.totalTeachers.toString(), icon: GraduationCap, color: 'bg-purple-500' },
     { title: 'إجمالي التسميع', value: stats.totalRecitations.toString(), icon: ClipboardList, color: 'bg-orange-500' },
   ];

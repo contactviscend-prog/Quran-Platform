@@ -8,7 +8,7 @@ import { Textarea } from './ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { BookOpen, Calendar, CheckCircle, Clock, XCircle, Plus, Edit, Trash2 } from 'lucide-react';
 import { supabase, isDemoMode } from '../lib/supabase';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface DailyAssignmentsPageProps {
   userId: string;

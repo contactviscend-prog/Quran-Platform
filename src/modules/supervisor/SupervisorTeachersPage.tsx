@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Search, Users, BookOpen, TrendingUp, Award, Eye, Star } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface SupervisorTeachersPageProps {
   organizationId: string;

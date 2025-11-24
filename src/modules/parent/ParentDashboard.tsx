@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Users, BookOpen, TrendingUp, Calendar } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { isDemoMode, Profile, Organization, supabase } from '../../lib/supabase';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { SettingsPage } from '../shared/SettingsPage';

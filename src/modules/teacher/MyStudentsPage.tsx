@@ -12,7 +12,7 @@ import {
   Users, Search, Eye, Edit, Award, CheckCircle, AlertCircle, 
   XCircle, Clock, Target, BookMarked, Calendar 
 } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { supabase, isDemoMode, Profile, Circle } from '../../lib/supabase';
 import { quranSurahs } from '../../lib/quranData';
 import { QuranSelector } from '../../components/QuranSelector';
@@ -557,7 +557,7 @@ export function MyStudentsPage({ user, organization }: MyStudentsPageProps) {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div>
-                      <div className="text-sm text-gray-600 mb-1">إجمالي الآيات المحفوظة</div>
+                      <div className="text-sm text-gray-600 mb-1">إجمالي الآيات المحفوظ��</div>
                       <div className="text-2xl text-blue-600">{selectedStudent.total_ayahs_memorized}</div>
                     </div>
                     <div>

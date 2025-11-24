@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Building2, BookOpen, ArrowRight, Search, Users, TrendingUp } from 'lucide-react';
 import { supabase, Organization, isDemoMode } from '../../lib/supabase';
 import { mockOrganizations } from '../../lib/mockData';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -167,7 +167,7 @@ export function OrganizationSelector({ onSelectOrg }: OrganizationSelectorProps)
               <Card className="max-w-2xl mx-auto bg-gray-50 border-2 mt-8">
                 <CardContent className="pt-8 pb-8 text-center">
                   <Search className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl mb-2">لم يتم العثور على نتائج</h3>
+                  <h3 className="text-xl mb-2">لم يتم العثور على ��تائج</h3>
                   <p className="text-gray-600">لا توجد مؤسسة تطابق بحثك</p>
                 </CardContent>
               </Card>
