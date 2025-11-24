@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { supabase, Profile, Organization, isDemoMode } from '../lib/supabase';
 import { mockUsers, setDemoSession, getDemoSession, clearDemoSession } from '../lib/mockData';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface AuthContextType {
   user: SupabaseUser | null;
