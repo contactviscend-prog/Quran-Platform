@@ -95,7 +95,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           <div className="text-center space-y-8">
             {/* Demo Mode Banner */}
             {isDemoMode && (
-              <div className="mb-8">
+              <div className="mb-8 max-w-2xl mx-auto">
                 <DemoModeBanner />
               </div>
             )}
@@ -156,7 +156,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           <div className="text-center mb-16">
             <h2 className="text-4xl mb-4">المميزات الرئيسية</h2>
             <p className="text-xl text-gray-600">
-              كل ما تحتاجه لإدارة مركز التحفيظ بكفاءة واحترافية
+              كل ما تحتاجه ��إدارة مركز التحفيظ بكفاءة واحترافية
             </p>
           </div>
           
@@ -182,7 +182,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           <div className="text-center mb-16">
             <h2 className="text-4xl mb-4">الأدوار والصلاحيات</h2>
             <p className="text-xl text-gray-600">
-              نظام شامل لجميع المستخدمين في مؤسستك
+              نظام شامل لجميع المستخدمين ف�� مؤسستك
             </p>
           </div>
           
