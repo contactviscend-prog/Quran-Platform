@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase, isDemoMode, Profile } from '../../lib/supabase';
-import { quranSurahs } from '../lib/quranData';
+import { quranSurahs } from '../../lib/quranData';
 import { QuranSelector } from './QuranSelector';
 
 type RecitationType = 'memorization' | 'consolidation' | 'review' | 'test' | 'assignment';
