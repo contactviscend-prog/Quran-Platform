@@ -10,8 +10,8 @@ import { Textarea } from '../../components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Plus, Filter, BookOpen, User, Calendar, Award } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase, isDemoMode } from '../lib/supabase';
-import type { Profile, Circle, Recitation } from '../lib/supabase';
+import { supabase, isDemoMode } from '../../lib/supabase';
+import type { Profile, Circle, Recitation } from '../../lib/supabase';
 
 interface RecitationsPageProps {
   organizationId: string;
@@ -24,7 +24,7 @@ const SURAHS = [
   { number: 1, name: 'الفاتحة', ayahs: 7 },
   { number: 2, name: 'البقرة', ayahs: 286 },
   { number: 3, name: 'آل عمران', ayahs: 200 },
-  { number: 4, name: 'النساء', ayahs: 176 },
+  { number: 4, name: '��لنساء', ayahs: 176 },
   { number: 5, name: 'المائدة', ayahs: 120 },
   { number: 6, name: 'الأنعام', ayahs: 165 },
   { number: 7, name: 'الأعراف', ayahs: 206 },
@@ -488,7 +488,7 @@ export function RecitationsPage({ organizationId, userRole, userId }: Recitation
                       resetForm();
                     }}
                   >
-                    إلغاء
+                    ��لغاء
                   </Button>
                   <Button type="submit">
                     تسجيل التسميع

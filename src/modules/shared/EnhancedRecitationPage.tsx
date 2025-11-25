@@ -14,9 +14,9 @@ import {
   TrendingUp, BookMarked, Star, Award, Target
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase, isDemoMode, Profile } from '../lib/supabase';
-import { quranSurahs } from '../lib/quranData';
-import { QuranSelector } from './QuranSelector';
+import { supabase, isDemoMode, Profile } from '../../lib/supabase';
+import { quranSurahs } from '../../lib/quranData';
+import { QuranSelector } from '../../components/QuranSelector';
 
 type RecitationType = 'memorization' | 'consolidation' | 'review' | 'test' | 'assignment';
 type RecitationGrade = 'excellent' | 'very_good' | 'good' | 'acceptable' | 'needs_improvement';
@@ -645,7 +645,7 @@ export function EnhancedRecitationPage({ user, organization }: EnhancedRecitatio
                 className="w-4 h-4"
               />
               <label htmlFor="useDefaultNext" className="text-sm cursor-pointer">
-                استخدام الآيات المقررة افتراضياً (حسب الخطة التعليمية)
+                استخدام الآيات المقررة افتراضياً (حس�� الخطة التعليمية)
               </label>
             </div>
 

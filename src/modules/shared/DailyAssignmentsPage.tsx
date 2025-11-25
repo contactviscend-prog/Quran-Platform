@@ -7,7 +7,7 @@ import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog';
 import { BookOpen, Calendar, CheckCircle, Clock, XCircle, Plus, Edit, Trash2 } from 'lucide-react';
-import { supabase, isDemoMode } from '../lib/supabase';
+import { supabase, isDemoMode } from '../../lib/supabase';
 import { toast } from 'sonner';
 
 interface DailyAssignmentsPageProps {
@@ -103,7 +103,7 @@ export function DailyAssignmentsPage({ userId, userRole, organizationId }: Daily
         },
         {
           id: '2',
-          title: 'مراجعة سور�� آل عمران',
+          title: 'مراجعة سورة آل عمران',
           description: 'مراجعة الآيات من 50 إلى 75',
           circle_name: 'حلقة الفجر',
           teacher_name: 'أحمد المعلم',
@@ -123,7 +123,7 @@ export function DailyAssignmentsPage({ userId, userRole, organizationId }: Daily
           teacher_name: 'عمر الحافظ',
           surah_from: 'النساء',
           verse_from: 1,
-          surah_to: 'النساء',
+          surah_to: '��لنساء',
           verse_to: 20,
           due_date: '2024-01-18',
           status: 'overdue',

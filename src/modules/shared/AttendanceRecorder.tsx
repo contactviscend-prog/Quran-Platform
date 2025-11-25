@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { supabase, isDemoMode } from '../../lib/supabase';
 import { toast } from 'sonner';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Badge } from './ui/badge';
-import { Textarea } from './ui/textarea';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
+import { Button } from '../../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Badge } from '../../components/ui/badge';
+import { Textarea } from '../../components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { CheckCircle, XCircle, Clock, AlertCircle, Search, Save } from 'lucide-react';
 
 interface AttendanceRecorderProps {
@@ -578,7 +578,7 @@ export function AttendanceRecorder({ teacherId, organizationId }: AttendanceReco
             <div className="space-y-2">
               <Label>الملاحظة</Label>
               <Textarea
-                placeholder="اكتب ملاحظتك هنا..."
+                placeholder="اكتب مل��حظتك هنا..."
                 value={currentNote}
                 onChange={(e) => setCurrentNote(e.target.value)}
                 rows={4}
