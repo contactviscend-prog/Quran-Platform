@@ -16,7 +16,7 @@ import {
 import { toast } from 'sonner';
 import { supabase, isDemoMode, Profile } from '../../lib/supabase';
 import { quranSurahs } from '../../lib/quranData';
-import { QuranSelector } from './QuranSelector';
+import { QuranSelector } from '../../components/QuranSelector';
 
 type RecitationType = 'memorization' | 'consolidation' | 'review' | 'test' | 'assignment';
 type RecitationGrade = 'excellent' | 'very_good' | 'good' | 'acceptable' | 'needs_improvement';
