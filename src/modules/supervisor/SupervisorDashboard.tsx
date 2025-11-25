@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Users, BookOpen, GraduationCap, ClipboardList } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { isDemoMode, supabase, Profile, Organization } from '../../lib/supabase';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { CirclesManagement } from '../shared/CirclesManagement';
@@ -154,7 +154,7 @@ export function SupervisorDashboard({ user, organization }: SupervisorDashboardP
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>إحصائيات الأسبوع</CardTitle>
+                  <CardTitle>إحصائيات ا��أسبوع</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-center p-3 bg-emerald-50 rounded">

@@ -1,5 +1,5 @@
 import { supabase, isDemoMode } from '../lib/supabase';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface TeacherCirclesPageProps {
   teacherId: string;

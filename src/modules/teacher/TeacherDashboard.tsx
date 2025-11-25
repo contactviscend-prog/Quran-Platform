@@ -13,7 +13,7 @@ import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Card, CardContent } from '../../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Users, BookOpen, CheckCircle, Clock, QrCode } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { supabase, isDemoMode } from '../../lib/supabase';
 import type { Profile, Organization } from '../../lib/supabase';
 
