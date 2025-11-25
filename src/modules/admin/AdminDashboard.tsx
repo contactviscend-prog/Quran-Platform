@@ -9,7 +9,7 @@ import { Users, BookOpen, GraduationCap, ClipboardList, Plus, UserPlus } from 'l
 import { toast } from 'sonner@2.0.3';
 import { supabase, isDemoMode, Profile, Organization, Circle, UserRole, getRoleLabel } from '../../lib/supabase';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
-import { CirclesManagement } from './CirclesManagement';
+// import { CirclesManagement } from './CirclesManagement';
 import { JoinRequestsManagement } from './JoinRequestsManagement';
 import { RecitationsPage } from '../shared/RecitationsPage';
 import { SettingsPage } from '../shared/SettingsPage';
