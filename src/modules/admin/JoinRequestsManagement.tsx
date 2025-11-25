@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 import { CheckCircle, XCircle, Clock, Eye, AlertCircle } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { supabase, isDemoMode, JoinRequest, getRoleLabel } from '../lib/supabase';
 
 interface JoinRequestsManagementProps {
