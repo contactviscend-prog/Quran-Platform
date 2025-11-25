@@ -138,7 +138,7 @@ export function SettingsPage({ user }: SettingsPageProps) {
               <div className="flex justify-end">
                 <Button onClick={handleSaveProfile} className="bg-emerald-600 hover:bg-emerald-700">
                   <Save className="w-4 h-4 ml-2" />
-                  حفظ التغيير��ت
+                  حفظ التغييرات
                 </Button>
               </div>
             </CardContent>
