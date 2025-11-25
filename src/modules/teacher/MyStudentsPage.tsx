@@ -12,7 +12,7 @@ import {
   Users, Search, Eye, Edit, Award, CheckCircle, AlertCircle, 
   XCircle, Clock, Target, BookMarked, Calendar 
 } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { supabase, isDemoMode, Profile, Circle } from '../../lib/supabase';
 import { quranSurahs } from '../../lib/quranData';
 import { QuranSelector } from '../../components/QuranSelector';
@@ -252,7 +252,7 @@ export function MyStudentsPage({ user, organization }: MyStudentsPageProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl mb-2">طلابي</h1>
+          <h1 className="text-2xl mb-2">��لابي</h1>
           <p className="text-gray-500">
             متابعة تقدم الطلاب وإدارة الخطط التعليمية
           </p>
@@ -468,7 +468,7 @@ export function MyStudentsPage({ user, organization }: MyStudentsPageProps) {
                   <SelectContent>
                     <SelectItem value="daily">يومية (هدف يومي ثابت)</SelectItem>
                     <SelectItem value="weekly">أسبوعية (هدف أسبوعي)</SelectItem>
-                    <SelectItem value="custom">مخصصة (تحديد يدوي)</SelectItem>
+                    <SelectItem value="custom">مخصصة (تحديد يدو��)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -589,7 +589,7 @@ export function MyStudentsPage({ user, organization }: MyStudentsPageProps) {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                    <span className="text-sm">السورة الحالية</span>
+                    <span className="text-sm">ا��سورة الحالية</span>
                     <span>{quranSurahs.find(s => s.number === selectedStudent.current_surah)?.name}</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">

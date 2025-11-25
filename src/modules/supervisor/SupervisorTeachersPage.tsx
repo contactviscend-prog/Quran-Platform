@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Search, Users, BookOpen, TrendingUp, Award, Eye, Star } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface SupervisorTeachersPageProps {
   organizationId: string;
@@ -209,7 +209,7 @@ export function SupervisorTeachersPage({ organizationId }: SupervisorTeachersPag
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>قائمة المعلمين</CardTitle>
+            <CardTitle>قائمة ا��معلمين</CardTitle>
             <div className="relative">
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input

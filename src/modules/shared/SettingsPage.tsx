@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback } from '../../components/ui/avatar';
 import { Badge } from '../../components/ui/badge';
 import { Profile } from '../../lib/supabase';
 import { Save, User, Bell, Lock, Globe } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface SettingsPageProps {
   user: Profile;
@@ -138,7 +138,7 @@ export function SettingsPage({ user }: SettingsPageProps) {
               <div className="flex justify-end">
                 <Button onClick={handleSaveProfile} className="bg-emerald-600 hover:bg-emerald-700">
                   <Save className="w-4 h-4 ml-2" />
-                  حفظ التغييرات
+                  حفظ التغيير��ت
                 </Button>
               </div>
             </CardContent>
