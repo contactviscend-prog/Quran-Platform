@@ -9,7 +9,7 @@ import { Textarea } from '../../components/ui/textarea';
 import { Label } from '../../components/ui/label';
 import { CheckCircle, XCircle, Clock, Eye, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase, isDemoMode, JoinRequest, getRoleLabel } from '../lib/supabase';
+import { supabase, isDemoMode, JoinRequest, getRoleLabel } from './lib/supabase';
 
 interface JoinRequestsManagementProps {
   organizationId: string;
