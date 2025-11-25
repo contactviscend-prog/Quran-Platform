@@ -73,7 +73,7 @@ export function JoinRequestForm({ organization, onBack, onSuccess }: JoinRequest
         onSuccess();
       }, 2000);
     } catch (error: any) {
-      console.error('Error submitting request:', error);
+      console.error('Error submitting request:', error?.message || error);
       toast.error('حدث خطأ أثناء إرسال الطلب');
     } finally {
       setIsSubmitting(false);
