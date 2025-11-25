@@ -6,7 +6,7 @@ import { Label } from '../../components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Users, BookOpen, GraduationCap, ClipboardList, Plus, UserPlus } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { supabase, isDemoMode, Profile, Organization, Circle, UserRole, getRoleLabel } from '../../lib/supabase';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 
@@ -122,7 +122,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
 
   const handleAddUser = async () => {
     if (!newUser.full_name || !newUser.email || !newUser.role || !newUser.gender) {
-      toast.error('الرجاء ملء جميع الحقول المطلوبة');
+      toast.error('الرجاء ملء جم��ع الحقول المطلوبة');
       return;
     }
 
@@ -178,7 +178,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
                     <DialogTrigger asChild>
                       <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
                         <UserPlus className="w-5 h-5 ml-2" />
-                        إضافة مستخدم جديد
+                        إضافة ��ستخدم جديد
                       </Button>
                     </DialogTrigger>
                     <DialogContent dir="rtl" className="max-w-2xl">
@@ -270,7 +270,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
                       <DialogHeader>
                         <DialogTitle>إضافة حلقة جديدة</DialogTitle>
                         <DialogDescription>
-                          أضف حلقة تحفيظ جديدة للمنصة
+                          أضف ح��قة تحفيظ جديدة للمنصة
                         </DialogDescription>
                       </DialogHeader>
                       <div className="space-y-4">

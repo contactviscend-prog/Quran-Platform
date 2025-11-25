@@ -1,22 +1,22 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Badge } from './ui/badge';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Badge } from '../../components/ui/badge';
+import { Label } from '../../components/ui/label';
+import { Textarea } from '../../components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { 
   BookOpen, CheckCircle, XCircle, Clock, Calendar,
   Save, AlertCircle, Users, Search, Filter,
   TrendingUp, BookMarked, Star, Award, Target
 } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
-import { supabase, isDemoMode, Profile } from '../lib/supabase';
-import { quranSurahs } from '../lib/quranData';
-import { QuranSelector } from './QuranSelector';
+import { toast } from 'sonner';
+import { supabase, isDemoMode, Profile } from '../../lib/supabase';
+import { quranSurahs } from '../../lib/quranData';
+import { QuranSelector } from '../../components/QuranSelector';
 
 type RecitationType = 'memorization' | 'consolidation' | 'review' | 'test' | 'assignment';
 type RecitationGrade = 'excellent' | 'very_good' | 'good' | 'acceptable' | 'needs_improvement';
@@ -337,7 +337,7 @@ export function EnhancedRecitationPage({ user, organization }: EnhancedRecitatio
         <CardContent className="pt-6">
           <div className="grid md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label>التاريخ</Label>
+              <Label>التا��يخ</Label>
               <Input
                 type="date"
                 value={selectedDate}

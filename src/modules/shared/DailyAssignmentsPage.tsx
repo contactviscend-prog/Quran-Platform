@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Textarea } from '../../components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog';
 import { BookOpen, Calendar, CheckCircle, Clock, XCircle, Plus, Edit, Trash2 } from 'lucide-react';
-import { supabase, isDemoMode } from '../lib/supabase';
-import { toast } from 'sonner@2.0.3';
+import { supabase, isDemoMode } from '../../lib/supabase';
+import { toast } from 'sonner';
 
 interface DailyAssignmentsPageProps {
   userId: string;
@@ -118,7 +118,7 @@ export function DailyAssignmentsPage({ userId, userRole, organizationId }: Daily
         {
           id: '3',
           title: 'حفظ سورة النساء',
-          description: 'حفظ الآيات من 1 إلى 20',
+          description: 'حف�� الآيات من 1 إلى 20',
           circle_name: 'حلقة الظهر',
           teacher_name: 'عمر الحافظ',
           surah_from: 'النساء',
@@ -278,7 +278,7 @@ export function DailyAssignmentsPage({ userId, userRole, organizationId }: Daily
           <CardContent className="pt-6 text-center">
             <CheckCircle className="w-8 h-8 mx-auto text-green-600 mb-2" />
             <div className="text-2xl font-semibold text-green-700">{stats.completed}</div>
-            <div className="text-sm text-green-600">مكتملة</div>
+            <div className="text-sm text-green-600">مكتمل��</div>
           </CardContent>
         </Card>
         <Card className="border-red-200 bg-red-50">

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
 import { QrCode, Download, Share2, RefreshCw } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface StudentQRCodeProps {
   studentId: string;
@@ -70,7 +70,7 @@ export function StudentQRCode({ studentId, studentName }: StudentQRCodeProps) {
       if (navigator.share) {
         await navigator.share({
           title: `رمز الاستجابة السريعة - ${studentName}`,
-          text: 'استخدم هذا الرمز للمسح السريع',
+          text: 'استخدم هذا الرم�� للمسح السريع',
           url: qrCodeUrl,
         });
       } else {

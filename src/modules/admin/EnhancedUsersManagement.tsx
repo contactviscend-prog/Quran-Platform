@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase, isDemoMode } from '../../lib/supabase';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { IndividualStudentReports } from '../shared/IndividualStudentReports';
 import { ExportReportButton } from '../../components/ExportReportButton';
 import { type ReportData } from '../../lib/reportExport';

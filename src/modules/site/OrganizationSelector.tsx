@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Building2, BookOpen, ArrowRight, Search, Users, TrendingUp } from 'lucide-react';
 import { supabase, Organization, isDemoMode } from '../../lib/supabase';
 import { mockOrganizations } from '../../lib/mockData';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -41,7 +41,7 @@ export function OrganizationSelector({ onSelectOrg }: OrganizationSelectorProps)
       if (error) throw error;
       setOrganizations(data || []);
     } catch (error: any) {
-      console.error('Error fetching organizations:', error);
+      console.error('Error fetching organizations:', error?.message || error);
       // In case of error, fallback to mock data
       console.log('⚠️ فشل الاتصال - التبديل إلى البيانات الوهمية');
       setOrganizations(mockOrganizations);

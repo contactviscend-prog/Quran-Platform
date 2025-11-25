@@ -1,3 +1,5 @@
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { QrCode } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -10,6 +12,23 @@ import { toast } from 'sonner';
 interface QRCodeScannerProps {
   teacherId: string;
   organizationId: string;
+ mystic-haven
+}
+
+export function QRCodeScanner({ teacherId, organizationId }: QRCodeScannerProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <QrCode className="w-5 h-5" />
+          ماسح رمز QR
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-gray-600">قريباً: ماسح رمز QR لتسجيل الحضور</p>
+      </CardContent>
+    </Card>
+=======
   onScan?: (studentData: any) => void;
 }
 
@@ -354,5 +373,6 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
         </CardContent>
       </Card>
     </div>
+ main
   );
 }

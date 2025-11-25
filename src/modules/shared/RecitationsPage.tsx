@@ -1,16 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { Label } from './ui/label';
-import { Input } from './ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Textarea } from './ui/textarea';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
+import { Label } from '../../components/ui/label';
+import { Input } from '../../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Textarea } from '../../components/ui/textarea';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Plus, Filter, BookOpen, User, Calendar, Award } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
-import { supabase, isDemoMode } from '../lib/supabase';
+import { toast } from 'sonner';
+import { supabase, isDemoMode } from '../../lib/supabase';
 import type { Profile, Circle, Recitation } from '../lib/supabase';
 
 interface RecitationsPageProps {
@@ -451,7 +451,7 @@ export function RecitationsPage({ organizationId, userRole, userId }: Recitation
                         <SelectItem value="very_good">جيد جداً</SelectItem>
                         <SelectItem value="good">جيد</SelectItem>
                         <SelectItem value="acceptable">مقبول</SelectItem>
-                        <SelectItem value="needs_improvement">يحتاج تحسين</SelectItem>
+                        <SelectItem value="needs_improvement">يحتاج تح��ين</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

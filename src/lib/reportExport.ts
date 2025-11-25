@@ -1,4 +1,4 @@
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 export interface ReportData {
   title: string;
@@ -344,7 +344,7 @@ export function printReport(data: ReportData) {
     return true;
   } catch (error) {
     console.error('Error printing report:', error);
-    toast.error('فشل في طباعة التقرير');
+    toast.error('فشل في طباعة ا��تقرير');
     return false;
   }
 }

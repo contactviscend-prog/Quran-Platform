@@ -12,7 +12,7 @@ import {
   QrCode, Search, UserCheck, BookOpen, ClipboardList,
   CheckCircle, XCircle, Calendar, Award, Clock, Target
 } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { supabase, isDemoMode } from '../../lib/supabase';
 import { quranSurahs } from '../../lib/quranData';
 import { QuranSelector } from '../../components/QuranSelector';
@@ -438,7 +438,7 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
                       <SelectItem value="very_good">جيد جداً (85-94%)</SelectItem>
                       <SelectItem value="good">جيد (75-84%)</SelectItem>
                       <SelectItem value="acceptable">مقبول (65-74%)</SelectItem>
-                      <SelectItem value="needs_improvement">يحتاج تحسين (<65%)</SelectItem>
+                      <SelectItem value="needs_improvement">يحتاج تحسين (&lt;65%)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
