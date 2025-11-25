@@ -438,7 +438,7 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
                       <SelectItem value="very_good">جيد جداً (85-94%)</SelectItem>
                       <SelectItem value="good">جيد (75-84%)</SelectItem>
                       <SelectItem value="acceptable">مقبول (65-74%)</SelectItem>
-                      <SelectItem value="needs_improvement">يحتاج تحسين (<65%)</SelectItem>
+                      <SelectItem value="needs_improvement">يحتاج تحسين (&lt;65%)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
