@@ -50,46 +50,70 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Initialize auth state
   useEffect(() => {
-    // If in demo mode, check for stored session
-    if (isDemoMode()) {
-      const demoSession = getDemoSession();
-      if (demoSession) {
-        setUser(demoSession.user as any);
-        setProfile(demoSession.profile);
-        setOrganization(demoSession.organization);
-      }
-      setLoading(false);
-      return;
-    }
+    let isMounted = true;
+    let sessionChecked = false;
 
-    // Get initial session from Supabase
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
+    const initializeAuth = async () => {
+      try {
+        // If in demo mode, check for stored session
+        if (isDemoMode()) {
+          const demoSession = getDemoSession();
+          if (isMounted) {
+            if (demoSession) {
+              setUser(demoSession.user as any);
+              setProfile(demoSession.profile);
+              setOrganization(demoSession.organization);
+            }
+            setLoading(false);
+          }
+          return;
+        }
+
+        // Get initial session from Supabase
+        if (!sessionChecked) {
+          sessionChecked = true;
+          const { data: { session } } = await supabase.auth.getSession();
+
+          if (isMounted) {
+            setSession(session);
+            setUser(session?.user ?? null);
+            if (session?.user) {
+              await fetchProfile(session.user.id);
+            }
+            setLoading(false);
+          }
+        }
+      } catch (error: any) {
+        console.error('Error initializing auth:', error?.message || error);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-      setLoading(false);
-    });
+    };
+
+    initializeAuth();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
-          setOrganization(null);
+        if (isMounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+
+          if (session?.user) {
+            await fetchProfile(session.user.id);
+          } else {
+            setProfile(null);
+            setOrganization(null);
+          }
+
+          setLoading(false);
         }
-        
-        setLoading(false);
       }
     );
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, []);
