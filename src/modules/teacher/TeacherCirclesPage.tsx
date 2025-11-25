@@ -1,4 +1,4 @@
-import { supabase, isDemoMode } from '../lib/supabase';
+import { supabase, isDemoMode } from '../../lib/supabase';
 import { toast } from 'sonner';
 
 interface TeacherCirclesPageProps {
@@ -287,7 +287,7 @@ export function TeacherCirclesPage({ teacherId, organizationId }: TeacherCircles
       <Dialog open={!!selectedCircle} onOpenChange={() => setSelectedCircle(null)}>
         <DialogContent dir="rtl" className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>تف��صيل الحلقة: {selectedCircle?.name}</DialogTitle>
+            <DialogTitle>تفاصيل الحلقة: {selectedCircle?.name}</DialogTitle>
             <DialogDescription>
               معلومات وإحصائيات مفصلة عن الحلقة
             </DialogDescription>
@@ -300,7 +300,7 @@ export function TeacherCirclesPage({ teacherId, organizationId }: TeacherCircles
                     <div className="text-center">
                       <Users className="w-8 h-8 mx-auto text-blue-600 mb-2" />
                       <p className="text-2xl font-semibold">{selectedCircle.student_count}</p>
-                      <p className="text-sm text-gray-600">عدد الطلاب</p>
+                      <p className="text-sm text-gray-600">ع��د الطلاب</p>
                     </div>
                   </CardContent>
                 </Card>
