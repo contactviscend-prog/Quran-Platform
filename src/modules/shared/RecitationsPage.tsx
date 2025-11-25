@@ -10,7 +10,7 @@ import { Textarea } from '../../components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Plus, Filter, BookOpen, User, Calendar, Award } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase, isDemoMode } from '../lib/supabase';
+import { supabase, isDemoMode } from '../../lib/supabase';
 import type { Profile, Circle, Recitation } from '../lib/supabase';
 
 interface RecitationsPageProps {
@@ -451,7 +451,7 @@ export function RecitationsPage({ organizationId, userRole, userId }: Recitation
                         <SelectItem value="very_good">جيد جداً</SelectItem>
                         <SelectItem value="good">جيد</SelectItem>
                         <SelectItem value="acceptable">مقبول</SelectItem>
-                        <SelectItem value="needs_improvement">يحتاج تحسين</SelectItem>
+                        <SelectItem value="needs_improvement">يحتاج تح��ين</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

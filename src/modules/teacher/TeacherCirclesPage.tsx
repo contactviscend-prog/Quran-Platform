@@ -1,4 +1,4 @@
-import { supabase, isDemoMode } from '../lib/supabase';
+import { supabase, isDemoMode } from '../../lib/supabase';
 import { toast } from 'sonner';
 
 interface TeacherCirclesPageProps {

@@ -14,7 +14,7 @@ import {
   TrendingUp, BookMarked, Star, Award, Target
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase, isDemoMode, Profile } from '../lib/supabase';
+import { supabase, isDemoMode, Profile } from '../../lib/supabase';
 import { quranSurahs } from '../lib/quranData';
 import { QuranSelector } from './QuranSelector';
 
