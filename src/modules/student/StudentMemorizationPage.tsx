@@ -5,7 +5,7 @@ import { Progress } from '../../components/ui/progress';
 import { Badge } from '../../components/ui/badge';
 import { BookOpen, CheckCircle, Clock, Award, TrendingUp } from 'lucide-react';
 import { supabase, isDemoMode } from '../../lib/supabase';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface StudentMemorizationPageProps {
   studentId: string;

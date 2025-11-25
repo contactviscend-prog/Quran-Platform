@@ -12,7 +12,7 @@ import { StudentAssignmentsPage } from './StudentAssignmentsPage';
 import { StudentMemorizationPage } from './StudentMemorizationPage';
 import { StudentQRCode } from './StudentQRCode';
 import { SettingsPage } from '../shared/SettingsPage';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { supabase, isDemoMode } from '../../lib/supabase';
 import type { Profile, Organization } from '../../lib/supabase';
 

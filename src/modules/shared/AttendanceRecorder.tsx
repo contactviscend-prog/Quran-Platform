@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase, isDemoMode } from '../lib/supabase';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
