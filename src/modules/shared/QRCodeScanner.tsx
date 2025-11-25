@@ -1,34 +1,15 @@
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { QrCode } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { QrCode, Camera, X, CheckCircle, User, BookOpen } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { useState, useRef } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../components/ui/dialog';
+import { supabase } from '../../lib/supabase';
 import { toast } from 'sonner';
 
 interface QRCodeScannerProps {
   teacherId: string;
   organizationId: string;
- mystic-haven
-}
-
-export function QRCodeScanner({ teacherId, organizationId }: QRCodeScannerProps) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <QrCode className="w-5 h-5" />
-          ماسح رمز QR
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-gray-600">قريباً: ماسح رمز QR لتسجيل الحضور</p>
-      </CardContent>
-    </Card>
-=======
   onScan?: (studentData: any) => void;
 }
 
@@ -52,11 +33,8 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
     if (!file) return;
 
     try {
-      // في الواقع يجب استخدام مكتبة لقراءة QR من الصورة
-      // مثل jsQR أو html5-qrcode
       toast.info('جاري قراءة رمز الاستجابة السريعة...');
       
-      // محاكاة قراءة الرمز
       setTimeout(() => {
         const mockQRData = {
           student_id: 'mock-student-1',
@@ -74,7 +52,6 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
 
   const processScannedData = async (qrData: any) => {
     try {
-      // التحقق من صحة البيانات
       if (qrData.organization_id !== organizationId) {
         toast.error('هذا الرمز ينتمي لمؤسسة أخرى');
         return;
@@ -85,7 +62,6 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
         return;
       }
 
-      // جلب بيانات الطالب
       const { data: studentData, error } = await supabase
         .from('profiles')
         .select('*')
@@ -105,7 +81,6 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
         return;
       }
 
-      // إضافة الطالب للقائمة
       addScannedStudent({
         id: studentData.id,
         full_name: studentData.full_name,
@@ -116,7 +91,6 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
 
       toast.success(`تم مسح رمز الطالب: ${studentData.full_name}`);
 
-      // استدعاء callback إذا كان موجوداً
       if (onScan) {
         onScan(studentData);
       }
@@ -128,7 +102,6 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
 
   const addScannedStudent = (student: ScannedStudent) => {
     setScannedStudents((prev) => {
-      // تحقق من عدم وجود الطالب بالفعل في القائمة
       const exists = prev.some((s) => s.id === student.id);
       if (exists) {
         toast.info('تم مسح هذا الطالب مسبقاً');
@@ -145,7 +118,6 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
         return;
       }
 
-      // محاكاة البحث عن الطالب برقمه
       const mockStudentData = {
         student_id: manualInput,
         full_name: 'طالب من الإدخال اليدوي',
@@ -170,7 +142,6 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
   const startCamera = async () => {
     try {
       setScanning(true);
-      // في الواقع يجب استخدام مكتبة html5-qrcode للوصول للكاميرا
       toast.info('سيتم فتح الكاميرا قريباً...');
     } catch (error) {
       console.error('Error starting camera:', error);
@@ -186,7 +157,6 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
         <p className="text-gray-600">قم بمسح رموز الطلاب للتسجيل السريع</p>
       </div>
 
-      {/* خيارات المسح */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={startCamera}>
           <CardContent className="pt-6">
@@ -239,7 +209,6 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
         onChange={handleFileUpload}
       />
 
-      {/* سجل المسح */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -308,7 +277,6 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
         </CardContent>
       </Card>
 
-      {/* نافذة الإدخال اليدوي */}
       <Dialog open={showManualDialog} onOpenChange={setShowManualDialog}>
         <DialogContent dir="rtl">
           <DialogHeader>
@@ -341,7 +309,6 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
         </DialogContent>
       </Dialog>
 
-      {/* إرشادات الاستخدام */}
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="pt-6">
           <div className="flex items-start gap-4">
@@ -353,7 +320,7 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
               <ul className="space-y-2 text-sm text-blue-800">
                 <li className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
-                  تأكد من وضوح رمز الاستجابة السريعة
+                  تأكد من وضوح رمز الاستجابة ال��ريعة
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
@@ -373,6 +340,5 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
         </CardContent>
       </Card>
     </div>
- main
   );
 }
