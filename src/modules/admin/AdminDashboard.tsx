@@ -270,7 +270,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
                       <DialogHeader>
                         <DialogTitle>إضافة حلقة جديدة</DialogTitle>
                         <DialogDescription>
-                          أضف ح��قة تحفيظ جديدة للمنصة
+                          أضف حلقة تحفيظ جديدة للمنصة
                         </DialogDescription>
                       </DialogHeader>
                       <div className="space-y-4">
