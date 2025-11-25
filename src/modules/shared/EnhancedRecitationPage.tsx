@@ -13,7 +13,7 @@ import {
   Save, AlertCircle, Users, Search, Filter,
   TrendingUp, BookMarked, Star, Award, Target
 } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { supabase, isDemoMode, Profile } from '../lib/supabase';
 import { quranSurahs } from '../lib/quranData';
 import { QuranSelector } from './QuranSelector';
@@ -337,7 +337,7 @@ export function EnhancedRecitationPage({ user, organization }: EnhancedRecitatio
         <CardContent className="pt-6">
           <div className="grid md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label>التاريخ</Label>
+              <Label>التا��يخ</Label>
               <Input
                 type="date"
                 value={selectedDate}

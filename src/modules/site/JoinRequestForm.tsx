@@ -7,7 +7,7 @@ import { BookOpen, ArrowRight, Building2, User, CheckCircle2 } from 'lucide-reac
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Textarea } from '../../components/ui/textarea';
 import { supabase, Organization, UserRole } from '../../lib/supabase';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface JoinRequestFormProps {
   organization: Organization;
@@ -38,7 +38,7 @@ export function JoinRequestForm({ organization, onBack, onSuccess }: JoinRequest
     e.preventDefault();
     
     if (!formData.role || !formData.gender) {
-      toast.error('الرجاء ملء جميع الحقول المطلوبة');
+      toast.error('الرجاء ملء جميع الح��ول المطلوبة');
       return;
     }
 
