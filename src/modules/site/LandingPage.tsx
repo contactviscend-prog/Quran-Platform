@@ -89,9 +89,9 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
       </div>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/10 to-teal-600/10"></div>
-        <div className="relative max-w-7xl mx-auto px-4 py-20 sm:py-24">
+      <section className="relative overflow-hidden bg-white">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/5 to-teal-600/5"></div>
+        <div className="relative max-w-7xl mx-auto px-4 py-20 sm:py-28">
           <div className="text-center space-y-8">
             {/* Demo Mode Banner */}
             {isDemoMode && (
@@ -156,7 +156,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           <div className="text-center mb-16">
             <h2 className="text-4xl mb-4">المميزات الرئيسية</h2>
             <p className="text-xl text-gray-600">
-              كل ما تحتاجه ��إدارة مركز التحفيظ بكفاءة واحترافية
+              كل ما تحتاجه لإدارة مركز التحفيظ بكفاءة واحترافية
             </p>
           </div>
           
@@ -182,7 +182,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           <div className="text-center mb-16">
             <h2 className="text-4xl mb-4">الأدوار والصلاحيات</h2>
             <p className="text-xl text-gray-600">
-              نظام شامل لجميع المستخدمين ف�� مؤسستك
+              نظام شامل لجميع المستخدمين في مؤسستك
             </p>
           </div>
           
