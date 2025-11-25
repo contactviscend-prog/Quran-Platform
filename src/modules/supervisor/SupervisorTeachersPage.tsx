@@ -54,77 +54,116 @@ export function SupervisorTeachersPage({ organizationId }: SupervisorTeachersPag
       setLoading(true);
 
       // Get all teachers
-      const { data: teachersData } = await supabase
+      const { data: teachersData, error: teachersError } = await supabase
         .from('profiles')
         .select('*')
         .eq('organization_id', organizationId)
         .eq('role', 'teacher')
         .order('full_name');
 
-      if (!teachersData) {
+      if (teachersError) throw teachersError;
+
+      if (!teachersData || teachersData.length === 0) {
         setTeachers([]);
         setFilteredTeachers([]);
         return;
       }
 
-      // Get statistics for each teacher
-      const teachersWithStats = await Promise.all(
-        teachersData.map(async (teacher) => {
-          // Get circles count
-          const { count: circlesCount } = await supabase
-            .from('circles')
-            .select('*', { count: 'exact', head: true })
-            .eq('organization_id', organizationId)
-            .eq('teacher_id', teacher.id)
-            .eq('is_active', true);
+      const teacherIds = teachersData.map(t => t.id);
 
-          // Get circles IDs for this teacher
-          const { data: circles } = await supabase
-            .from('circles')
-            .select('id')
-            .eq('organization_id', organizationId)
-            .eq('teacher_id', teacher.id);
+      // Fetch all circles for these teachers in one query
+      const { data: allCircles, error: circlesError } = await supabase
+        .from('circles')
+        .select('id, teacher_id, is_active')
+        .eq('organization_id', organizationId)
+        .in('teacher_id', teacherIds);
 
-          const circleIds = circles?.map((c) => c.id) || [];
+      if (circlesError) throw circlesError;
 
-          // Get students count
-          const { count: studentsCount } = circleIds.length > 0
-            ? await supabase
-                .from('circle_enrollments')
-                .select('*', { count: 'exact', head: true })
-                .in('circle_id', circleIds)
-            : { count: 0 };
+      // Fetch all enrollments for these circles in one query
+      const activeCircleIds = allCircles
+        ?.filter(c => c.is_active)
+        .map(c => c.id) || [];
 
-          // Get recitations count
-          const { count: recitationsCount } = await supabase
-            .from('recitations')
-            .select('*', { count: 'exact', head: true })
-            .eq('organization_id', organizationId)
-            .eq('teacher_id', teacher.id);
+      let enrollmentsData = [];
+      if (activeCircleIds.length > 0) {
+        const { data, error } = await supabase
+          .from('circle_enrollments')
+          .select('circle_id')
+          .in('circle_id', activeCircleIds);
 
-          // Mock ratings and attendance for demo
-          const averageRating = 4.5 + Math.random() * 0.5; // 4.5-5.0
-          const attendanceRate = 85 + Math.floor(Math.random() * 15); // 85-100%
+        if (error) throw error;
+        enrollmentsData = data || [];
+      }
 
-          return {
-            id: teacher.id,
-            full_name: teacher.full_name,
-            phone: teacher.phone,
-            gender: teacher.gender,
-            circles_count: circlesCount || 0,
-            students_count: studentsCount || 0,
-            recitations_count: recitationsCount || 0,
-            average_rating: Math.round(averageRating * 10) / 10,
-            attendance_rate: attendanceRate,
-            status: teacher.status,
-          };
-        })
-      );
+      // Fetch all recitations for these teachers in one query
+      const { data: recitations, error: recitationsError } = await supabase
+        .from('recitations')
+        .select('teacher_id')
+        .eq('organization_id', organizationId)
+        .in('teacher_id', teacherIds);
+
+      if (recitationsError) throw recitationsError;
+
+      // Build lookup maps
+      const circlesByTeacher = new Map<string, any[]>();
+      const enrollmentsByCircle = new Map<string, any[]>();
+      const recitationsByTeacher = new Map<string, any[]>();
+
+      allCircles?.forEach(circle => {
+        if (!circlesByTeacher.has(circle.teacher_id)) {
+          circlesByTeacher.set(circle.teacher_id, []);
+        }
+        circlesByTeacher.get(circle.teacher_id)?.push(circle);
+      });
+
+      enrollmentsData.forEach(enrollment => {
+        if (!enrollmentsByCircle.has(enrollment.circle_id)) {
+          enrollmentsByCircle.set(enrollment.circle_id, []);
+        }
+        enrollmentsByCircle.get(enrollment.circle_id)?.push(enrollment);
+      });
+
+      recitations?.forEach(rec => {
+        if (!recitationsByTeacher.has(rec.teacher_id)) {
+          recitationsByTeacher.set(rec.teacher_id, []);
+        }
+        recitationsByTeacher.get(rec.teacher_id)?.push(rec);
+      });
+
+      // Build teacher objects with stats
+      const teachersWithStats = teachersData.map((teacher) => {
+        const teacherCircles = circlesByTeacher.get(teacher.id) || [];
+        const activeCircles = teacherCircles.filter(c => c.is_active);
+
+        const studentsCount = activeCircles.reduce((sum, circle) => {
+          return sum + (enrollmentsByCircle.get(circle.id)?.length || 0);
+        }, 0);
+
+        const recitationsCount = recitationsByTeacher.get(teacher.id)?.length || 0;
+
+        // Mock ratings and attendance for demo
+        const averageRating = 4.5 + Math.random() * 0.5; // 4.5-5.0
+        const attendanceRate = 85 + Math.floor(Math.random() * 15); // 85-100%
+
+        return {
+          id: teacher.id,
+          full_name: teacher.full_name,
+          phone: teacher.phone,
+          gender: teacher.gender,
+          circles_count: activeCircles.length,
+          students_count: studentsCount,
+          recitations_count: recitationsCount,
+          average_rating: Math.round(averageRating * 10) / 10,
+          attendance_rate: attendanceRate,
+          status: teacher.status,
+        };
+      });
 
       setTeachers(teachersWithStats);
       setFilteredTeachers(teachersWithStats);
     } catch (error: any) {
-      console.error('Error fetching teachers:', error);
+      console.error('Error fetching teachers:', error?.message || error);
       toast.error('فشل تحميل قائمة المعلمين');
     } finally {
       setLoading(false);
@@ -294,7 +333,7 @@ export function SupervisorTeachersPage({ organizationId }: SupervisorTeachersPag
         <DialogContent dir="rtl" className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>تفاصيل المعلم: {selectedTeacher?.full_name}</DialogTitle>
-            <DialogDescription>معلومات شاملة عن أداء المعلم و إحصائياته</DialogDescription>
+            <DialogDescription>معلومات شامل�� عن أداء المعلم و إحصائياته</DialogDescription>
           </DialogHeader>
           {selectedTeacher && (
             <div className="space-y-4">
