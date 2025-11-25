@@ -1,5 +1,12 @@
+import { useState, useEffect } from 'react';
 import { supabase, isDemoMode } from '../../lib/supabase';
 import { toast } from 'sonner';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { Progress } from '../../components/ui/progress';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog';
+import { BookOpen, Users, TrendingUp, Calendar, Eye, UserPlus } from 'lucide-react';
 
 interface TeacherCirclesPageProps {
   teacherId: string;
