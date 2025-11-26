@@ -487,7 +487,7 @@ export function IndividualStudentReports() {
                         <TableHead className="text-right">التاريخ</TableHead>
                         <TableHead className="text-right">السورة</TableHead>
                         <TableHead className="text-right">الآيات</TableHead>
-                        <TableHead className="text-right">النو��</TableHead>
+                        <TableHead className="text-right">النور</TableHead>
                         <TableHead className="text-right">الكمية</TableHead>
                         <TableHead className="text-right">التقييم</TableHead>
                       </TableRow>
