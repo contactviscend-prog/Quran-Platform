@@ -118,7 +118,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
       return;
     }
 
-    toast.success('تم إضافة الحلقة بنجاح (Demo Mode)');
+    toast.success('تم إضافة الحلقة بنج��ح (Demo Mode)');
     setNewCircle({ name: '', teacher_id: '', level: 'beginner', description: '', max_students: 20 });
     setIsAddCircleDialogOpen(false);
     fetchData();
@@ -363,7 +363,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
         return <JoinRequestsManagement organizationId={organization.id} />;
 
       case 'settings':
-        return <SettingsPage organizationId={organization.id} userId={user.id} userRole="admin" />;
+        return <SettingsPage user={user} />;
 
       default:
         return null;
