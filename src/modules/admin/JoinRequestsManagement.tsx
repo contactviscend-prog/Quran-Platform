@@ -31,6 +31,14 @@ export function JoinRequestsManagement({ organizationId, userId }: JoinRequestsM
 
   const fetchRequests = async () => {
     try {
+      // In demo mode, use empty list
+      if (isDemoMode()) {
+        console.log('📝 وضع العرض التوضيحي - بدون طلبات انضمام');
+        setRequests([]);
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('join_requests')
         .select('*')
@@ -41,7 +49,12 @@ export function JoinRequestsManagement({ organizationId, userId }: JoinRequestsM
       setRequests(data || []);
     } catch (error: any) {
       console.error('Error fetching requests:', error);
-      toast.error('فشل تحميل الطلبات');
+      // In demo mode, show info instead of error
+      if (isDemoMode()) {
+        console.log('⚠️ وضع العرض التوضيحي - لا توجد بيانات حقيقية');
+      } else {
+        toast.error('فشل تح��يل الطلبات');
+      }
     } finally {
       setLoading(false);
     }
