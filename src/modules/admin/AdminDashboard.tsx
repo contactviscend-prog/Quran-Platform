@@ -338,7 +338,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
         );
 
       case 'users':
-        return <div><p>صفحة إدارة المستخدمين - استخدم "المستخدمون المتقدم" من القائمة الجانبية</p></div>;
+        return <EnhancedUsersManagement organizationId={organization.id} />;
 
       case 'circles':
         return <CirclesManagement organizationId={organization.id} />;
@@ -347,22 +347,10 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
         return <RecitationsPage organizationId={organization.id} userRole="admin" userId={user.id} />;
 
       case 'reports':
-        return (
-          <div className="p-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>التقارير</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 mb-4">صفحة التقارير قيد التطوير</p>
-                <p className="text-sm text-gray-500">سيتم إضافة التقارير الشاملة والإحصائيات التفصيلية قريباً</p>
-              </CardContent>
-            </Card>
-          </div>
-        );
+        return <ReportsPage organizationId={organization.id} userRole="admin" userId={user.id} />;
 
       case 'parent-link':
-        return <JoinRequestsManagement organizationId={organization.id} />;
+        return <JoinRequestsManagement organizationId={organization.id} userId={user.id} />;
 
       case 'settings':
         return <SettingsPage user={user} />;
