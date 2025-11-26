@@ -9,7 +9,7 @@ import { Users, BookOpen, GraduationCap, ClipboardList, Plus, UserPlus } from 'l
 import { toast } from 'sonner';
 import { supabase, isDemoMode, Profile, Organization, Circle, UserRole, getRoleLabel } from '../../lib/supabase';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
-import { CirclesManagement } from '../shared/CirclesManagement';
+import { CirclesManagement } from './CirclesManagement';
 import { JoinRequestsManagement } from './JoinRequestsManagement';
 import { RecitationsPage } from '../shared/RecitationsPage';
 import { SettingsPage } from '../shared/SettingsPage';
@@ -118,7 +118,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
       return;
     }
 
-    toast.success('تم إضافة الحلقة بنج��ح (Demo Mode)');
+    toast.success('تم إضافة الحلقة بنجاح (Demo Mode)');
     setNewCircle({ name: '', teacher_id: '', level: 'beginner', description: '', max_students: 20 });
     setIsAddCircleDialogOpen(false);
     fetchData();
