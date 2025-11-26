@@ -12,14 +12,14 @@ import { Save, User, Bell, Lock, Globe } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface SettingsPageProps {
-  user: Profile;
+  user?: Profile;
 }
 
 export function SettingsPage({ user }: SettingsPageProps) {
   const [profileData, setProfileData] = useState({
-    full_name: user.full_name,
-    phone: user.phone || '',
-    email: user.id, // في الواقع يجب جلب البريد من Auth
+    full_name: user?.full_name || 'مستخدم',
+    phone: user?.phone || '',
+    email: user?.id || '', // في الواقع يجب جلب البريد من Auth
   });
 
   const [notifications, setNotifications] = useState({
@@ -290,7 +290,7 @@ export function SettingsPage({ user }: SettingsPageProps) {
                   <div className="flex items-center justify-between p-3 border rounded-lg">
                     <div>
                       <p className="text-sm font-medium">Chrome على Windows</p>
-                      <p className="text-xs text-gray-500">الجلسة الحالية • الرياض، السعودية</p>
+                      <p className="text-xs text-gray-500">الجل��ة الحالية • الرياض، السعودية</p>
                     </div>
                     <Badge className="bg-green-100 text-green-800">نشطة</Badge>
                   </div>
