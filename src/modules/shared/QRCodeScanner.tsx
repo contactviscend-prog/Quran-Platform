@@ -320,7 +320,7 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
               <ul className="space-y-2 text-sm text-blue-800">
                 <li className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
-                  تأكد من وضوح رمز الاستجابة ال��ريعة
+                  تأكد من وضوح رمز الاستجابة السريعة
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
