@@ -1,7 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Get Supabase credentials from environment variables
-// In Figma Make environment, we need to handle env variables differently
 const getEnvVar = (key: string): string => {
   // Try import.meta.env first (Vite)
   if (typeof import.meta !== 'undefined' && import.meta.env) {
