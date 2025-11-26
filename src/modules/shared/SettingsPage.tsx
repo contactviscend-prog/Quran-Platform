@@ -241,7 +241,7 @@ export function SettingsPage({ user }: SettingsPageProps) {
           <Card>
             <CardHeader>
               <CardTitle>الأمان وكلمة المرور</CardTitle>
-              <CardDescription>قم بتحديث كلمة المرور الخا��ة بك</CardDescription>
+              <CardDescription>قم بتحديث كلمة المرور الخاصة بك</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
