@@ -83,7 +83,7 @@ export function SettingsPage({ user }: SettingsPageProps) {
               <div className="flex items-center gap-6">
                 <Avatar className="w-20 h-20">
                   <AvatarFallback className="bg-emerald-100 text-emerald-700 text-2xl">
-                    {user.full_name.charAt(0)}
+                    {(user?.full_name || 'م').charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div>
@@ -126,7 +126,7 @@ export function SettingsPage({ user }: SettingsPageProps) {
                     className="bg-gray-50"
                     dir="ltr"
                   />
-                  <p className="text-xs text-gray-500">لا يمكن تغيير البريد الإلكتروني</p>
+                  <p className="text-xs text-gray-500">لا يمكن تغيير البري�� الإلكتروني</p>
                 </div>
 
                 <div className="space-y-2">
@@ -183,7 +183,7 @@ export function SettingsPage({ user }: SettingsPageProps) {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>الرسائل النصية</Label>
-                    <p className="text-sm text-gray-500">استقبال الإشعارات عبر الرسائل النصية</p>
+                    <p className="text-sm text-gray-500">ا��تقبال الإشعارات عبر الرسائل النصية</p>
                   </div>
                   <Switch
                     checked={notifications.smsNotifications}
@@ -241,7 +241,7 @@ export function SettingsPage({ user }: SettingsPageProps) {
           <Card>
             <CardHeader>
               <CardTitle>الأمان وكلمة المرور</CardTitle>
-              <CardDescription>قم بتحديث كلمة المرور الخاصة بك</CardDescription>
+              <CardDescription>قم بتحديث كلمة المرور الخا��ة بك</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
