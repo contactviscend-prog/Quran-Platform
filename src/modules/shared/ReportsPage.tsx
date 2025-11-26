@@ -30,8 +30,6 @@ import {
   Area,
   BarChart,
   Bar,
-  LineChart,
-  Line,
   PieChart as RePieChart,
   Pie,
   Cell,
@@ -82,7 +80,7 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
     { name: 'متأخر', value: 39, percentage: 3.9, color: '#6366f1' },
   ]);
 
-  // بيانات التسميع حسب النوع
+  // بيانات التسميع ح��ب النوع
   const [recitationsByType, setRecitationsByType] = useState([
     { name: 'حفظ جديد', value: 425, percentage: 49.6, color: '#8b5cf6' },
     { name: 'مراجعة', value: 315, percentage: 36.8, color: '#3b82f6' },
