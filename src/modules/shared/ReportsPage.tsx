@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
-import { supabase, isDemoMode } from '../lib/supabase';
-import { toast } from 'sonner@2.0.3';
+import { supabase, isDemoMode } from '../../lib/supabase';
+import { toast } from 'sonner';
 import { IndividualStudentReports } from './IndividualStudentReports';
-import { ExportReportButton } from './ExportReportButton';
-import { type ReportData } from '../lib/reportExport';
+import { ExportReportButton } from '../../components/ExportReportButton';
+import { type ReportData } from '../../lib/reportExport';
 import {
   Card, CardContent, CardDescription, CardHeader, CardTitle
-} from './ui/card';
-import { Button } from './ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Badge } from './ui/badge';
-import { Progress } from './ui/progress';
+} from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { Badge } from '../../components/ui/badge';
+import { Progress } from '../../components/ui/progress';
 import {
   Table,
   TableBody,
@@ -19,7 +19,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from './ui/table';
+} from '../../components/ui/table';
 import {
   Users, BookOpen, CheckCircle, Award, TrendingUp,
   Activity, Download, Star, Trophy, Target
