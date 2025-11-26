@@ -126,7 +126,7 @@ export function SettingsPage({ user }: SettingsPageProps) {
                     className="bg-gray-50"
                     dir="ltr"
                   />
-                  <p className="text-xs text-gray-500">لا يمكن تغيير البري�� الإلكتروني</p>
+                  <p className="text-xs text-gray-500">لا يمكن تغيير البريد الإلكتروني</p>
                 </div>
 
                 <div className="space-y-2">
