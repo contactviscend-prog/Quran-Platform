@@ -11,7 +11,9 @@ import { supabase, isDemoMode, Profile, Organization, Circle, UserRole, getRoleL
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { CirclesManagement } from './CirclesManagement';
 import { JoinRequestsManagement } from './JoinRequestsManagement';
+import { EnhancedUsersManagement } from './EnhancedUsersManagement';
 import { RecitationsPage } from '../shared/RecitationsPage';
+import { ReportsPage } from '../shared/ReportsPage';
 import { SettingsPage } from '../shared/SettingsPage';
 
 interface AdminDashboardProps {
