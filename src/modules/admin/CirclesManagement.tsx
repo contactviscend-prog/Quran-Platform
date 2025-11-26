@@ -208,6 +208,12 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
     if (!confirm('هل أنت متأكد من حذف هذه الحلقة؟')) return;
 
     try {
+      if (isDemoMode()) {
+        setCircles(circles.filter((c) => c.id !== circleId));
+        toast.success('تم حذف الحلقة بنجاح (Demo Mode)');
+        return;
+      }
+
       const { error } = await supabase
         .from('circles')
         .update({ is_active: false })
@@ -218,7 +224,9 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
       fetchCircles();
     } catch (error: any) {
       console.error('Error deleting circle:', error);
-      toast.error('فشل في حذف الحلقة');
+      if (!isDemoMode()) {
+        toast.error('فشل في حذف الحلقة');
+      }
     }
   };
 
