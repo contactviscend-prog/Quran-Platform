@@ -28,6 +28,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Fetch user profile
   const fetchProfile = async (userId: string) => {
     try {
+      console.log('🔍 جاري جلب profile للمستخدم:', userId);
+
       // First, fetch the profile without nested select
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
@@ -35,9 +37,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq('id', userId)
         .single();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('❌ خطأ في جلب profile:', profileError);
+        throw profileError;
+      }
 
       if (profileData) {
+        console.log('✅ تم جلب profile:', profileData);
         setProfile(profileData);
 
         // Then, fetch the organization separately if needed
@@ -49,14 +55,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .single();
 
           if (orgError) {
-            console.warn('Warning fetching organization:', orgError.message);
+            console.warn('⚠️ تحذير في جلب organization:', orgError.message);
           } else if (orgData) {
+            console.log('✅ تم جلب organization:', orgData);
             setOrganization(orgData);
           }
         }
+      } else {
+        console.warn('⚠️ لم يتم جلب profile - قد لا يكون موجوداً');
       }
     } catch (error: any) {
-      console.error('Error fetching profile:', error?.message || error);
+      console.error('❌ Error fetching profile:', error?.message || error);
+      throw error; // أعد رفع الخطأ ليتم التعامل معه بشكل صحيح
     }
   };
 
