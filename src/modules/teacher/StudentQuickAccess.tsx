@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -8,9 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/ta
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Textarea } from '../../components/ui/textarea';
-import { 
+import {
   QrCode, Search, UserCheck, BookOpen, ClipboardList,
-  CheckCircle, XCircle, Calendar, Award, Clock, Target
+  CheckCircle, XCircle, Calendar, Award, Clock, Target, X
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase, isDemoMode } from '../../lib/supabase';
@@ -37,7 +37,8 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<'attendance' | 'recitation' | 'assignment'>('attendance');
-  const [isScannerActive, setIsScannerActive] = useState(false);
+  const [showQRScanner, setShowQRScanner] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
   
   // Attendance State
   const [attendanceStatus, setAttendanceStatus] = useState<'present' | 'absent' | 'late' | 'excused'>('present');
@@ -129,6 +130,42 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
   const handleStudentSelect = (student: Student) => {
     setSelectedStudent(student);
     setShowDialog(true);
+    setShowQRScanner(false);
+  };
+
+  const startQRScanner = async () => {
+    setShowQRScanner(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+      });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      toast.error('فشل الوصول للكاميرا');
+      setShowQRScanner(false);
+    }
+  };
+
+  const stopQRScanner = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+    }
+    setShowQRScanner(false);
+  };
+
+  const handleManualBarcodeScan = (barcode: string) => {
+    const student = students.find(s =>
+      s.barcode.toLowerCase() === barcode.toLowerCase()
+    );
+    if (student) {
+      handleStudentSelect(student);
+    } else {
+      toast.error('الطالب غير موجود');
+    }
   };
 
   const handleAttendance = async () => {
@@ -249,7 +286,7 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
       });
     } catch (error) {
       console.error('Error creating assignment:', error);
-      toast.error('فشل في إنشا�� التكليف');
+      toast.error('فشل في إنشاء التكليف');
     }
   };
 
