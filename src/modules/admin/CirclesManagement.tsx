@@ -63,7 +63,6 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
             name: 'حلقة المغرب',
             description: 'حلقة متقدمة',
             teacher_id: 'teacher2',
-            teacher: { id: 'teacher2', full_name: 'عمر الم��لم' },
             teacher: { id: 'teacher2', full_name: 'عمر المعلم' },
             level: 'advanced',
             max_students: 15,
