@@ -58,7 +58,7 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
             </div>
             <h2 className="text-2xl font-semibold mb-2">تم إرسال طلبك بنجاح!</h2>
             <p className="text-gray-600 mb-6">
-              سيتم مراجعة طلبك والتواصل معك قريباً عبر البريد الإلكتروني أو الهاتف
+              سيتم مراجعة طلبك والتواصل معك قريبا�� عبر البريد الإلكتروني أو الهاتف
             </p>
             <Button onClick={onBack} className="bg-emerald-600 hover:bg-emerald-700">
               العودة إلى الصفحة الرئيسية
@@ -88,7 +88,7 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
               <span>{organization.name}</span>
             </div>
             <CardDescription className="mt-2">
-              املأ البيانات التالية لتقديم طلب الانضمام
+              املأ البيان��ت التالية لتقديم طلب الانضمام
             </CardDescription>
           </CardHeader>
 
@@ -229,7 +229,7 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
                   id="notes"
                   placeholder="أي معلومات إضافية تود إضافتها..."
                   value={formData.notes}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, notes: e.target.value })}
+                  onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, notes: e.target.value })}
                   rows={4}
                 />
               </div>
