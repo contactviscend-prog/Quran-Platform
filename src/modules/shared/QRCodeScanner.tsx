@@ -4,8 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../components/ui/dialog';
-import { supabase } from '../../lib/supabase';
+import { Input } from '../../components/ui/input';
+import { supabase, isDemoMode } from '../../lib/supabase';
 import { toast } from 'sonner';
+import { StudentQuickAccess } from '../teacher/StudentQuickAccess';
 
 interface QRCodeScannerProps {
   teacherId: string;
@@ -26,7 +28,11 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
   const [scannedStudents, setScannedStudents] = useState<ScannedStudent[]>([]);
   const [manualInput, setManualInput] = useState('');
   const [showManualDialog, setShowManualDialog] = useState(false);
+  const [showStudentActions, setShowStudentActions] = useState(false);
+  const [selectedStudentForActions, setSelectedStudentForActions] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -90,6 +96,10 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
       });
 
       toast.success(`تم مسح رمز الطالب: ${studentData.full_name}`);
+      
+      // Navigate to student actions
+      navigateToStudentActions(studentData.id);
+      stopCamera();
 
       if (onScan) {
         onScan(studentData);
@@ -114,18 +124,35 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
   const handleManualInput = async () => {
     try {
       if (!manualInput.trim()) {
-        toast.error('يرجى إدخال رقم الطالب');
+        toast.error('يرجى إدخال رقم أو اسم الطالب');
         return;
       }
 
-      const mockStudentData = {
-        student_id: manualInput,
-        full_name: 'طالب من الإدخال اليدوي',
-        organization_id: organizationId,
-        type: 'student_qr',
-      };
+      const searchQuery = manualInput.toLowerCase();
 
-      processScannedData(mockStudentData);
+      if (isDemoMode()) {
+        // In demo mode, accept any input as valid student ID
+        navigateToStudentActions(manualInput);
+        setManualInput('');
+        setShowManualDialog(false);
+        toast.success('جاري البحث عن الطالب...');
+        return;
+      }
+
+      // Search by student ID or name
+      const { data: students, error } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .eq('organization_id', organizationId)
+        .or(`id.ilike.%${searchQuery}%,full_name.ilike.%${searchQuery}%`)
+        .limit(1);
+
+      if (error || !students || students.length === 0) {
+        toast.error('لم يتم العثور على الطالب');
+        return;
+      }
+
+      navigateToStudentActions(students[0].id);
       setManualInput('');
       setShowManualDialog(false);
     } catch (error) {
@@ -142,13 +169,43 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
   const startCamera = async () => {
     try {
       setScanning(true);
-      toast.info('سيتم فتح الكاميرا قريباً...');
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+      });
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        toast.success('تم فتح الكاميرا - وجه رمز الاستجابة السريعة نحو الكامي��ا');
+      }
     } catch (error) {
       console.error('Error starting camera:', error);
-      toast.error('فشل الوصول للكاميرا');
+      toast.error('فشل الوصول للكاميرا - تأكد من صلاحيات المتصفح');
       setScanning(false);
     }
   };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    setScanning(false);
+  };
+
+  const navigateToStudentActions = (studentId: string) => {
+    setSelectedStudentForActions(studentId);
+    setShowStudentActions(true);
+  };
+
+  if (showStudentActions && selectedStudentForActions) {
+    return (
+      <StudentQuickAccess
+        organizationId={organizationId}
+        teacherId={teacherId}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -157,49 +214,75 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
         <p className="text-gray-600">قم بمسح رموز الطلاب للتسجيل السريع</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={startCamera}>
+      {scanning && (
+        <Card className="border-2 border-emerald-500">
           <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Camera className="w-8 h-8 text-emerald-600" />
-              </div>
-              <h3 className="font-semibold mb-1">مسح بالكاميرا</h3>
-              <p className="text-sm text-gray-600">استخدم كاميرا الجهاز للمسح المباشر</p>
+            <div className="space-y-4">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                className="w-full rounded-lg bg-black"
+                style={{ maxHeight: '400px' }}
+              />
+              <Button
+                onClick={stopCamera}
+                variant="destructive"
+                className="w-full"
+              >
+                <X className="w-4 h-4 ml-2" />
+                إغلاق الكاميرا
+              </Button>
             </div>
           </CardContent>
         </Card>
+      )}
 
-        <Card
-          className="cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <QrCode className="w-8 h-8 text-blue-600" />
+      {!scanning && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={startCamera}>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Camera className="w-8 h-8 text-emerald-600" />
+                </div>
+                <h3 className="font-semibold mb-1">مسح بالكاميرا</h3>
+                <p className="text-sm text-gray-600">استخدم كاميرا الجهاز للمسح المباشر</p>
               </div>
-              <h3 className="font-semibold mb-1">رفع صورة</h3>
-              <p className="text-sm text-gray-600">ارفع صورة رمز الاستجابة السريعة</p>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card
-          className="cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => setShowManualDialog(true)}
-        >
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <User className="w-8 h-8 text-purple-600" />
+          <Card
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <QrCode className="w-8 h-8 text-blue-600" />
+                </div>
+                <h3 className="font-semibold mb-1">رفع صورة</h3>
+                <p className="text-sm text-gray-600">ارفع صورة رمز الاستجابة السريعة</p>
               </div>
-              <h3 className="font-semibold mb-1">إدخال يدوي</h3>
-              <p className="text-sm text-gray-600">أدخل رقم الطالب يدوياً</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => setShowManualDialog(true)}
+          >
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <User className="w-8 h-8 text-purple-600" />
+                </div>
+                <h3 className="font-semibold mb-1">إدخال يدوي</h3>
+                <p className="text-sm text-gray-600">أدخل رقم الطالب يدوياً</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <input
         ref={fileInputRef}
@@ -288,9 +371,8 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">رقم الطالب أو اسمه</label>
-              <input
+              <Input
                 type="text"
-                className="w-full px-3 py-2 border rounded-md"
                 placeholder="أدخل رقم أو اسم الطالب"
                 value={manualInput}
                 onChange={(e) => setManualInput(e.target.value)}
