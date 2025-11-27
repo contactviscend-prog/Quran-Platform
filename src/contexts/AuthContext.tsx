@@ -119,11 +119,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (isMounted) {
+          console.log('🔄 تغيير في حالة المصادقة:', event, session?.user?.id);
           setSession(session);
           setUser(session?.user ?? null);
 
           if (session?.user) {
-            await fetchProfile(session.user.id);
+            try {
+              await fetchProfile(session.user.id);
+              console.log('✅ تم جلب profile بعد تغيير حالة المصادقة');
+            } catch (error: any) {
+              console.error('⚠️ فشل جلب profile بعد auth change:', error);
+              // لا نرمي خطأ هنا - نترك البيانات كما هي
+            }
           } else {
             setProfile(null);
             setOrganization(null);
@@ -158,7 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           toast.success('تم تسجيل الدخول بنجاح (وضع العرض التوضيحي)');
           return;
         } else {
-          throw new Error('البريد الإلكترون�� أو كلمة المرور غير صحيحة');
+          throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
         }
       }
 
