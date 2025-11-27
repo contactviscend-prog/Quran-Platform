@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Plus, Filter, BookOpen, User, Calendar, Award } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase, isDemoMode } from '../../lib/supabase';
-import type { Profile, Circle, Recitation } from '../lib/supabase';
+import type { Profile, Circle, Recitation } from '../../lib/supabase';
 
 interface RecitationsPageProps {
   organizationId: string;
@@ -156,7 +156,15 @@ export function RecitationsPage({ organizationId, userRole, userId }: Recitation
         .order('full_name');
 
       if (error) throw error;
-      setStudents(data || []);
+      setStudents((data as any[])?.map(item => ({
+        id: item.id,
+        full_name: item.full_name,
+        organization_id: organizationId,
+        role: 'student' as const,
+        status: 'active' as const,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })) || []);
     } catch (error: any) {
       console.error('Error fetching students:', error);
     }
@@ -187,7 +195,17 @@ export function RecitationsPage({ organizationId, userRole, userId }: Recitation
       const { data, error } = await query;
 
       if (error) throw error;
-      setCircles(data || []);
+      setCircles((data as any[])?.map(item => ({
+        id: item.id,
+        name: item.name,
+        organization_id: organizationId,
+        level: item.level || 1,
+        max_students: 30,
+        teacher_id: item.teacher_id,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })) || []);
     } catch (error: any) {
       console.error('Error fetching circles:', error);
     }
@@ -457,7 +475,7 @@ export function RecitationsPage({ organizationId, userRole, userId }: Recitation
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="mistakes">عدد الأخطاء</Label>
+                    <Label htmlFor="mistakes">عدد الأخ��اء</Label>
                     <Input
                       id="mistakes"
                       type="number"
@@ -491,7 +509,7 @@ export function RecitationsPage({ organizationId, userRole, userId }: Recitation
                     إلغاء
                   </Button>
                   <Button type="submit">
-                    تسجيل التسميع
+                    تسجيل الت��ميع
                   </Button>
                 </div>
               </form>

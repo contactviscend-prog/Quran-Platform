@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
-import { Textarea } from './ui/textarea';
-import { Label } from './ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../components/ui/dialog';
+import { Textarea } from '../../components/ui/textarea';
+import { Label } from '../../components/ui/label';
 import { CheckCircle, XCircle, Clock, Eye, AlertCircle } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
-import { supabase, isDemoMode, JoinRequest, getRoleLabel } from '../lib/supabase';
+import { toast } from 'sonner';
+import { supabase, isDemoMode, JoinRequest, getRoleLabel } from '../../lib/supabase';
 
 interface JoinRequestsManagementProps {
   organizationId: string;
@@ -31,6 +31,14 @@ export function JoinRequestsManagement({ organizationId, userId }: JoinRequestsM
 
   const fetchRequests = async () => {
     try {
+      // In demo mode, use empty list
+      if (isDemoMode()) {
+        console.log('📝 وضع العرض التوضيحي - بدون طلبات انضمام');
+        setRequests([]);
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('join_requests')
         .select('*')
@@ -41,7 +49,12 @@ export function JoinRequestsManagement({ organizationId, userId }: JoinRequestsM
       setRequests(data || []);
     } catch (error: any) {
       console.error('Error fetching requests:', error);
-      toast.error('فشل تحميل الطلبات');
+      // In demo mode, show info instead of error
+      if (isDemoMode()) {
+        console.log('⚠️ وضع العرض التوضيحي - لا توجد بيانات حقيقية');
+      } else {
+        toast.error('فشل تح��يل الطلبات');
+      }
     } finally {
       setLoading(false);
     }

@@ -9,6 +9,12 @@ import { Users, BookOpen, GraduationCap, ClipboardList, Plus, UserPlus } from 'l
 import { toast } from 'sonner';
 import { supabase, isDemoMode, Profile, Organization, Circle, UserRole, getRoleLabel } from '../../lib/supabase';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
+import { CirclesManagement } from './CirclesManagement';
+import { JoinRequestsManagement } from './JoinRequestsManagement';
+import { UsersManagement } from './UsersManagement';
+import { RecitationsPage } from '../shared/RecitationsPage';
+import { ReportsPage } from '../shared/ReportsPage';
+import { SettingsPage } from '../shared/SettingsPage';
 
 interface AdminDashboardProps {
   user: Profile;
@@ -29,9 +35,9 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
   const [isAddCircleDialogOpen, setIsAddCircleDialogOpen] = useState(false);
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [newCircle, setNewCircle] = useState({ 
-    name: '', 
-    teacher_id: '', 
+  const [newCircle, setNewCircle] = useState({
+    name: '',
+    teacher_id: '',
     level: 'beginner',
     description: '',
     max_students: 20,
@@ -68,7 +74,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
             updated_at: new Date().toISOString(),
           },
         ] as any);
-        
+
         setTeachers([
           {
             id: 'teacher1',
@@ -91,13 +97,13 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
           todayAttendance: 120,
           weeklyRecitations: 280,
         });
-        
+
         setLoading(false);
         return;
       }
 
       // Real Supabase fetch (سيتم تفعيله عند الربط الفعلي)
-      
+
     } catch (error: any) {
       console.error('Error fetching data:', error);
       if (!isDemoMode()) {
@@ -122,7 +128,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
 
   const handleAddUser = async () => {
     if (!newUser.full_name || !newUser.email || !newUser.role || !newUser.gender) {
-      toast.error('الرجاء ملء جم��ع الحقول المطلوبة');
+      toast.error('الرجاء ملء جميع الحقول المطلوبة');
       return;
     }
 
@@ -146,7 +152,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
           <div className="space-y-6">
             <div>
               <h1 className="text-3xl mb-2">لوحة تحكم المدير</h1>
-              <p className="text-gray-600">مرحباً {user.full_name}، إليك نظرة عامة على المنصة</p>
+              <p className="text-gray-600">مرح��اً {user.full_name}، إليك نظرة عامة على المنصة</p>
             </div>
 
             {/* الإحصائيات */}
@@ -178,7 +184,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
                     <DialogTrigger asChild>
                       <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
                         <UserPlus className="w-5 h-5 ml-2" />
-                        إضافة ��ستخدم جديد
+                        إضافة مستخدم جديد
                       </Button>
                     </DialogTrigger>
                     <DialogContent dir="rtl" className="max-w-2xl">
@@ -270,7 +276,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
                       <DialogHeader>
                         <DialogTitle>إضافة حلقة جديدة</DialogTitle>
                         <DialogDescription>
-                          أضف ح��قة تحفيظ جديدة للمنصة
+                          أضف حلقة تحفيظ جديدة للمنصة
                         </DialogDescription>
                       </DialogHeader>
                       <div className="space-y-4">
@@ -332,22 +338,22 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
         );
 
       case 'users':
-        return <div><p>صفحة إدارة المستخدمين (قيد التطوير)</p></div>;
+        return <UsersManagement />;
 
       case 'circles':
-        return <div><p>صفحة إدارة الحلقات (قيد التطوير)</p></div>;
+        return <CirclesManagement organizationId={organization.id} />;
 
       case 'recitations':
-        return <div><p>صفحة التسميع (قيد التطوير)</p></div>;
+        return <RecitationsPage organizationId={organization.id} userRole="admin" userId={user.id} />;
 
       case 'reports':
-        return <div><p>صفحة التقارير (قيد التطوير)</p></div>;
+        return <ReportsPage organizationId={organization.id} userRole="admin" userId={user.id} />;
 
       case 'parent-link':
-        return <div><p>صفحة ربط أولياء الأمور (قيد التطوير)</p></div>;
+        return <JoinRequestsManagement organizationId={organization.id} userId={user.id} />;
 
       case 'settings':
-        return <div><p>صفحة الإعدادات (قيد التطوير)</p></div>;
+        return <SettingsPage user={user} />;
 
       default:
         return null;
@@ -355,9 +361,9 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
   };
 
   return (
-    <DashboardLayout 
-      user={user} 
-      organization={organization} 
+    <DashboardLayout
+      user={user}
+      organization={organization}
       role="admin"
       currentSection={currentSection}
       onSectionChange={setCurrentSection}

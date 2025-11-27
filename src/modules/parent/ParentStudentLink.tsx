@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Badge } from './ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { useState, useEffect, ChangeEvent } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Badge } from '../../components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Users, Link, Unlink, Search, UserPlus } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { toast } from 'sonner@2.0.3';
+import { supabase } from '../../lib/supabase';
+import { toast } from 'sonner';
 
 interface ParentStudentLinkProps {
   organizationId: string;
@@ -227,7 +227,7 @@ export function ParentStudentLink({ organizationId }: ParentStudentLinkProps) {
                 <Label>الطالب *</Label>
                 <Select value={selectedStudent} onValueChange={setSelectedStudent}>
                   <SelectTrigger>
-                    <SelectValue placeholder="اختر طالب" />
+                    <SelectValue placeholder="اختر طال��" />
                   </SelectTrigger>
                   <SelectContent>
                     {students.map((student) => (
@@ -257,7 +257,7 @@ export function ParentStudentLink({ organizationId }: ParentStudentLinkProps) {
               placeholder="ابحث باسم الطالب أو ولي الأمر..."
               className="pr-10"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
             />
           </div>
         </CardContent>

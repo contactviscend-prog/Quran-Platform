@@ -91,8 +91,8 @@ export function StudentDashboard({ user, organization }: StudentDashboardProps) 
         .single();
 
       setStats({
-        currentCircle: enrollment?.circle?.name || null,
-        currentTeacher: enrollment?.circle?.teacher?.full_name || null,
+        currentCircle: (enrollment as any)?.circle?.name || null,
+        currentTeacher: (enrollment as any)?.circle?.teacher?.[0]?.full_name || null,
         totalRecitations: 0,
         weeklyGoal: 5,
         weeklyProgress: 0,
@@ -126,7 +126,7 @@ export function StudentDashboard({ user, organization }: StudentDashboardProps) 
       case 'very_good':
         return 'جيد جداً';
       case 'good':
-        return 'جيد';
+        return 'ج��د';
       case 'acceptable':
         return 'مقبول';
       case 'needs_improvement':

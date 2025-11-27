@@ -85,7 +85,7 @@ export function SupervisorTeachersPage({ organizationId }: SupervisorTeachersPag
         ?.filter(c => c.is_active)
         .map(c => c.id) || [];
 
-      let enrollmentsData = [];
+      let enrollmentsData: any[] = [];
       if (activeCircleIds.length > 0) {
         const { data, error } = await supabase
           .from('circle_enrollments')

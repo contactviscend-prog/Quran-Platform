@@ -27,12 +27,12 @@ import {
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
 import { Badge } from '../components/ui/badge';
 import { useAuth } from '../contexts/AuthContext';
-import { Profile, Organization, getRoleLabel } from '../lib/supabase';
+import { Profile, Organization, getRoleLabel, UserRole } from '../lib/supabase';
 
 interface DashboardLayoutProps {
   user: Profile;
   organization: Organization;
-  role: string;
+  role: UserRole;
   children: ReactNode;
   currentSection?: string;
   onSectionChange?: (section: string) => void;
@@ -50,7 +50,7 @@ export function DashboardLayout({ user, organization, role, children, currentSec
     }
   };
 
-  const getRoleColor = (role: string) => {
+  const getRoleColor = (role: UserRole) => {
     switch (role) {
       case 'admin':
         return 'bg-purple-100 text-purple-800';
@@ -91,7 +91,7 @@ export function DashboardLayout({ user, organization, role, children, currentSec
       { icon: BookOpen, label: 'حلقاتي', section: 'circles' },
       { icon: CheckCircle, label: 'تسجيل الحضور', section: 'attendance-recorder' },
       { icon: ClipboardList, label: 'التسميع', section: 'recitations' },
-      { icon: Calendar, label: 'التكليف اليومي', section: 'assignments' },
+      { icon: Calendar, label: 'الت��ليف اليومي', section: 'assignments' },
       { icon: QrCode, label: 'مسح QR', section: 'qr-scanner' },
       { icon: Settings, label: 'الإعدادات', section: 'settings' },
     ],

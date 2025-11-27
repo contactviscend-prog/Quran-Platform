@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Search, User, BookOpen, Calendar, Award, TrendingUp, Download, ChevronRight } from 'lucide-react';
-import { Progress } from './ui/progress';
-import { Badge } from './ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import { Progress } from '../../components/ui/progress';
+import { Badge } from '../../components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog';
 
 interface Student {
   id: string;
@@ -487,7 +487,7 @@ export function IndividualStudentReports() {
                         <TableHead className="text-right">التاريخ</TableHead>
                         <TableHead className="text-right">السورة</TableHead>
                         <TableHead className="text-right">الآيات</TableHead>
-                        <TableHead className="text-right">النو��</TableHead>
+                        <TableHead className="text-right">النور</TableHead>
                         <TableHead className="text-right">الكمية</TableHead>
                         <TableHead className="text-right">التقييم</TableHead>
                       </TableRow>

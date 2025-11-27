@@ -79,7 +79,7 @@ export function AttendancePage({ organizationId, userRole, userId }: AttendanceP
     } catch (error: any) {
       console.error('Error fetching attendance records:', error);
       if (!isDemoMode()) {
-        toast.error('فشل في تحميل سجلات الحضور');
+        toast.error('فشل في تحميل سجلات ا��حضور');
       }
     } finally {
       setLoading(false);
@@ -117,13 +117,14 @@ export function AttendancePage({ organizationId, userRole, userId }: AttendanceP
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-4">
-            <div className="flex-1">
+            <div className="flex-1 relative">
               <Input
                 placeholder="ابحث عن الطالب..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                icon={<Search className="w-4 h-4" />}
+                className="pl-10"
               />
+              <Search className="w-4 h-4 absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
             <Input
               type="date"

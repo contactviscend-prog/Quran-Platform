@@ -14,33 +14,48 @@ const getEnvVar = (key: string): string => {
   return '';
 };
 
-// Use placeholder values if environment variables are not set
-// These are temporary values for development - replace with your actual Supabase credentials
-const supabaseUrl = getEnvVar('VITE_SUPABASE_URL') || 'https://placeholder.supabase.co';
-const supabaseAnonKey = getEnvVar('VITE_SUPABASE_ANON_KEY') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsYWNlaG9sZGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDUxOTI4MDAsImV4cCI6MTk2MDc2ODgwMH0.placeholder';
-
-// Log info about connection
-if (supabaseUrl === 'https://placeholder.supabase.co') {
-  console.info('📝 المنصة تعمل في وضع العرض التوضيحي');
-  console.info('لتفعيل الاتصال الحقيقي بقاعدة البيانات:');
-  console.info('1. أنشئ مشروع جديد على https://supabase.com');
-  console.info('2. قم بتنفيذ السكريبت SQL من ملف database/complete_schema.sql');
-  console.info('3. أضف متغيرات البيئة VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY');
-}
+const supabaseUrl = getEnvVar('VITE_SUPABASE_URL') || '';
+const supabaseAnonKey = getEnvVar('VITE_SUPABASE_ANON_KEY') || '';
 
 // Check if we're in demo mode
 export const isDemoMode = (): boolean => {
-  return supabaseUrl === 'https://placeholder.supabase.co';
+  return !supabaseUrl || !supabaseAnonKey;
 };
 
-// Create Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-  },
-});
+// Log info about connection
+if (isDemoMode()) {
+  console.info('📝 المنصة تعمل في وضع العرض التوضيحي');
+  console.info('لتفعيل الاتصال الحقيقي بقاعدة البيانات:');
+  console.info('1. قم بتوصيل مشروع Supabase الخاص بك');
+  console.info('2. أضف متغيرات البيئة VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY');
+}
+
+// Create Supabase client with demo mode handling
+const createSupabaseClient = () => {
+  // In demo mode, use dummy credentials to prevent network errors
+  const url = supabaseUrl || 'https://demo.supabase.co';
+  const key = supabaseAnonKey || 'demo-key';
+
+  const client = createClient(url, key, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+  });
+
+  // Override fetch in demo mode to prevent actual network requests
+  if (isDemoMode()) {
+    (client as any).fetch = async (...args: any[]) => {
+      console.warn('⚠️ محاولة اتصال بقاعدة البيانات في وضع العرض التوضيحي - تم الحظر');
+      throw new Error('قاعدة البيانات غير متاحة في وضع العرض التوضيحي');
+    };
+  }
+
+  return client;
+};
+
+export const supabase = createSupabaseClient();
 
 // ==========================================
 // Types
@@ -218,7 +233,7 @@ export const getGradeLabel = (grade: RecitationGrade): string => {
     very_good: 'جيد جداً',
     good: 'جيد',
     acceptable: 'مقبول',
-    needs_improvement: 'يحتاج تحسين',
+    needs_improvement: '��حتاج تحسين',
   };
   return labels[grade];
 };

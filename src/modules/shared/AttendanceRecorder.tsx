@@ -263,7 +263,7 @@ export function AttendanceRecorder({ teacherId, organizationId }: AttendanceReco
 
       if (insertError) throw insertError;
 
-      toast.success('تم حفظ الحضور بنجا��');
+      toast.success('تم حفظ الحضور بنجاح');
     } catch (error: any) {
       console.error('Error saving attendance:', error);
       if (!isDemoMode()) {

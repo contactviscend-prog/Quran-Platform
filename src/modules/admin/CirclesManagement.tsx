@@ -1,5 +1,15 @@
-import { toast } from 'sonner@2.0.3';
-import { isDemoMode } from '../lib/supabase';
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
+import { isDemoMode, supabase, Circle, Profile } from '../../lib/supabase';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Textarea } from '../../components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Badge } from '../../components/ui/badge';
+import { Plus, BookOpen, User, Users, Edit, Trash2 } from 'lucide-react';
 
 interface CirclesManagementProps {
   organizationId: string;
@@ -29,6 +39,7 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
   const fetchCircles = async () => {
     try {
       setLoading(true);
+
       
       // Demo mode - use mock data
       if (isDemoMode()) {
@@ -52,6 +63,7 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
             name: 'حلقة المغرب',
             description: 'حلقة متقدمة',
             teacher_id: 'teacher2',
+            teacher: { id: 'teacher2', full_name: 'عمر الم��لم' },
             teacher: { id: 'teacher2', full_name: 'عمر المعلم' },
             level: 'advanced',
             max_students: 15,
@@ -110,6 +122,15 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
         .order('full_name');
 
       if (error) throw error;
+      setTeachers((data as any[])?.map(item => ({
+        id: item.id,
+        full_name: item.full_name,
+        organization_id: organizationId,
+        role: 'teacher' as const,
+        status: 'active' as const,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })) || []);
       setTeachers(data || []);
     } catch (error: any) {
       console.error('Error fetching teachers:', error);
@@ -198,6 +219,12 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
     if (!confirm('هل أنت متأكد من حذف هذه الحلقة؟')) return;
 
     try {
+      if (isDemoMode()) {
+        setCircles(circles.filter((c) => c.id !== circleId));
+        toast.success('تم حذف الحلقة بنجاح (Demo Mode)');
+        return;
+      }
+
       const { error } = await supabase
         .from('circles')
         .update({ is_active: false })
@@ -208,6 +235,9 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
       fetchCircles();
     } catch (error: any) {
       console.error('Error deleting circle:', error);
+      if (!isDemoMode()) {
+        toast.error('فشل في حذف الحلقة');
+      }
       toast.error('فشل في حذف الحلقة');
     }
   };

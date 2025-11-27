@@ -100,7 +100,7 @@ export function TeacherStudentsPage({ teacherId, organizationId }: TeacherStuden
             .eq('organization_id', organizationId);
 
           const totalRecitations = recitations?.length || 0;
-          const averageGrade = totalRecitations > 0
+          const averageGrade = totalRecitations > 0 && recitations
             ? Math.round(recitations.reduce((sum: number, r: any) => sum + (r.grade || 0), 0) / totalRecitations)
             : 0;
 

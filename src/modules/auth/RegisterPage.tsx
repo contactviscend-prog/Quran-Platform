@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { useState, ChangeEvent } from 'react';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { BookOpen, ArrowRight, Building2, User, Mail, Phone, Calendar } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Textarea } from './ui/textarea';
-import type { Organization } from '../App';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Textarea } from '../../components/ui/textarea';
+import type { Organization } from '../../App';
 
 interface RegisterPageProps {
   organization: Organization;
@@ -58,7 +58,7 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
             </div>
             <h2 className="text-2xl font-semibold mb-2">تم إرسال طلبك بنجاح!</h2>
             <p className="text-gray-600 mb-6">
-              سيتم مراجعة طلبك والتواصل معك قريباً عبر البريد الإلكتروني أو الهاتف
+              سيتم مراجعة طلبك والتواصل معك قريبا�� عبر البريد الإلكتروني أو الهاتف
             </p>
             <Button onClick={onBack} className="bg-emerald-600 hover:bg-emerald-700">
               العودة إلى الصفحة الرئيسية
@@ -82,13 +82,13 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
             <div className="mx-auto w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center mb-4">
               <User className="w-8 h-8 text-white" />
             </div>
-            <CardTitle className="text-3xl">تسجيل مستخدم جديد</CardTitle>
+            <CardTitle className="text-3xl">تسجيل مستخد�� جديد</CardTitle>
             <div className="mt-3 flex items-center justify-center gap-2 text-gray-600">
               <Building2 className="w-4 h-4" />
               <span>{organization.name}</span>
             </div>
             <CardDescription className="mt-2">
-              املأ البيانات التالية لتقديم طلب الانضمام
+              املأ البيان��ت التالية لتقديم طلب الانضمام
             </CardDescription>
           </CardHeader>
 
@@ -97,7 +97,7 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
               {/* نوع المستخدم */}
               <div className="space-y-2">
                 <Label htmlFor="role">نوع المستخدم *</Label>
-                <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+                <Select value={formData.role} onValueChange={(value: string) => setFormData({ ...formData, role: value })}>
                   <SelectTrigger id="role">
                     <SelectValue placeholder="اختر نوع المستخدم" />
                   </SelectTrigger>
@@ -117,14 +117,14 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
                     id="name"
                     placeholder="محمد أحمد"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="gender">الجنس *</Label>
-                  <Select value={formData.gender} onValueChange={(value) => setFormData({ ...formData, gender: value })}>
+                  <Select value={formData.gender} onValueChange={(value: string) => setFormData({ ...formData, gender: value })}>
                     <SelectTrigger id="gender">
                       <SelectValue placeholder="اختر الجنس" />
                     </SelectTrigger>
@@ -144,7 +144,7 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
                     type="email"
                     placeholder="example@email.com"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, email: e.target.value })}
                     required
                     dir="ltr"
                     className="text-right"
@@ -158,7 +158,7 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
                     type="tel"
                     placeholder="05xxxxxxxx"
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, phone: e.target.value })}
                     required
                     dir="ltr"
                     className="text-right"
@@ -167,12 +167,12 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="dateOfBirth">تاريخ الميلاد *</Label>
+                <Label htmlFor="dateOfBirth">تاري�� الميلاد *</Label>
                 <Input
                   id="dateOfBirth"
                   type="date"
                   value={formData.dateOfBirth}
-                  onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, dateOfBirth: e.target.value })}
                   required
                 />
               </div>
@@ -183,7 +183,7 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
                   id="address"
                   placeholder="الحي، المدينة"
                   value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, address: e.target.value })}
                 />
               </div>
 
@@ -200,7 +200,7 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
                         id="guardianName"
                         placeholder="عبدالله أحمد"
                         value={formData.guardianName}
-                        onChange={(e) => setFormData({ ...formData, guardianName: e.target.value })}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, guardianName: e.target.value })}
                         required={formData.role === 'student'}
                       />
                     </div>
@@ -212,7 +212,7 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
                         type="tel"
                         placeholder="05xxxxxxxx"
                         value={formData.guardianPhone}
-                        onChange={(e) => setFormData({ ...formData, guardianPhone: e.target.value })}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, guardianPhone: e.target.value })}
                         required={formData.role === 'student'}
                         dir="ltr"
                         className="text-right"
@@ -229,7 +229,7 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
                   id="notes"
                   placeholder="أي معلومات إضافية تود إضافتها..."
                   value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, notes: e.target.value })}
                   rows={4}
                 />
               </div>
