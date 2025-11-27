@@ -621,7 +621,7 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
                       cy="50%"
                       labelLine={false}
                       label={({ name, value }: any) => {
-                        const total = attendanceStats.reduce((sum, item) => sum + item.value, 0);
+                        const total = attendanceByType.reduce((sum: number, item: any) => sum + item.value, 0);
                         const percentage = ((value / total) * 100);
                         return `${name} ${percentage.toFixed(1)}%`;
                       }}
@@ -654,7 +654,7 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
                       cy="50%"
                       labelLine={false}
                       label={({ name, value }: any) => {
-                        const total = attendanceStats.reduce((sum, item) => sum + item.value, 0);
+                        const total = recitationsByType.reduce((sum: number, item: any) => sum + item.value, 0);
                         const percentage = ((value / total) * 100);
                         return `${name} ${percentage.toFixed(1)}%`;
                       }}
@@ -1009,7 +1009,7 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
                     <TableHead className="text-right">المعلم</TableHead>
                     <TableHead className="text-right">الحلقات</TableHead>
                     <TableHead className="text-right">الطلاب</TableHead>
-                    <TableHead className="text-right">التسميع</TableHead>
+                    <TableHead className="text-right">ا��تسميع</TableHead>
                     <TableHead className="text-right">حفظ جديد</TableHead>
                     <TableHead className="text-right">مراجعة</TableHead>
                     <TableHead className="text-right">الحضور</TableHead>
@@ -1065,7 +1065,7 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>الطلاب المتميزون</CardTitle>
+                <CardTitle>الطلاب ��لمتميزون</CardTitle>
                 <CardDescription>أفضل 5 طلاب هذا الشهر</CardDescription>
               </div>
               <Award className="w-8 h-8 text-yellow-500" />

@@ -82,9 +82,9 @@ export function ParentDashboard({ user, organization }: ParentDashboardProps) {
       // For each child, get their circle, teacher, and stats
       const childrenData: ChildData[] = [];
       
-      for (const link of links) {
+      for (const link of (links as any[])) {
         const studentId = link.student_id;
-        const studentName = link.student?.full_name || 'غير معروف';
+        const studentName = (link.student as any)?.full_name || 'غير معروف';
 
         // Get circle enrollment
         const { data: enrollment } = await supabase
@@ -119,8 +119,8 @@ export function ParentDashboard({ user, organization }: ParentDashboardProps) {
         childrenData.push({
           id: studentId,
           full_name: studentName,
-          circle_name: enrollment?.circle?.name || null,
-          teacher_name: enrollment?.circle?.teacher?.full_name || null,
+          circle_name: (enrollment as any)?.circle?.name || null,
+          teacher_name: (enrollment as any)?.circle?.teacher?.[0]?.full_name || null,
           total_recitations: recitationsCount || 0,
           attendance_count: attendanceCount || 0,
         });

@@ -156,7 +156,15 @@ export function RecitationsPage({ organizationId, userRole, userId }: Recitation
         .order('full_name');
 
       if (error) throw error;
-      setStudents(data || []);
+      setStudents((data as any[])?.map(item => ({
+        id: item.id,
+        full_name: item.full_name,
+        organization_id: organizationId,
+        role: 'student' as const,
+        status: 'active' as const,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })) || []);
     } catch (error: any) {
       console.error('Error fetching students:', error);
     }
@@ -187,7 +195,17 @@ export function RecitationsPage({ organizationId, userRole, userId }: Recitation
       const { data, error } = await query;
 
       if (error) throw error;
-      setCircles(data || []);
+      setCircles((data as any[])?.map(item => ({
+        id: item.id,
+        name: item.name,
+        organization_id: organizationId,
+        level: 1,
+        max_students: 30,
+        teacher_id: null,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })) || []);
     } catch (error: any) {
       console.error('Error fetching circles:', error);
     }
