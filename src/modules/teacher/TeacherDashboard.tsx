@@ -5,6 +5,7 @@ import { TeacherCirclesPage } from './TeacherCirclesPage';
 import { DailyAssignmentsPage } from '../shared/DailyAssignmentsPage';
 import { QRCodeScanner } from '../shared/QRCodeScanner';
 import { SettingsPage } from '../shared/SettingsPage';
+import { AttendanceRecorder } from '../shared/AttendanceRecorder';
 import { StudentQuickAccess } from './StudentQuickAccess';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
@@ -324,7 +325,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
     { title: 'طلابي', value: stats.totalStudents.toString(), icon: Users, color: 'bg-blue-500', trend: '+2' },
     { title: 'التسميع اليوم', value: stats.todayRecitations.toString(), icon: BookOpen, color: 'bg-emerald-500', trend: '+5' },
     { title: 'الحضور اليوم', value: stats.todayAttendance.toString(), icon: CheckCircle, color: 'bg-green-500', trend: '+1' },
-    { title: 'حلقاتي', value: stats.activeCircles.toString(), icon: Clock, color: 'bg-orange-500', trend: '0' },
+    { title: 'حل��اتي', value: stats.activeCircles.toString(), icon: Clock, color: 'bg-orange-500', trend: '0' },
   ];
 
   const renderOverview = () => (
@@ -361,7 +362,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
         onDataUpdate={handleDataRefresh}
       />
 
-      {/* النسخ السريعة من التسميع والحضور */}
+      {/* النسخ السريعة من التسميع ��الحضور */}
       <Tabs defaultValue="recitations" dir="rtl">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="recitations" className="flex items-center gap-2">
@@ -547,7 +548,12 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
         );
 
       case 'attendance':
-        return null; // Using AttendanceRecorder component in StudentQuickAccess
+        return (
+          <AttendanceRecorder
+            teacherId={user.id}
+            organizationId={organization.id}
+          />
+        );
 
       case 'assignments':
         return (
