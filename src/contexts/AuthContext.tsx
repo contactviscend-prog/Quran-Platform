@@ -158,11 +158,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           toast.success('تم تسجيل الدخول بنجاح (وضع العرض التوضيحي)');
           return;
         } else {
-          throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+          throw new Error('البريد الإلكترون�� أو كلمة المرور غير صحيحة');
         }
       }
 
       // Real Supabase login
+      console.log('🔐 جاري محاولة تسجيل الدخول:', email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -170,12 +171,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error) throw error;
 
+      console.log('✅ نجح تسجيل الدخول للمستخدم:', data.user?.id);
+
       if (data.user) {
-        await fetchProfile(data.user.id);
-        toast.success('تم تسجيل الدخول بنجاح');
+        try {
+          await fetchProfile(data.user.id);
+          console.log('✅ تم تسجيل الدخول والحصول على البيانات بنجاح');
+          toast.success('تم تسجيل الدخول بنجاح');
+        } catch (profileError: any) {
+          console.error('⚠️ فشل جلب profile لكن تم تسجيل الدخول:', profileError);
+          // حتى لو فشل جلب profile، نجح تسجيل الدخول
+          // سيحاول نظام تحديث الحالة عرض البيانات
+          toast.warning('تم تسجيل الدخول لكن حدثت مشكلة في جلب البيانات');
+        }
       }
     } catch (error: any) {
-      console.error('Error signing in:', error.message);
+      console.error('❌ Error signing in:', error.message);
       toast.error('خطأ في تسجيل الدخول: ' + error.message);
       throw error;
     }
