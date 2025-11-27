@@ -98,6 +98,10 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
 
       toast.success(`تم مسح رمز الطالب: ${studentData.full_name}`);
 
+      // Navigate to student actions
+      navigateToStudentActions(studentData.id);
+      stopCamera();
+
       if (onScan) {
         onScan(studentData);
       }
