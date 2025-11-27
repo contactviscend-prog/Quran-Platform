@@ -21,6 +21,7 @@ interface StudentQuickAccessProps {
   organizationId: string;
   teacherId: string;
   circleId?: string;
+  onDataUpdate?: () => void;
 }
 
 interface Student {
@@ -30,12 +31,13 @@ interface Student {
   circle_name?: string;
 }
 
-export function StudentQuickAccess({ organizationId, teacherId, circleId }: StudentQuickAccessProps) {
+export function StudentQuickAccess({ organizationId, teacherId, circleId, onDataUpdate }: StudentQuickAccessProps) {
   const [students, setStudents] = useState<Student[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<'attendance' | 'recitation' | 'assignment'>('attendance');
+  const [isScannerActive, setIsScannerActive] = useState(false);
   
   // Attendance State
   const [attendanceStatus, setAttendanceStatus] = useState<'present' | 'absent' | 'late' | 'excused'>('present');
@@ -152,9 +154,10 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
         });
 
       if (error) throw error;
-      
+
       toast.success(`تم تسجيل ${attendanceStatus === 'present' ? 'حضور' : 'غياب'} ${selectedStudent.full_name}`);
       setShowDialog(false);
+      onDataUpdate?.();
     } catch (error) {
       console.error('Error recording attendance:', error);
       toast.error('فشل في تسجيل الحضور');
@@ -184,10 +187,11 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
         });
 
       if (error) throw error;
-      
+
       toast.success(`تم تسجيل التسميع لـ ${selectedStudent.full_name}`);
       setShowDialog(false);
-      
+      onDataUpdate?.();
+
       // Reset form
       setRecitationData({
         type: 'memorization',
@@ -227,10 +231,11 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
         });
 
       if (error) throw error;
-      
+
       toast.success(`تم تكليف ${selectedStudent.full_name} بالمهمة`);
       setShowDialog(false);
-      
+      onDataUpdate?.();
+
       // Reset form
       setAssignmentData({
         title: '',
@@ -244,7 +249,7 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
       });
     } catch (error) {
       console.error('Error creating assignment:', error);
-      toast.error('فشل في إنشاء التكليف');
+      toast.error('فشل في إنشا�� التكليف');
     }
   };
 
@@ -278,6 +283,14 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
                   autoFocus
                 />
               </div>
+              <Button
+                variant={isScannerActive ? 'default' : 'outline'}
+                size="icon"
+                onClick={() => setIsScannerActive(!isScannerActive)}
+                title="تفعيل مسح الباركود"
+              >
+                <QrCode className="w-4 h-4" />
+              </Button>
             </div>
 
             {searchQuery && filteredStudents.length > 0 && (
