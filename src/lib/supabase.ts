@@ -2,20 +2,16 @@ import { createClient } from '@supabase/supabase-js';
 
 // Get Supabase credentials from environment variables
 const getEnvVar = (key: string): string => {
-  // Try import.meta.env first (Vite)
-  if (typeof import.meta !== 'undefined' && import.meta.env) {
-    return import.meta.env[key] || '';
+  // Vite environment variables
+  const viteEnv = import.meta.env;
+  if (viteEnv && viteEnv[key]) {
+    return viteEnv[key];
   }
-  // Fallback to process.env (Node.js)
-  if (typeof process !== 'undefined' && process.env) {
-    return process.env[key] || '';
-  }
-  // If neither works, return empty string
   return '';
 };
 
-const supabaseUrl = getEnvVar('VITE_SUPABASE_URL') || '';
-const supabaseAnonKey = getEnvVar('VITE_SUPABASE_ANON_KEY') || '';
+const supabaseUrl = getEnvVar('VITE_SUPABASE_URL');
+const supabaseAnonKey = getEnvVar('VITE_SUPABASE_ANON_KEY');
 
 // Check if we're in demo mode
 export const isDemoMode = (): boolean => {
@@ -30,27 +26,18 @@ if (isDemoMode()) {
   console.info('2. أضف متغيرات البيئة VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY');
 }
 
-// Create Supabase client with demo mode handling
+// Create Supabase client
 const createSupabaseClient = () => {
-  // In demo mode, use dummy credentials to prevent network errors
-  const url = supabaseUrl || 'https://demo.supabase.co';
-  const key = supabaseAnonKey || 'demo-key';
+  const url = supabaseUrl || 'https://csxludsysywsmflacpov.supabase.co';
+  const key = supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzeGx1ZHN5c3l3c21mbGFjcG92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM1OTI5NDEsImV4cCI6MjA3OTE2ODk0MX0.FquZ2ZRqV-_DsKHMP4qkVezSvf7Fjy7Xj9ekL5E3cT8';
 
   const client = createClient(url, key, {
     auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-      detectSessionInUrl: false,
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true,
     },
   });
-
-  // Override fetch in demo mode to prevent actual network requests
-  if (isDemoMode()) {
-    (client as any).fetch = async (...args: any[]) => {
-      console.warn('⚠️ محاولة اتصال بقاعدة البيانات في وضع العرض التوضيحي - تم الحظر');
-      throw new Error('قاعدة البيانات غير متاحة في وضع العرض التوضيحي');
-    };
-  }
 
   return client;
 };
