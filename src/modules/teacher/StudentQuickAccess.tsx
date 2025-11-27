@@ -115,17 +115,30 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
       }
 
       const { data, error } = await query;
-      
-      if (error) throw error;
+
+      if (error) {
+        console.error('Error fetching students:', error);
+        if (error.message.includes('fetch')) {
+          toast.error('خطأ في الاتصال بالخادم. تأكد من اتصالك بالإنترنت');
+        } else {
+          toast.error('فشل في تحميل الطلاب');
+        }
+        return;
+      }
+
       setStudents((data as any[])?.map(s => ({
         id: s.id,
         full_name: s.full_name,
         barcode: s.barcode || '',
         circle_name: (s.circle as any)?.name
       })) || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching students:', error);
-      toast.error('فشل في تحميل الطلاب');
+      if (error?.message?.includes('fetch') || error?.message?.includes('network')) {
+        toast.error('خطأ في الاتصال بالخادم');
+      } else {
+        toast.error('فشل في تحميل الطلاب');
+      }
     }
   };
 
@@ -366,7 +379,7 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
                 variant="outline"
                 size="icon"
                 onClick={startQRScanner}
-                title="مسح الباركود"
+                title="م��ح الباركود"
               >
                 <QrCode className="w-4 h-4" />
               </Button>
