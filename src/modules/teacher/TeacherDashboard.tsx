@@ -528,7 +528,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
 
               <div className="pt-3 border-t">
                 <Button
-                  onClick={() => setCurrentSection('recorder')}
+                  onClick={() => setCurrentSection('attendance-recorder')}
                   className="w-full h-8 text-sm"
                   variant="outline"
                 >
