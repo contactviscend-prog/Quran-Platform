@@ -28,14 +28,19 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
   const [scannedStudents, setScannedStudents] = useState<ScannedStudent[]>([]);
   const [manualInput, setManualInput] = useState('');
   const [showManualDialog, setShowManualDialog] = useState(false);
+  const [showStudentActions, setShowStudentActions] = useState(false);
+  const [selectedStudentForActions, setSelectedStudentForActions] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     try {
-      toast.info('جاري قراءة رمز الاستجابة السريعة...');
+      toast.info('جاري قراءة ر��ز الاستجابة السريعة...');
       
       setTimeout(() => {
         const mockQRData = {
@@ -284,7 +289,7 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
           <DialogHeader>
             <DialogTitle>إدخال يدوي</DialogTitle>
             <DialogDescription>
-              أدخل رقم الطالب أ�� اسمه للبحث عنه في النظام.
+              أدخل رقم الطالب أو اسمه للبحث عنه في النظام.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
