@@ -120,7 +120,15 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
         .order('full_name');
 
       if (error) throw error;
-      setTeachers(data || []);
+      setTeachers((data as any[])?.map(item => ({
+        id: item.id,
+        full_name: item.full_name,
+        organization_id: organizationId,
+        role: 'teacher' as const,
+        status: 'active' as const,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })) || []);
     } catch (error: any) {
       console.error('Error fetching teachers:', error);
     }
@@ -205,7 +213,7 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
   };
 
   const handleDelete = async (circleId: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذه الحلقة؟')) return;
+    if (!confirm('هل أنت متأكد من ح��ف هذه الحلقة؟')) return;
 
     try {
       if (isDemoMode()) {

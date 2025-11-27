@@ -622,7 +622,11 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percentage }) => `${name} ${percentage.toFixed(1)}%`}
+                      label={({ name, value }: any) => {
+                        const total = attendanceByType.reduce((sum, item) => sum + item.value, 0);
+                        const percentage = ((value / total) * 100);
+                        return `${name} ${percentage.toFixed(1)}%`;
+                      }}
                       outerRadius={100}
                       fill="#8884d8"
                       dataKey="value"
@@ -651,7 +655,11 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percentage }) => `${name} ${percentage.toFixed(1)}%`}
+                      label={({ name, value }: any) => {
+                        const total = attendanceByType.reduce((sum, item) => sum + item.value, 0);
+                        const percentage = ((value / total) * 100);
+                        return `${name} ${percentage.toFixed(1)}%`;
+                      }}
                       outerRadius={100}
                       fill="#8884d8"
                       dataKey="value"
