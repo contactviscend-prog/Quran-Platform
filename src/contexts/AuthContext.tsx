@@ -39,34 +39,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (profileError) {
         console.error('❌ خطأ في جلب profile:', profileError);
+        console.error('خطأ الـ RLS - تحقق من الـ Policies في Supabase');
         throw profileError;
       }
 
-      if (profileData) {
-        console.log('✅ تم جلب profile:', profileData);
-        setProfile(profileData);
-
-        // Then, fetch the organization separately if needed
-        if (profileData.organization_id) {
-          const { data: orgData, error: orgError } = await supabase
-            .from('organizations')
-            .select('*')
-            .eq('id', profileData.organization_id)
-            .single();
-
-          if (orgError) {
-            console.warn('⚠️ تحذير في جلب organization:', orgError.message);
-          } else if (orgData) {
-            console.log('✅ تم جلب organization:', orgData);
-            setOrganization(orgData);
-          }
-        }
-      } else {
+      if (!profileData) {
         console.warn('⚠️ لم يتم جلب profile - قد لا يكون موجوداً');
+        throw new Error('Profile not found');
       }
+
+      console.log('✅ تم جلب profile:', profileData);
+
+      // Set profile state FIRST
+      setProfile(profileData);
+
+      // Then, fetch the organization separately if needed
+      if (profileData.organization_id) {
+        console.log('🔍 جاري جلب organization:', profileData.organization_id);
+        const { data: orgData, error: orgError } = await supabase
+          .from('organizations')
+          .select('*')
+          .eq('id', profileData.organization_id)
+          .single();
+
+        if (orgError) {
+          console.error('❌ خطأ في جلب organization:', orgError);
+          throw orgError;
+        }
+
+        if (!orgData) {
+          console.warn('⚠️ لم يتم جلب organization - قد لا يكون موجوداً');
+          throw new Error('Organization not found');
+        }
+
+        console.log('✅ تم جلب organization:', orgData);
+        setOrganization(orgData);
+      }
+
+      console.log('✅ تم جلب جميع البيانات بنجاح');
     } catch (error: any) {
       console.error('❌ Error fetching profile:', error?.message || error);
-      throw error; // أعد رفع الخطأ ليتم التعامل معه بشكل صحيح
+      // Don't throw - let signIn handle it
     }
   };
 
@@ -181,16 +194,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('✅ نجح تسجيل الدخول للمستخدم:', data.user?.id);
 
       if (data.user) {
-        try {
-          await fetchProfile(data.user.id);
-          console.log('✅ تم تسجيل الدخول والحصول على البيانات بنجاح');
-          toast.success('تم تسجيل الدخول بنجاح');
-        } catch (profileError: any) {
-          console.error('⚠️ فشل جلب profile لكن تم تسجيل الدخول:', profileError);
-          // حتى لو فشل جلب profile، نجح تسجيل الدخول
-          // سيحاول نظام تحديث الحالة عرض البيانات
-          toast.warning('تم تسجيل الدخول لكن حدثت مشكلة في جلب البيانات');
-        }
+        console.log('🔐 تم تسجيل الدخول - جاري جلب البيانات...');
+        await fetchProfile(data.user.id);
+        console.log('✅ تم تسجيل الدخول والحصول على البيانات بنجاح');
+        toast.success('تم تسجيل الدخول بنجاح');
       }
     } catch (error: any) {
       console.error('❌ Error signing in:', error.message);
