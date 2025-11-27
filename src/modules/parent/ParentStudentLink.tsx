@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -227,7 +227,7 @@ export function ParentStudentLink({ organizationId }: ParentStudentLinkProps) {
                 <Label>الطالب *</Label>
                 <Select value={selectedStudent} onValueChange={setSelectedStudent}>
                   <SelectTrigger>
-                    <SelectValue placeholder="اختر طالب" />
+                    <SelectValue placeholder="اختر طال��" />
                   </SelectTrigger>
                   <SelectContent>
                     {students.map((student) => (
@@ -257,7 +257,7 @@ export function ParentStudentLink({ organizationId }: ParentStudentLinkProps) {
               placeholder="ابحث باسم الطالب أو ولي الأمر..."
               className="pr-10"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
             />
           </div>
         </CardContent>
