@@ -38,7 +38,9 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
   const [showDialog, setShowDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<'attendance' | 'recitation' | 'assignment'>('attendance');
   const [showQRScanner, setShowQRScanner] = useState(false);
+  const [cameraPermission, setCameraPermission] = useState<'granted' | 'denied' | 'unknown'>('unknown');
   const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   
   // Attendance State
   const [attendanceStatus, setAttendanceStatus] = useState<'present' | 'absent' | 'late' | 'excused'>('present');
@@ -135,26 +137,66 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
 
   const startQRScanner = async () => {
     setShowQRScanner(true);
+
+    // Check if camera API is available
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      toast.error('الكاميرا غير مدعومة في هذا المتصفح');
+      setCameraPermission('denied');
+      return;
+    }
+
+    // Check if running in secure context (HTTPS)
+    if (!window.isSecureContext && window.location.protocol !== 'http:') {
+      toast.error('الكاميرا تتطلب اتصال آمن (HTTPS)');
+      setCameraPermission('denied');
+      return;
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
+        video: {
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
       });
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        setCameraPermission('granted');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error accessing camera:', error);
-      toast.error('فشل الوصول للكاميرا');
+
+      // Provide specific error messages based on error type
+      if (error.name === 'NotAllowedError') {
+        toast.error('تم رفض الوصول للكاميرا. يرجى السماح بالوصول والمحاولة مرة أخرى');
+        setCameraPermission('denied');
+      } else if (error.name === 'NotFoundError') {
+        toast.error('لم يتم العثور على كاميرا. تأكد من وجود كاميرا متصلة');
+        setCameraPermission('denied');
+      } else if (error.name === 'NotReadableError') {
+        toast.error('الكاميرا قيد الاستخدام من قبل تطبيق آخر');
+        setCameraPermission('denied');
+      } else {
+        toast.error('فشل الوصول للكاميرا. استخدم الإدخال اليدوي بدلاً من ذلك');
+        setCameraPermission('denied');
+      }
       setShowQRScanner(false);
     }
   };
 
   const stopQRScanner = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
     }
     setShowQRScanner(false);
+    setCameraPermission('unknown');
   };
 
   const handleManualBarcodeScan = (barcode: string) => {
