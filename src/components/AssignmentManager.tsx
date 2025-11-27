@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { CalendarIcon, Plus, Trash2, Edit, CheckCircle, Clock } from 'lucide-react';
 import { QuranSelector, QuranSelection } from './QuranSelector';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { getCurrentHijriDate, formatHijriDate, addHijriDays, formatHijriDateForStorage } from '../lib/hijriCalendar';
 
 interface Assignment {
@@ -352,7 +352,7 @@ export function AssignmentManager({ circleId, students }: AssignmentManagerProps
       <Card>
         <CardHeader>
           <CardTitle>التكاليف الحالية</CardTitle>
-          <CardDescription>جميع تكاليف الحفظ والمراجعة المعينة للطلاب</CardDescription>
+          <CardDescription>جميع تكا��يف الحفظ والمراجعة المعينة للطلاب</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
