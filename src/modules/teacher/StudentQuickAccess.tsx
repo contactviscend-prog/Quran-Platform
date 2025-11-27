@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -8,9 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/ta
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Textarea } from '../../components/ui/textarea';
-import { 
+import {
   QrCode, Search, UserCheck, BookOpen, ClipboardList,
-  CheckCircle, XCircle, Calendar, Award, Clock, Target
+  CheckCircle, XCircle, Calendar, Award, Clock, Target, X
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase, isDemoMode } from '../../lib/supabase';
@@ -21,6 +21,7 @@ interface StudentQuickAccessProps {
   organizationId: string;
   teacherId: string;
   circleId?: string;
+  onDataUpdate?: () => void;
 }
 
 interface Student {
@@ -30,12 +31,16 @@ interface Student {
   circle_name?: string;
 }
 
-export function StudentQuickAccess({ organizationId, teacherId, circleId }: StudentQuickAccessProps) {
+export function StudentQuickAccess({ organizationId, teacherId, circleId, onDataUpdate }: StudentQuickAccessProps) {
   const [students, setStudents] = useState<Student[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<'attendance' | 'recitation' | 'assignment'>('attendance');
+  const [showQRScanner, setShowQRScanner] = useState(false);
+  const [cameraPermission, setCameraPermission] = useState<'granted' | 'denied' | 'unknown'>('unknown');
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   
   // Attendance State
   const [attendanceStatus, setAttendanceStatus] = useState<'present' | 'absent' | 'late' | 'excused'>('present');
@@ -110,23 +115,119 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
       }
 
       const { data, error } = await query;
-      
-      if (error) throw error;
+
+      if (error) {
+        console.error('Error fetching students:', error);
+        if (error.message.includes('fetch')) {
+          toast.error('خطأ في الاتصال بالخادم. تأكد من اتصالك بالإنترنت');
+        } else {
+          toast.error('فشل في تحميل الطلاب');
+        }
+        return;
+      }
+
       setStudents((data as any[])?.map(s => ({
         id: s.id,
         full_name: s.full_name,
         barcode: s.barcode || '',
         circle_name: (s.circle as any)?.name
       })) || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching students:', error);
-      toast.error('فشل في تحميل الطلاب');
+      if (error?.message?.includes('fetch') || error?.message?.includes('network')) {
+        toast.error('خطأ في الاتصال بالخادم');
+      } else {
+        toast.error('فشل في تحميل الطلاب');
+      }
     }
   };
 
   const handleStudentSelect = (student: Student) => {
     setSelectedStudent(student);
     setShowDialog(true);
+    setShowQRScanner(false);
+  };
+
+  const startQRScanner = async () => {
+    setShowQRScanner(true);
+
+    // Check if camera API is available
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      toast.error('الكاميرا غير مدعومة في هذا المتصفح');
+      setCameraPermission('denied');
+      return;
+    }
+
+    // Check if running in secure context (HTTPS)
+    if (!window.isSecureContext && window.location.protocol !== 'http:') {
+      toast.error('الكاميرا تتطلب اتصال آمن (HTTPS)');
+      setCameraPermission('denied');
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+      });
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        setCameraPermission('granted');
+      }
+    } catch (error: any) {
+      console.error('Error accessing camera:', error);
+
+      // Provide specific error messages based on error type
+      if (error.name === 'NotAllowedError') {
+        toast.error('تم رفض الوصول للكاميرا. يرجى السماح بالوصول والمحاولة مرة أخرى');
+        setCameraPermission('denied');
+      } else if (error.name === 'NotFoundError') {
+        toast.error('لم يتم العثور على كاميرا. تأكد من وجود كاميرا متصلة');
+        setCameraPermission('denied');
+      } else if (error.name === 'NotReadableError') {
+        toast.error('الكاميرا قيد الاستخدام من قبل تطبيق آخر');
+        setCameraPermission('denied');
+      } else {
+        toast.error('فشل الوصول للكاميرا. استخدم الإدخال اليدوي بدلاً من ذلك');
+        setCameraPermission('denied');
+      }
+      setShowQRScanner(false);
+    }
+  };
+
+  const stopQRScanner = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setShowQRScanner(false);
+    setCameraPermission('unknown');
+  };
+
+  const handleManualBarcodeScan = (barcode: string) => {
+    if (!barcode.trim()) {
+      return;
+    }
+
+    const student = students.find(s =>
+      s.barcode.toLowerCase() === barcode.toLowerCase() ||
+      s.full_name.toLowerCase().includes(barcode.toLowerCase()) ||
+      s.id === barcode
+    );
+
+    if (student) {
+      handleStudentSelect(student);
+    } else {
+      toast.error(`الطالب برقم ${barcode} غير موجود`);
+    }
   };
 
   const handleAttendance = async () => {
@@ -134,10 +235,12 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
 
     try {
       const today = new Date().toISOString().split('T')[0];
-      
+
       if (isDemoMode()) {
+        await new Promise(resolve => setTimeout(resolve, 300));
         toast.success(`تم تسجيل ${attendanceStatus === 'present' ? 'حضور' : 'غياب'} ${selectedStudent.full_name}`);
         setShowDialog(false);
+        onDataUpdate?.();
         return;
       }
 
@@ -151,13 +254,19 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
           organization_id: organizationId
         });
 
-      if (error) throw error;
-      
+      if (error) {
+        if (error.message?.includes('fetch')) {
+          throw new Error('خطأ في الاتصال بالخادم');
+        }
+        throw error;
+      }
+
       toast.success(`تم تسجيل ${attendanceStatus === 'present' ? 'حضور' : 'غياب'} ${selectedStudent.full_name}`);
       setShowDialog(false);
-    } catch (error) {
+      onDataUpdate?.();
+    } catch (error: any) {
       console.error('Error recording attendance:', error);
-      toast.error('فشل في تسجيل الحضور');
+      toast.error(error?.message || 'فشل في تسجيل الحضور');
     }
   };
 
@@ -166,10 +275,22 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
 
     try {
       const today = new Date().toISOString().split('T')[0];
-      
+
       if (isDemoMode()) {
+        await new Promise(resolve => setTimeout(resolve, 300));
         toast.success(`تم تسجيل التسميع لـ ${selectedStudent.full_name}`);
         setShowDialog(false);
+        onDataUpdate?.();
+        setRecitationData({
+          type: 'memorization',
+          surah_number: 1,
+          from_ayah: 1,
+          to_ayah: 1,
+          grade: 'good',
+          mistakes_count: 0,
+          mistakes_description: '',
+          notes: ''
+        });
         return;
       }
 
@@ -183,11 +304,17 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
           ...recitationData
         });
 
-      if (error) throw error;
-      
+      if (error) {
+        if (error.message?.includes('fetch')) {
+          throw new Error('خطأ في الاتصال بالخادم');
+        }
+        throw error;
+      }
+
       toast.success(`تم تسجيل التسميع لـ ${selectedStudent.full_name}`);
       setShowDialog(false);
-      
+      onDataUpdate?.();
+
       // Reset form
       setRecitationData({
         type: 'memorization',
@@ -199,9 +326,9 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
         mistakes_description: '',
         notes: ''
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error recording recitation:', error);
-      toast.error('فشل في تسجيل التسميع');
+      toast.error(error?.message || 'فشل في تسجيل التسميع');
     }
   };
 
@@ -210,8 +337,20 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
 
     try {
       if (isDemoMode()) {
+        await new Promise(resolve => setTimeout(resolve, 300));
         toast.success(`تم تكليف ${selectedStudent.full_name} بالمهمة`);
         setShowDialog(false);
+        onDataUpdate?.();
+        setAssignmentData({
+          title: '',
+          type: 'memorization',
+          surah_number: 1,
+          from_ayah: 1,
+          to_ayah: 1,
+          due_date: new Date().toISOString().split('T')[0],
+          description: '',
+          priority: 'medium'
+        });
         return;
       }
 
@@ -226,11 +365,17 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
           ...assignmentData
         });
 
-      if (error) throw error;
-      
+      if (error) {
+        if (error.message?.includes('fetch')) {
+          throw new Error('خطأ في الاتصال بالخادم');
+        }
+        throw error;
+      }
+
       toast.success(`تم تكليف ${selectedStudent.full_name} بالمهمة`);
       setShowDialog(false);
-      
+      onDataUpdate?.();
+
       // Reset form
       setAssignmentData({
         title: '',
@@ -242,9 +387,9 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
         description: '',
         priority: 'medium'
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating assignment:', error);
-      toast.error('فشل في إنشاء التكليف');
+      toast.error(error?.message || 'فشل في إنشاء التكليف');
     }
   };
 
@@ -262,7 +407,7 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <QrCode className="w-5 h-5" />
-            الوصول السريع للطالب
+            الوصول السريع لل��الب
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -278,7 +423,56 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
                   autoFocus
                 />
               </div>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={startQRScanner}
+                title="مسح الباركود"
+              >
+                <QrCode className="w-4 h-4" />
+              </Button>
             </div>
+
+            {/* QR Scanner Modal */}
+            {showQRScanner && (
+              <div className="space-y-4 p-4 bg-gray-50 rounded-lg border">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium">ماسح الباركود</h3>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={stopQRScanner}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="space-y-3">
+                  <video
+                    ref={videoRef}
+                    className="w-full h-64 bg-black rounded-lg object-cover"
+                    autoPlay
+                    playsInline
+                  />
+                  <Input
+                    placeholder="أو أدخل الباركود يدويا..."
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const value = (e.target as HTMLInputElement).value;
+                        if (value) {
+                          handleManualBarcodeScan(value);
+                          (e.target as HTMLInputElement).value = '';
+                          stopQRScanner();
+                        }
+                      }
+                    }}
+                    autoFocus
+                  />
+                  <p className="text-xs text-gray-600">
+                    اوجّه الكاميرا على الباركود أو أدخل رمز الطالب يدويا ثم اضغ�� Enter
+                  </p>
+                </div>
+              </div>
+            )}
 
             {searchQuery && filteredStudents.length > 0 && (
               <div className="border rounded-lg divide-y max-h-64 overflow-y-auto">
@@ -438,7 +632,7 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
                       <SelectItem value="very_good">جيد جداً (85-94%)</SelectItem>
                       <SelectItem value="good">جيد (75-84%)</SelectItem>
                       <SelectItem value="acceptable">مقبول (65-74%)</SelectItem>
-                      <SelectItem value="needs_improvement">يحتاج تحسين (&lt;65%)</SelectItem>
+                      <SelectItem value="needs_improvement">يحتاج تحسي�� (&lt;65%)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

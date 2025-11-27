@@ -63,7 +63,6 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
             name: 'حلقة المغرب',
             description: 'حلقة متقدمة',
             teacher_id: 'teacher2',
-            teacher: { id: 'teacher2', full_name: 'عمر الم��لم' },
             teacher: { id: 'teacher2', full_name: 'عمر المعلم' },
             level: 'advanced',
             max_students: 15,
@@ -115,22 +114,13 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
       // Real Supabase fetch
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name')
+        .select('*')
         .eq('organization_id', organizationId)
         .eq('role', 'teacher')
         .eq('status', 'active')
         .order('full_name');
 
       if (error) throw error;
-      setTeachers((data as any[])?.map(item => ({
-        id: item.id,
-        full_name: item.full_name,
-        organization_id: organizationId,
-        role: 'teacher' as const,
-        status: 'active' as const,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })) || []);
       setTeachers(data || []);
     } catch (error: any) {
       console.error('Error fetching teachers:', error);
@@ -275,7 +265,7 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl">إدارة الحلقات</h2>
-          <p className="text-gray-600">إدارة حلقات التحفيظ والمعلمين</p>
+          <p className="text-gray-600">إدارة حلقات الت��فيظ والمعلمين</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
           setIsAddDialogOpen(open);
