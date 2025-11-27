@@ -11,7 +11,7 @@ import { supabase, isDemoMode, Profile, Organization, Circle, UserRole, getRoleL
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { CirclesManagement } from './CirclesManagement';
 import { JoinRequestsManagement } from './JoinRequestsManagement';
-import { EnhancedUsersManagement } from './EnhancedUsersManagement';
+import { UsersManagement } from './UsersManagement';
 import { RecitationsPage } from '../shared/RecitationsPage';
 import { ReportsPage } from '../shared/ReportsPage';
 import { SettingsPage } from '../shared/SettingsPage';
@@ -140,7 +140,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
 
   const statsData = [
     { title: 'إجمالي الطلاب', value: stats.totalStudents.toString(), icon: Users, color: 'bg-blue-500' },
-    { title: 'الحلقات النشطة', value: stats.activeCircles.toString(), icon: BookOpen, color: 'bg-emerald-500' },
+    { title: 'ال��لقات النشطة', value: stats.activeCircles.toString(), icon: BookOpen, color: 'bg-emerald-500' },
     { title: 'المعلمون', value: stats.totalTeachers.toString(), icon: GraduationCap, color: 'bg-purple-500' },
     { title: 'إجمالي التسميع', value: stats.totalRecitations.toString(), icon: ClipboardList, color: 'bg-orange-500' },
   ];
@@ -284,7 +284,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
                           <Label htmlFor="circle-name">اسم الحلقة *</Label>
                           <Input
                             id="circle-name"
-                            placeholder="مثال: حلقة الفجر"
+                            placeholder="مثال: حلق�� الفجر"
                             value={newCircle.name}
                             onChange={(e) => setNewCircle({ ...newCircle, name: e.target.value })}
                           />
