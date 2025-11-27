@@ -67,6 +67,15 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
   const [recitationSearch, setRecitationSearch] = useState('');
   const [attendanceSearch, setAttendanceSearch] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
+  const [selectedCircleForRecitation, setSelectedCircleForRecitation] = useState<string>('');
+  const [selectedDateForRecitation, setSelectedDateForRecitation] = useState<string>(
+    new Date().toISOString().split('T')[0]
+  );
+  const [selectedCircleForAttendance, setSelectedCircleForAttendance] = useState<string>('');
+  const [selectedDateForAttendance, setSelectedDateForAttendance] = useState<string>(
+    new Date().toISOString().split('T')[0]
+  );
+  const [circles, setCircles] = useState<any[]>([]);
 
   useEffect(() => {
     fetchStats();
@@ -154,7 +163,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
           {
             id: '2',
             student_name: 'فاطمة علي',
-            surah_name: 'آل عمرا��',
+            surah_name: 'آل عمران',
             from_ayah: 1,
             to_ayah: 20,
             type: 'review',
@@ -266,7 +275,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
     setRefreshKey(k => k + 1);
     fetchStats();
     fetchRecentData();
-    toast.success('تم تحديث البيانات');
+    toast.success('تم ��حديث البيانات');
   }, []);
 
   const getGradeBadge = (grade: string) => {
@@ -446,7 +455,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
                   className="w-full"
                   variant="outline"
                 >
-                  عرض جميع سجلات التسميع والتسجيل
+                  عرض جميع سجلات التسميع والتس��يل
                 </Button>
               </div>
             </CardContent>
