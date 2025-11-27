@@ -112,11 +112,11 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId }: Stud
       const { data, error } = await query;
       
       if (error) throw error;
-      setStudents(data?.map(s => ({
+      setStudents((data as any[])?.map(s => ({
         id: s.id,
         full_name: s.full_name,
         barcode: s.barcode || '',
-        circle_name: s.circle?.name
+        circle_name: (s.circle as any)?.name
       })) || []);
     } catch (error) {
       console.error('Error fetching students:', error);
