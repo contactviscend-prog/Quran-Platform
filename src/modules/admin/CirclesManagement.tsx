@@ -62,7 +62,7 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
             name: 'حلقة المغرب',
             description: 'حلقة متقدمة',
             teacher_id: 'teacher2',
-            teacher: { id: 'teacher2', full_name: 'عمر المعلم' },
+            teacher: { id: 'teacher2', full_name: 'عمر الم��لم' },
             level: 'advanced',
             max_students: 15,
             is_active: true,
@@ -120,7 +120,15 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
         .order('full_name');
 
       if (error) throw error;
-      setTeachers(data || []);
+      setTeachers((data as any[])?.map(item => ({
+        id: item.id,
+        full_name: item.full_name,
+        organization_id: organizationId,
+        role: 'teacher' as const,
+        status: 'active' as const,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })) || []);
     } catch (error: any) {
       console.error('Error fetching teachers:', error);
     }

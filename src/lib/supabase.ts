@@ -46,8 +46,7 @@ const createSupabaseClient = () => {
 
   // Override fetch in demo mode to prevent actual network requests
   if (isDemoMode()) {
-    const originalFetch = client.fetch;
-    client.fetch = async (...args: any[]) => {
+    (client as any).fetch = async (...args: any[]) => {
       console.warn('⚠️ محاولة اتصال بقاعدة البيانات في وضع العرض التوضيحي - تم الحظر');
       throw new Error('قاعدة البيانات غير متاحة في وضع العرض التوضيحي');
     };
