@@ -17,7 +17,7 @@ DROP POLICY IF EXISTS "Users can view other profiles in their organization" ON p
 
 -- Users can ALWAYS view their own profile (no subquery)
 CREATE POLICY "Users can view their own profile"
-  ON organizations FOR SELECT
+  ON profiles FOR SELECT
   USING (id = auth.uid());
 
 -- Authenticated users can view other profiles in their organization
