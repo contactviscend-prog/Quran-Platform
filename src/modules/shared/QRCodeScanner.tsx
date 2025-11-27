@@ -40,7 +40,7 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
     if (!file) return;
 
     try {
-      toast.info('جاري قراءة ر��ز الاستجابة السريعة...');
+      toast.info('جاري قراءة رمز الاستجابة السريعة...');
       
       setTimeout(() => {
         const mockQRData = {
@@ -121,7 +121,7 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
   const handleManualInput = async () => {
     try {
       if (!manualInput.trim()) {
-        toast.error('يرجى إدخال رقم الطالب');
+        toast.error('يرج�� إدخال رقم الطالب');
         return;
       }
 
@@ -149,12 +149,33 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
   const startCamera = async () => {
     try {
       setScanning(true);
-      toast.info('سيتم فتح الكاميرا قريباً...');
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+      });
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        toast.success('تم فتح الكاميرا - وجه رمز الاستجابة السريعة نحو الكاميرا');
+      }
     } catch (error) {
       console.error('Error starting camera:', error);
-      toast.error('فشل الوصول للكاميرا');
+      toast.error('فشل الوصول للكاميرا - تأكد من صلاحيات المتصفح');
       setScanning(false);
     }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    setScanning(false);
+  };
+
+  const navigateToStudentActions = (studentId: string) => {
+    setSelectedStudentForActions(studentId);
+    setShowStudentActions(true);
   };
 
   return (
