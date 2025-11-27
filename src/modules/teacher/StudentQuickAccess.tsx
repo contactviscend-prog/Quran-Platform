@@ -337,8 +337,20 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
 
     try {
       if (isDemoMode()) {
+        await new Promise(resolve => setTimeout(resolve, 300));
         toast.success(`تم تكليف ${selectedStudent.full_name} بالمهمة`);
         setShowDialog(false);
+        onDataUpdate?.();
+        setAssignmentData({
+          title: '',
+          type: 'memorization',
+          surah_number: 1,
+          from_ayah: 1,
+          to_ayah: 1,
+          due_date: new Date().toISOString().split('T')[0],
+          description: '',
+          priority: 'medium'
+        });
         return;
       }
 
@@ -353,7 +365,12 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
           ...assignmentData
         });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('fetch')) {
+          throw new Error('خطأ في الاتصال بالخادم');
+        }
+        throw error;
+      }
 
       toast.success(`تم تكليف ${selectedStudent.full_name} بالمهمة`);
       setShowDialog(false);
@@ -370,9 +387,9 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
         description: '',
         priority: 'medium'
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating assignment:', error);
-      toast.error('فشل في إنشاء التكليف');
+      toast.error(error?.message || 'فشل في إنشاء التكليف');
     }
   };
 
@@ -390,7 +407,7 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <QrCode className="w-5 h-5" />
-            الوصول السريع للطالب
+            الوصول السريع لل��الب
           </CardTitle>
         </CardHeader>
         <CardContent>
