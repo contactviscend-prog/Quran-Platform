@@ -321,14 +321,55 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
                 />
               </div>
               <Button
-                variant={isScannerActive ? 'default' : 'outline'}
+                variant="outline"
                 size="icon"
-                onClick={() => setIsScannerActive(!isScannerActive)}
-                title="تفعيل مسح الباركود"
+                onClick={startQRScanner}
+                title="مسح الباركود"
               >
                 <QrCode className="w-4 h-4" />
               </Button>
             </div>
+
+            {/* QR Scanner Modal */}
+            {showQRScanner && (
+              <div className="space-y-4 p-4 bg-gray-50 rounded-lg border">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium">ماسح الباركود</h3>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={stopQRScanner}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="space-y-3">
+                  <video
+                    ref={videoRef}
+                    className="w-full h-64 bg-black rounded-lg object-cover"
+                    autoPlay
+                    playsInline
+                  />
+                  <Input
+                    placeholder="أو أدخل الباركود يدويا..."
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const value = (e.target as HTMLInputElement).value;
+                        if (value) {
+                          handleManualBarcodeScan(value);
+                          (e.target as HTMLInputElement).value = '';
+                          stopQRScanner();
+                        }
+                      }
+                    }}
+                    autoFocus
+                  />
+                  <p className="text-xs text-gray-600">
+                    اوجّه الكاميرا على الباركود أو أدخل رمز الطالب يدويا ثم اضغط Enter
+                  </p>
+                </div>
+              </div>
+            )}
 
             {searchQuery && filteredStudents.length > 0 && (
               <div className="border rounded-lg divide-y max-h-64 overflow-y-auto">
@@ -488,7 +529,7 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
                       <SelectItem value="very_good">جيد جداً (85-94%)</SelectItem>
                       <SelectItem value="good">جيد (75-84%)</SelectItem>
                       <SelectItem value="acceptable">مقبول (65-74%)</SelectItem>
-                      <SelectItem value="needs_improvement">يحتاج تحسين (&lt;65%)</SelectItem>
+                      <SelectItem value="needs_improvement">يحتاج تحسي�� (&lt;65%)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
