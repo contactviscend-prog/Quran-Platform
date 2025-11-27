@@ -415,7 +415,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>سجل التسميع - نسخة سريعة</span>
+                <span>سجل التسميع - نسخة متقدمة</span>
                 <Button
                   variant="outline"
                   size="sm"
@@ -424,62 +424,50 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
                   عرض كامل
                 </Button>
               </CardTitle>
-              <CardDescription>آخر 10 جلسات تسميع مع خيارات التسجيل</CardDescription>
+              <CardDescription>تسجيل التسميع مع الإمكانيات الكاملة</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="relative">
-                <Search className="absolute right-3 top-3 w-4 h-4 text-gray-400" />
-                <Input
-                  placeholder="ابحث عن الطالب..."
-                  value={recitationSearch}
-                  onChange={(e) => setRecitationSearch(e.target.value)}
-                  className="pr-10"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">اختر الحلقة</label>
+                  <select
+                    value={selectedCircleForRecitation}
+                    onChange={(e) => setSelectedCircleForRecitation(e.target.value)}
+                    className="w-full h-10 px-3 border rounded-md text-sm"
+                  >
+                    <option value="">-- اختر حلقة --</option>
+                    {circles.map(circle => (
+                      <option key={circle.id} value={circle.id}>
+                        {circle.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">التاريخ</label>
+                  <input
+                    type="date"
+                    value={selectedDateForRecitation}
+                    onChange={(e) => setSelectedDateForRecitation(e.target.value)}
+                    className="w-full h-10 px-3 border rounded-md text-sm"
+                  />
+                </div>
               </div>
 
-              {filteredRecitations.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">لا توجد جلسات تسميع</div>
-              ) : (
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {filteredRecitations.map((record) => (
-                    <div
-                      key={record.id}
-                      className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <p className="font-medium text-sm">{record.student_name}</p>
-                          <p className="text-sm text-gray-600">
-                            {record.surah_name} (الآية {record.from_ayah} إلى {record.to_ayah})
-                          </p>
-                        </div>
-                        <div className="flex gap-2">
-                          <Badge className={getTypeBadge(record.type).color}>
-                            {getTypeBadge(record.type).label}
-                          </Badge>
-                          <Badge className={getGradeBadge(record.grade).color}>
-                            {getGradeBadge(record.grade).label}
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="text-xs text-gray-500 mb-3">
-                        <span>التاريخ: {new Date(record.date).toLocaleDateString('ar-SA')}</span>
-                        <span className="mx-2">•</span>
-                        <span>الأخطاء: {record.mistakes_count}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <QuickMemorizationRecord
+                user={user}
+                organization={organization}
+                circleId={selectedCircleForRecitation}
+                date={selectedDateForRecitation}
+              />
 
               <div className="pt-4 border-t">
-                <p className="text-sm text-gray-600 mb-2">استخدم الوصول السريع للطالب لتسجيل تسميع جديد</p>
                 <Button
                   onClick={() => setCurrentSection('recitations')}
                   className="w-full"
                   variant="outline"
                 >
-                  عرض جميع سجلات التسميع والتسجيل
+                  عرض جميع سجلات التسميع والتحليلات
                 </Button>
               </div>
             </CardContent>
