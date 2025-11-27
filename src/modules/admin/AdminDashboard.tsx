@@ -140,7 +140,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
 
   const statsData = [
     { title: 'إجمالي الطلاب', value: stats.totalStudents.toString(), icon: Users, color: 'bg-blue-500' },
-    { title: 'ال��لقات النشطة', value: stats.activeCircles.toString(), icon: BookOpen, color: 'bg-emerald-500' },
+    { title: 'الحلقات النشطة', value: stats.activeCircles.toString(), icon: BookOpen, color: 'bg-emerald-500' },
     { title: 'المعلمون', value: stats.totalTeachers.toString(), icon: GraduationCap, color: 'bg-purple-500' },
     { title: 'إجمالي التسميع', value: stats.totalRecitations.toString(), icon: ClipboardList, color: 'bg-orange-500' },
   ];
@@ -152,7 +152,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
           <div className="space-y-6">
             <div>
               <h1 className="text-3xl mb-2">لوحة تحكم المدير</h1>
-              <p className="text-gray-600">مرحباً {user.full_name}، إليك نظرة عامة على المنصة</p>
+              <p className="text-gray-600">مرح��اً {user.full_name}، إليك نظرة عامة على المنصة</p>
             </div>
 
             {/* الإحصائيات */}
@@ -284,7 +284,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
                           <Label htmlFor="circle-name">اسم الحلقة *</Label>
                           <Input
                             id="circle-name"
-                            placeholder="مثال: حلق�� الفجر"
+                            placeholder="مثال: حلقة الفجر"
                             value={newCircle.name}
                             onChange={(e) => setNewCircle({ ...newCircle, name: e.target.value })}
                           />
@@ -338,7 +338,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
         );
 
       case 'users':
-        return <EnhancedUsersManagement organizationId={organization.id} />;
+        return <UsersManagement />;
 
       case 'circles':
         return <CirclesManagement organizationId={organization.id} />;
