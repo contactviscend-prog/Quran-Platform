@@ -385,7 +385,7 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
     };
   };
 
-  // ألوان للرسوم البيانية
+  // ألو��ن للرسوم البيانية
   const COLORS = ['#10b981', '#ef4444', '#f59e0b', '#6366f1'];
   const RECITATION_COLORS = ['#8b5cf6', '#3b82f6', '#06b6d4'];
 
@@ -620,7 +620,11 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percentage }) => `${name} ${percentage.toFixed(1)}%`}
+                      label={({ name, value }: any) => {
+                        const total = attendanceStats.reduce((sum, item) => sum + item.value, 0);
+                        const percentage = ((value / total) * 100);
+                        return `${name} ${percentage.toFixed(1)}%`;
+                      }}
                       outerRadius={100}
                       fill="#8884d8"
                       dataKey="value"
@@ -649,7 +653,11 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percentage }) => `${name} ${percentage.toFixed(1)}%`}
+                      label={({ name, value }: any) => {
+                        const total = attendanceStats.reduce((sum, item) => sum + item.value, 0);
+                        const percentage = ((value / total) * 100);
+                        return `${name} ${percentage.toFixed(1)}%`;
+                      }}
                       outerRadius={100}
                       fill="#8884d8"
                       dataKey="value"
