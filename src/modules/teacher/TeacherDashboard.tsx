@@ -479,7 +479,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>الحضور والغياب - نسخة سريعة</span>
+                <span>الحضور والغياب - نسخة متقدمة</span>
                 <Button
                   variant="outline"
                   size="sm"
@@ -488,50 +488,51 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
                   عرض كامل
                 </Button>
               </CardTitle>
-              <CardDescription>آخر 10 سجلات حضور مع إمكانية التعديل</CardDescription>
+              <CardDescription>تسجيل الحضور بسهولة مع الحفظ الفوري</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="relative">
-                <Search className="absolute right-3 top-3 w-4 h-4 text-gray-400" />
-                <Input
-                  placeholder="ابحث عن الطالب..."
-                  value={attendanceSearch}
-                  onChange={(e) => setAttendanceSearch(e.target.value)}
-                  className="pr-10"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">اختر الحلقة</label>
+                  <select
+                    value={selectedCircleForAttendance}
+                    onChange={(e) => setSelectedCircleForAttendance(e.target.value)}
+                    className="w-full h-10 px-3 border rounded-md text-sm"
+                  >
+                    <option value="">-- اختر حلقة --</option>
+                    {circles.map(circle => (
+                      <option key={circle.id} value={circle.id}>
+                        {circle.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">التاريخ</label>
+                  <input
+                    type="date"
+                    value={selectedDateForAttendance}
+                    onChange={(e) => setSelectedDateForAttendance(e.target.value)}
+                    className="w-full h-10 px-3 border rounded-md text-sm"
+                  />
+                </div>
               </div>
 
-              {filteredAttendance.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">لا توجد سجلات حضور</div>
-              ) : (
-                <div className="space-y-3 max-h-80 overflow-y-auto">
-                  {filteredAttendance.map((record) => (
-                    <div
-                      key={record.id}
-                      className="p-3 border rounded-lg flex items-center justify-between hover:bg-gray-50 transition-colors"
-                    >
-                      <div>
-                        <p className="font-medium text-sm">{record.studentName}</p>
-                        <p className="text-xs text-gray-500">
-                          {new Date(record.date).toLocaleDateString('ar-SA')}
-                        </p>
-                      </div>
-                      <Badge className={getStatusBadge(record.status).color}>
-                        {getStatusBadge(record.status).label}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <QuickAttendancePanel
+                user={user}
+                organization={organization}
+                circleId={selectedCircleForAttendance}
+                date={selectedDateForAttendance}
+                onAttendanceUpdate={handleDataRefresh}
+              />
 
               <div className="pt-4 border-t">
-                <p className="text-sm text-gray-600 mb-2">استخدم الوصول السريع للطالب أو الواجهة الكاملة لتحديث الحضور</p>
                 <Button
                   onClick={() => setCurrentSection('attendance')}
                   className="w-full"
                   variant="outline"
                 >
-                  واجهة تسجيل الحضور الكاملة
+                  واجهة تسجيل الحضور الكاملة مع المزيد من الخيارات
                 </Button>
               </div>
             </CardContent>
