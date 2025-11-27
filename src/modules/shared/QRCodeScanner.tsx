@@ -1,11 +1,13 @@
-import { QrCode, Camera, X, CheckCircle, User, BookOpen } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { QrCode, Camera, X, CheckCircle, User, BookOpen, ArrowRight } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../components/ui/dialog';
-import { supabase } from '../../lib/supabase';
+import { Input } from '../../components/ui/input';
+import { supabase, isDemoMode } from '../../lib/supabase';
 import { toast } from 'sonner';
+import { StudentQuickAccess } from '../teacher/StudentQuickAccess';
 
 interface QRCodeScannerProps {
   teacherId: string;
@@ -282,7 +284,7 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
           <DialogHeader>
             <DialogTitle>إدخال يدوي</DialogTitle>
             <DialogDescription>
-              أدخل رقم الطالب أو اسمه للبحث عنه في النظام.
+              أدخل رقم الطالب أ�� اسمه للبحث عنه في النظام.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
