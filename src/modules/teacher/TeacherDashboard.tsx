@@ -461,13 +461,13 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
                 date={selectedDateForRecitation}
               />
 
-              <div className="pt-4 border-t">
+              <div className="pt-3 border-t">
                 <Button
                   onClick={() => setCurrentSection('recitations')}
-                  className="w-full"
+                  className="w-full h-8 text-sm"
                   variant="outline"
                 >
-                  عرض جميع سجلات التسميع والتحليلات
+                  عرض كامل
                 </Button>
               </div>
             </CardContent>
