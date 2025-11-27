@@ -547,7 +547,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
           />
         );
 
-      case 'attendance':
+      case 'attendance-recorder':
         return (
           <AttendanceRecorder
             teacherId={user.id}
