@@ -199,9 +199,9 @@ export function RecitationsPage({ organizationId, userRole, userId }: Recitation
         id: item.id,
         name: item.name,
         organization_id: organizationId,
-        level: 1,
+        level: item.level || 1,
         max_students: 30,
-        teacher_id: null,
+        teacher_id: item.teacher_id,
         is_active: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
