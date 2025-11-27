@@ -78,6 +78,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
   const [circles, setCircles] = useState<any[]>([]);
 
   useEffect(() => {
+    fetchCircles();
     fetchStats();
     fetchRecentData();
     const interval = setInterval(() => {
@@ -86,6 +87,29 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
     }, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval);
   }, [organization.id, user.id, refreshKey]);
+
+  const fetchCircles = async () => {
+    try {
+      if (isDemoMode()) {
+        setCircles([
+          { id: 'circle1', name: 'حلقة الفجر' },
+          { id: 'circle2', name: 'حلقة المغرب' },
+        ]);
+        return;
+      }
+
+      const { data } = await supabase
+        .from('circles')
+        .select('id, name')
+        .eq('organization_id', organization.id)
+        .eq('teacher_id', user.id)
+        .eq('is_active', true);
+
+      setCircles(data || []);
+    } catch (error) {
+      console.error('Error fetching circles:', error);
+    }
+  };
 
   const fetchStats = async () => {
     try {
@@ -275,7 +299,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
     setRefreshKey(k => k + 1);
     fetchStats();
     fetchRecentData();
-    toast.success('تم ��حديث البيانات');
+    toast.success('تم تحديث البيانات');
   }, []);
 
   const getGradeBadge = (grade: string) => {
@@ -455,7 +479,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
                   className="w-full"
                   variant="outline"
                 >
-                  عرض جميع سجلات التسميع والتس��يل
+                  عرض جميع سجلات التسميع والتسجيل
                 </Button>
               </div>
             </CardContent>
