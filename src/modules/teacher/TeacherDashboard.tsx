@@ -7,6 +7,8 @@ import { QRCodeScanner } from '../shared/QRCodeScanner';
 import { SettingsPage } from '../shared/SettingsPage';
 import { AttendanceRecorder } from '../shared/AttendanceRecorder';
 import { StudentQuickAccess } from './StudentQuickAccess';
+import { QuickMemorizationRecord } from '../../components/QuickMemorizationRecord';
+import { QuickAttendancePanel } from '../../components/QuickAttendancePanel';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
@@ -152,7 +154,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
           {
             id: '2',
             student_name: 'فاطمة علي',
-            surah_name: 'آل عمران',
+            surah_name: 'آل عمرا��',
             from_ayah: 1,
             to_ayah: 20,
             type: 'review',
