@@ -263,7 +263,7 @@ export function AttendanceRecorder({ teacherId, organizationId }: AttendanceReco
 
       if (insertError) throw insertError;
 
-      toast.success('تم حفظ الحضور بنجاح');
+      toast.success('تم حفظ الحضور بنجا��');
     } catch (error: any) {
       console.error('Error saving attendance:', error);
       if (!isDemoMode()) {
@@ -501,11 +501,10 @@ export function AttendanceRecorder({ teacherId, organizationId }: AttendanceReco
                           variant="outline"
                           size="sm"
                           onClick={() => updateStudentStatus(student.id, 'present')}
-                          className={`${
-                            student.status === 'present'
+                          className={`${student.status === 'present'
                               ? 'bg-green-100 border-green-300 text-green-700'
                               : ''
-                          }`}
+                            }`}
                         >
                           <CheckCircle className="w-4 h-4" />
                         </Button>
@@ -513,11 +512,10 @@ export function AttendanceRecorder({ teacherId, organizationId }: AttendanceReco
                           variant="outline"
                           size="sm"
                           onClick={() => updateStudentStatus(student.id, 'absent')}
-                          className={`${
-                            student.status === 'absent'
+                          className={`${student.status === 'absent'
                               ? 'bg-red-100 border-red-300 text-red-700'
                               : ''
-                          }`}
+                            }`}
                         >
                           <XCircle className="w-4 h-4" />
                         </Button>
@@ -525,11 +523,10 @@ export function AttendanceRecorder({ teacherId, organizationId }: AttendanceReco
                           variant="outline"
                           size="sm"
                           onClick={() => updateStudentStatus(student.id, 'late')}
-                          className={`${
-                            student.status === 'late'
+                          className={`${student.status === 'late'
                               ? 'bg-yellow-100 border-yellow-300 text-yellow-700'
                               : ''
-                          }`}
+                            }`}
                         >
                           <Clock className="w-4 h-4" />
                         </Button>
@@ -537,11 +534,10 @@ export function AttendanceRecorder({ teacherId, organizationId }: AttendanceReco
                           variant="outline"
                           size="sm"
                           onClick={() => updateStudentStatus(student.id, 'excused')}
-                          className={`${
-                            student.status === 'excused'
+                          className={`${student.status === 'excused'
                               ? 'bg-blue-100 border-blue-300 text-blue-700'
                               : ''
-                          }`}
+                            }`}
                         >
                           <AlertCircle className="w-4 h-4" />
                         </Button>

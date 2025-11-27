@@ -1,1182 +1,1149 @@
-import { useState, useEffect } from 'react';
-import { supabase, isDemoMode } from '../../lib/supabase';
-import { toast } from 'sonner';
-import { IndividualStudentReports } from '../shared/IndividualStudentReports';
-import { ExportReportButton } from '../../components/ExportReportButton';
-import { type ReportData } from '../../lib/reportExport';
-import { 
-  Card, CardContent, CardDescription, CardHeader, CardTitle 
-} from '../../components/ui/card';
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
+import { Badge } from '../../components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
-import { Badge } from '../../components/ui/badge';
+import { Plus, Edit, Trash2, Search, UserPlus, CheckCircle, XCircle, Clock, Mail, Phone, Calendar, User, Eye, Ban, Shield, FileText, Download, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import { Progress } from '../../components/ui/progress';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../../components/ui/table';
-import {
-  Users, BookOpen, CheckCircle, Award, TrendingUp, 
-  Activity, Download, Star, Trophy, Target
-} from 'lucide-react';
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  PieChart as RePieChart,
-  Pie,
-  Cell,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-} from 'recharts';
+import { Alert, AlertDescription } from '../../components/ui/alert';
+import { useAuth } from '../../contexts/AuthContext';
+import { logAuditAction } from '../../lib/auditLog';
 
-interface ReportsPageProps {
-  organizationId: string;
-  userRole: string;
-  userId: string;
+interface ExtendedUser {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  gender: 'ذكر' | 'أنثى';
+  status: 'نشط' | 'معلق' | 'قيد المراجعة';
+  joinDate: string;
+  lastActive: string;
+  circle?: string;
+  studentsCount?: number;
+  circlesCount?: number;
+  childrenCount?: number;
 }
 
-export function ReportsPage({ organizationId, userRole, userId }: ReportsPageProps) {
-  const [selectedPeriod, setSelectedPeriod] = useState('month');
-  const [selectedCircle, setSelectedCircle] = useState('all');
-  const [loading, setLoading] = useState(true);
-  const [circles, setCircles] = useState<any[]>([]);
-  
-  // تحديد ما إذا كان المستخدم يمكنه رؤية التقارير الشاملة
-  const canViewFullReports = userRole === 'admin' || userRole === 'supervisor';
-  const isTeacher = userRole === 'teacher';
+interface UserStats {
+  total: number;
+  active: number;
+  suspended: number;
+  pending: number;
+  byRole: {
+    [key: string]: number;
+  };
+}
 
-  // إحصائيات عامة
-  const [summaryStats, setSummaryStats] = useState({
-    totalStudents: 245,
-    totalStudentsChange: 12,
-    attendanceRate: 87,
-    attendanceChange: 5,
-    totalParts: 1240,
-    partsChange: 18,
-    progressRate: 82,
-    progressChange: 8,
-    totalRecitations: 856,
-    recitationsChange: 15,
-    activeTeachers: 12,
-    teachersChange: 2,
+export function EnhancedUsersManagement({ organizationId }: { organizationId: string }) {
+  const { profile: currentUserProfile } = useAuth();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedRole, setSelectedRole] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<ExtendedUser | null>(null);
+
+  // حالة النموذج المعدل
+  const [editFormData, setEditFormData] = useState<{
+    name: string;
+    email: string;
+    phone: string;
+    role: string;
+    status: 'نشط' | 'معلق' | 'قيد المراجعة';
+    gender: 'ذكر' | 'أنثى';
+  } | null>(null);
+
+  const [users, setUsers] = useState<ExtendedUser[]>([
+    {
+      id: '1',
+      name: 'أحمد المعلم',
+      email: 'ahmed@example.com',
+      phone: '0501234567',
+      role: 'معلم',
+      gender: 'ذكر',
+      status: 'نشط',
+      joinDate: '1445-07-15',
+      lastActive: '1446-03-20',
+      circlesCount: 3,
+      studentsCount: 45
+    },
+    {
+      id: '2',
+      name: 'فاطمة الطالبة',
+      email: 'fatima@example.com',
+      phone: '0509876543',
+      role: 'طالب',
+      gender: 'أنثى',
+      status: 'نشط',
+      joinDate: '1445-08-20',
+      lastActive: '1446-03-20',
+      circle: 'حلقة الفجر'
+    },
+    {
+      id: '3',
+      name: 'عبدالله ولي الأمر',
+      email: 'abdullah@example.com',
+      phone: '0505551234',
+      role: 'ولي أمر',
+      gender: 'ذكر',
+      status: 'نشط',
+      joinDate: '1445-08-21',
+      lastActive: '1446-03-19',
+      childrenCount: 2
+    },
+    {
+      id: '4',
+      name: 'خالد المشرف',
+      email: 'khaled@example.com',
+      phone: '0507778899',
+      role: 'مشرف',
+      gender: 'ذكر',
+      status: 'نشط',
+      joinDate: '1445-07-10',
+      lastActive: '1446-03-20',
+      circlesCount: 8
+    },
+    {
+      id: '5',
+      name: 'محمد الجديد',
+      email: 'mohamed@example.com',
+      phone: '0503334455',
+      role: 'طالب',
+      gender: 'ذكر',
+      status: 'قيد المراجعة',
+      joinDate: '1446-03-01',
+      lastActive: '1446-03-01'
+    },
+    {
+      id: '6',
+      name: 'نورة المعلمة',
+      email: 'noura@example.com',
+      phone: '0508889999',
+      role: 'معلم',
+      gender: 'أنثى',
+      status: 'نشط',
+      joinDate: '1445-07-18',
+      lastActive: '1446-03-20',
+      circlesCount: 2,
+      studentsCount: 30
+    },
+    {
+      id: '7',
+      name: 'سارة الطالبة',
+      email: 'sara@example.com',
+      phone: '0509998888',
+      role: 'طالب',
+      gender: 'أنثى',
+      status: 'معلق',
+      joinDate: '1445-09-10',
+      lastActive: '1446-02-15',
+      circle: 'حلقة العصر'
+    },
+  ]);
+
+  const [pendingRequests, setPendingRequests] = useState([
+    {
+      id: '1',
+      name: 'سارة أحمد',
+      email: 'sara2@example.com',
+      phone: '0501112233',
+      role: 'طالب',
+      gender: 'أنثى',
+      requestDate: '1446-03-05',
+      notes: 'طالبة جديدة ترغب في الانضمام'
+    },
+    {
+      id: '2',
+      name: 'يوسف محمد',
+      email: 'yousef@example.com',
+      phone: '0504445566',
+      role: 'معلم',
+      gender: 'ذكر',
+      requestDate: '1446-03-06',
+      notes: 'معلم خبرة 5 سنوات'
+    },
+    {
+      id: '3',
+      name: 'نورة عبدالله',
+      email: 'noura2@example.com',
+      phone: '0507778888',
+      role: 'ولي أمر',
+      gender: 'أنثى',
+      requestDate: '1446-03-07',
+      notes: 'لديها طفلان'
+    },
+  ]);
+
+  const [newUser, setNewUser] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    role: 'طالب',
+    gender: '',
   });
 
-  // بيانات الحضور حسب النوع
-  const [attendanceByType, setAttendanceByType] = useState([
-    { name: 'حاضر', value: 756, percentage: 75.6, color: '#10b981' },
-    { name: 'غائب', value: 120, percentage: 12.0, color: '#ef4444' },
-    { name: 'مستأذن', value: 85, percentage: 8.5, color: '#f59e0b' },
-    { name: 'متأخر', value: 39, percentage: 3.9, color: '#6366f1' },
-  ]);
-
-  // بيانات التسميع حسب النوع
-  const [recitationsByType, setRecitationsByType] = useState([
-    { name: 'حفظ جديد', value: 425, percentage: 49.6, color: '#8b5cf6' },
-    { name: 'مراجعة', value: 315, percentage: 36.8, color: '#3b82f6' },
-    { name: 'تثبيت', value: 116, percentage: 13.6, color: '#06b6d4' },
-  ]);
-
-  // بيانات التقدم الشهري
-  const [monthlyProgress, setMonthlyProgress] = useState([
-    { month: 'محرم', students: 210, recitations: 520, attendance: 85, parts: 38 },
-    { month: 'صفر', students: 215, recitations: 580, attendance: 83, parts: 42 },
-    { month: 'ربيع الأول', students: 225, recitations: 640, attendance: 87, parts: 45 },
-    { month: 'ربيع الثاني', students: 232, recitations: 710, attendance: 88, parts: 48 },
-    { month: 'جمادى الأول', students: 238, recitations: 780, attendance: 86, parts: 52 },
-    { month: 'جمادى الثاني', students: 245, recitations: 856, attendance: 87, parts: 55 },
-  ]);
-
-  // أداء الحلقات
-  const [circlePerformance, setCirclePerformance] = useState([
-    { 
-      id: '1',
-      name: 'حلقة الفجر', 
-      teacher: 'أحمد المعلم',
-      students: 24, 
-      attendance: 92, 
-      progress: 85, 
-      rating: 4.8,
-      totalRecitations: 156,
-      newMemorization: 78,
-      review: 58,
-      reinforcement: 20,
-    },
-    { 
-      id: '2',
-      name: 'حلقة الظهر', 
-      teacher: 'محمد الحافظ',
-      students: 22, 
-      attendance: 90, 
-      progress: 80, 
-      rating: 4.5,
-      totalRecitations: 134,
-      newMemorization: 65,
-      review: 52,
-      reinforcement: 17,
-    },
-    { 
-      id: '3',
-      name: 'حلقة العصر', 
-      teacher: 'خالد القارئ',
-      students: 18, 
-      attendance: 85, 
-      progress: 82, 
-      rating: 4.7,
-      totalRecitations: 128,
-      newMemorization: 62,
-      review: 48,
-      reinforcement: 18,
-    },
-    { 
-      id: '4',
-      name: 'حلقة المغرب', 
-      teacher: 'يوسف المحفظ',
-      students: 20, 
-      attendance: 88, 
-      progress: 78, 
-      rating: 4.6,
-      totalRecitations: 142,
-      newMemorization: 70,
-      review: 54,
-      reinforcement: 18,
-    },
-  ]);
-
-  // أداء المعلمين
-  const [teacherPerformance, setTeacherPerformance] = useState([
-    { 
-      id: '1',
-      name: 'أحمد المعلم', 
-      circles: 2,
-      students: 36, 
-      recitations: 234,
-      newMemorization: 117,
-      review: 87,
-      reinforcement: 30,
-      avgRating: 4.8, 
-      attendance: 92,
-      completion: 85 
-    },
-    { 
-      id: '2',
-      name: 'محمد الحافظ', 
-      circles: 1,
-      students: 22, 
-      recitations: 134,
-      newMemorization: 65,
-      review: 52,
-      reinforcement: 17,
-      avgRating: 4.5, 
-      attendance: 90,
-      completion: 80 
-    },
-    { 
-      id: '3',
-      name: 'خالد القارئ', 
-      circles: 1,
-      students: 18, 
-      recitations: 128,
-      newMemorization: 62,
-      review: 48,
-      reinforcement: 18,
-      avgRating: 4.7, 
-      attendance: 85,
-      completion: 82 
-    },
-    { 
-      id: '4',
-      name: 'يوسف المحفظ', 
-      circles: 2,
-      students: 30, 
-      recitations: 188,
-      newMemorization: 92,
-      review: 71,
-      reinforcement: 25,
-      avgRating: 4.6, 
-      attendance: 88,
-      completion: 78 
-    },
-  ]);
-
-  // أفضل الطلاب
-  const [topStudents, setTopStudents] = useState([
-    { 
-      rank: 1, 
-      name: 'فاطمة أحمد', 
-      circle: 'حلقة الفجر',
-      parts: 15, 
-      pages: 300,
-      progress: 95,
-      attendance: 98,
-      recitations: 156,
-      newMemorization: 78,
-      review: 58,
-      reinforcement: 20,
-    },
-    { 
-      rank: 2, 
-      name: 'محمد علي', 
-      circle: 'حلقة المغرب',
-      parts: 14, 
-      pages: 280,
-      progress: 93,
-      attendance: 96,
-      recitations: 148,
-      newMemorization: 74,
-      review: 55,
-      reinforcement: 19,
-    },
-    { 
-      rank: 3, 
-      name: 'عائشة سالم', 
-      circle: 'حلقة العصر',
-      parts: 13, 
-      pages: 260,
-      progress: 90,
-      attendance: 94,
-      recitations: 142,
-      newMemorization: 71,
-      review: 52,
-      reinforcement: 19,
-    },
-    { 
-      rank: 4, 
-      name: 'يوسف خالد', 
-      circle: 'حلقة الفجر',
-      parts: 12, 
-      pages: 240,
-      progress: 88,
-      attendance: 92,
-      recitations: 136,
-      newMemorization: 68,
-      review: 50,
-      reinforcement: 18,
-    },
-    { 
-      rank: 5, 
-      name: 'نورة عبدالله', 
-      circle: 'حلقة المغرب',
-      parts: 11, 
-      pages: 220,
-      progress: 85,
-      attendance: 90,
-      recitations: 128,
-      newMemorization: 64,
-      review: 47,
-      reinforcement: 17,
-    },
-  ]);
-
-  // تقرير الحضور اليومي (آخر 30 يوم)
-  const [dailyAttendance, setDailyAttendance] = useState(
-    Array.from({ length: 30 }, (_, i) => {
-      const day = 30 - i;
-      return {
-        date: `${day}/11`,
-        present: Math.floor(Math.random() * 30) + 190,
-        absent: Math.floor(Math.random() * 15) + 10,
-        excused: Math.floor(Math.random() * 10) + 5,
-        late: Math.floor(Math.random() * 5) + 2,
-      };
-    })
-  );
-
-  useEffect(() => {
-    fetchData();
-  }, [organizationId, selectedPeriod, selectedCircle]);
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-
-      if (isDemoMode()) {
-        // في Demo Mode نستخدم البيانات الوهمية الموجودة بالفعل
-        setLoading(false);
-        return;
-      }
-
-      // جلب الحلقات
-      const { data: circlesData } = await supabase
-        .from('circles')
-        .select('id, name')
-        .eq('organization_id', organizationId)
-        .eq('is_active', true);
-
-      if (circlesData) {
-        setCircles(circlesData);
-      }
-
-      // TODO: جلب البيانات الحقيقية من Supabase
-      // يمكن إضافة استعلامات لجلب الإحصائيات الفعلية
-
-    } catch (error: any) {
-      console.error('Error fetching reports data:', error);
-      if (!isDemoMode()) {
-        toast.error('فشل تحميل بيانات التقارير');
-      }
-    } finally {
-      setLoading(false);
+  // حساب الإحصائيات
+  const stats: UserStats = {
+    total: users.length,
+    active: users.filter(u => u.status === 'نشط').length,
+    suspended: users.filter(u => u.status === 'معلق').length,
+    pending: users.filter(u => u.status === 'قيد المراجعة').length,
+    byRole: {
+      'معلم': users.filter(u => u.role === 'معلم').length,
+      'طالب': users.filter(u => u.role === 'طالب').length,
+      'مشرف': users.filter(u => u.role === 'مشرف').length,
+      'ولي أمر': users.filter(u => u.role === 'ولي أمر').length,
     }
   };
 
-  const handleExportReport = () => {
-    toast.success('جاري تصدير التقرير... (Demo Mode)');
-    // TODO: تنفيذ تصدير التقارير
-  };
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.phone.includes(searchTerm);
+    const matchesRole = selectedRole === 'all' || user.role === selectedRole;
+    const matchesStatus = selectedStatus === 'all' || user.status === selectedStatus;
+    return matchesSearch && matchesRole && matchesStatus;
+  });
 
-  // إعداد بيانات التقرير لـ PDF
-  const preparePDFData = (): ReportData => {
-    const periodText = selectedPeriod === 'week' ? 'هذا الأسبوع' :
-                      selectedPeriod === 'month' ? 'هذا الشهر' :
-                      selectedPeriod === 'quarter' ? 'هذا الربع' : 'هذا العام';
+  const handleAddUser = () => {
+    if (!newUser.name || !newUser.email || !newUser.gender) {
+      toast.error('الرجاء ملء جميع الحقول المطلوبة');
+      return;
+    }
 
-    return {
-      title: 'Reports & Statistics - التقارير والإحصائيات',
-      organizationName: 'Quran Memorization Platform',
-      period: periodText,
-      summary: {
-        'Total Students': summaryStats.totalStudents,
-        'Attendance Rate': `${summaryStats.attendanceRate}%`,
-        'Total Recitations': summaryStats.totalRecitations,
-        'Total Parts Memorized': summaryStats.totalParts,
-        'Progress Rate': `${summaryStats.progressRate}%`,
-        'Active Teachers': summaryStats.activeTeachers,
-      },
-      sections: [
-        {
-          title: 'Attendance Distribution - توزيع الحضور',
-          content: attendanceByType.map(type => 
-            `${type.name}: ${type.value} (${type.percentage.toFixed(1)}%)`
-          ),
-          type: 'list'
-        },
-        {
-          title: 'Recitation Types - أنواع التسميع',
-          content: recitationsByType.map(type =>
-            `${type.name}: ${type.value} (${type.percentage.toFixed(1)}%)`
-          ),
-          type: 'list'
-        },
-      ],
-      tableData: {
-        title: 'Top Performing Students - الطلاب المتميزون',
-        headers: ['Rank', 'Name', 'Circle', 'Parts', 'Pages', 'Recitations', 'Progress'],
-        rows: topStudents.map(s => [
-          `#${s.rank}`,
-          s.name,
-          s.circle,
-          `${s.parts}`,
-          `${s.pages}`,
-          `${s.recitations}`,
-          `${s.progress}%`
-        ])
-      }
+    const user: ExtendedUser = {
+      id: String(users.length + 1),
+      name: newUser.name,
+      email: newUser.email,
+      phone: newUser.phone,
+      role: newUser.role,
+      gender: newUser.gender as 'ذكر' | 'أنثى',
+      status: 'نشط',
+      joinDate: '1446-03-20',
+      lastActive: '1446-03-20',
     };
+    setUsers([...users, user]);
+    setNewUser({ name: '', email: '', phone: '', role: 'طالب', gender: '' });
+    setIsAddDialogOpen(false);
+    toast.success('تم إضافة المستخدم بنجاح');
+
+    // تسجيل في Audit Log
+    logAuditAction(
+      organizationId,
+      currentUserProfile?.id || '',
+      currentUserProfile?.full_name || 'مدير',
+      'USER_CREATED',
+      {
+        targetType: 'user',
+        targetId: user.id,
+        targetName: user.name,
+        newValue: { role: user.role, status: user.status },
+      }
+    );
   };
 
-  // ألوان للرسوم البيانية
-  const COLORS = ['#10b981', '#ef4444', '#f59e0b', '#6366f1'];
-  const RECITATION_COLORS = ['#8b5cf6', '#3b82f6', '#06b6d4'];
+  const handleEditUser = (user: ExtendedUser) => {
+    setSelectedUser(user);
+    setEditFormData({
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      status: user.status,
+      gender: user.gender,
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveEditUser = async () => {
+    if (!selectedUser || !editFormData) return;
+
+    const oldData = {
+      role: selectedUser.role,
+      status: selectedUser.status,
+      name: selectedUser.name,
+    };
+
+    const newData = {
+      role: editFormData.role,
+      status: editFormData.status,
+      name: editFormData.name,
+    };
+
+    // تحديث البيانات
+    setUsers(users.map(u =>
+      u.id === selectedUser.id
+        ? { ...u, ...editFormData }
+        : u
+    ));
+
+    // تسجيل في Audit Log
+    if (oldData.role !== newData.role) {
+      await logAuditAction(
+        organizationId,
+        currentUserProfile?.id || '',
+        currentUserProfile?.full_name || 'مدير',
+        'USER_ROLE_CHANGED',
+        {
+          targetType: 'user',
+          targetId: selectedUser.id,
+          targetName: selectedUser.name,
+          oldValue: { role: oldData.role },
+          newValue: { role: newData.role },
+          notes: `تم تغيير الدور من "${oldData.role}" إلى "${newData.role}"`,
+        }
+      );
+    }
+
+    if (oldData.status !== newData.status) {
+      await logAuditAction(
+        organizationId,
+        currentUserProfile?.id || '',
+        currentUserProfile?.full_name || 'مدير',
+        'USER_STATUS_CHANGED',
+        {
+          targetType: 'user',
+          targetId: selectedUser.id,
+          targetName: selectedUser.name,
+          oldValue: { status: oldData.status },
+          newValue: { status: newData.status },
+          notes: `تم تغيير الحالة من "${oldData.status}" إلى "${newData.status}"`,
+        }
+      );
+    }
+
+    if (oldData.name !== newData.name || oldData.role !== newData.role || oldData.status !== newData.status) {
+      await logAuditAction(
+        organizationId,
+        currentUserProfile?.id || '',
+        currentUserProfile?.full_name || 'مدير',
+        'USER_UPDATED',
+        {
+          targetType: 'user',
+          targetId: selectedUser.id,
+          targetName: selectedUser.name,
+          oldValue: oldData,
+          newValue: newData,
+        }
+      );
+    }
+
+    setIsEditDialogOpen(false);
+    toast.success('تم تحديث بيانات المستخدم بنجاح');
+  };
+
+  const handleViewUser = (user: ExtendedUser) => {
+    setSelectedUser(user);
+    setIsViewDialogOpen(true);
+  };
+
+  const handleSuspendUser = async (id: string) => {
+    const user = users.find(u => u.id === id);
+    if (!user) return;
+
+    setUsers(users.map(u => u.id === id ? { ...u, status: 'معلق' as const } : u));
+    toast.success('تم تعليق المستخدم');
+
+    await logAuditAction(
+      organizationId,
+      currentUserProfile?.id || '',
+      currentUserProfile?.full_name || 'مدير',
+      'USER_SUSPENDED',
+      {
+        targetType: 'user',
+        targetId: id,
+        targetName: user.name,
+        oldValue: { status: user.status },
+        newValue: { status: 'معلق' },
+      }
+    );
+  };
+
+  const handleActivateUser = async (id: string) => {
+    const user = users.find(u => u.id === id);
+    if (!user) return;
+
+    setUsers(users.map(u => u.id === id ? { ...u, status: 'نشط' as const } : u));
+    toast.success('تم تفعيل المستخدم');
+
+    await logAuditAction(
+      organizationId,
+      currentUserProfile?.id || '',
+      currentUserProfile?.full_name || 'مدير',
+      'USER_ACTIVATED',
+      {
+        targetType: 'user',
+        targetId: id,
+        targetName: user.name,
+        oldValue: { status: user.status },
+        newValue: { status: 'نشط' },
+      }
+    );
+  };
+
+  const handleDeleteUser = async (id: string) => {
+    if (confirm('هل أنت متأكد من حذف هذا المستخدم؟')) {
+      const user = users.find(u => u.id === id);
+      if (!user) return;
+
+      setUsers(users.filter(u => u.id !== id));
+      toast.success('تم حذف المستخدم');
+
+      await logAuditAction(
+        organizationId,
+        currentUserProfile?.id || '',
+        currentUserProfile?.full_name || 'مدير',
+        'USER_DELETED',
+        {
+          targetType: 'user',
+          targetId: id,
+          targetName: user.name,
+          oldValue: { role: user.role, status: user.status },
+        }
+      );
+    }
+  };
+
+  const handleApproveRequest = async (id: string) => {
+    const request = pendingRequests.find(r => r.id === id);
+    if (request) {
+      const newUser: ExtendedUser = {
+        id: String(users.length + 1),
+        name: request.name,
+        email: request.email,
+        phone: request.phone,
+        role: request.role,
+        gender: request.gender as 'ذكر' | 'أنثى',
+        status: 'نشط',
+        joinDate: '1446-03-20',
+        lastActive: '1446-03-20',
+      };
+      setUsers([...users, newUser]);
+      setPendingRequests(pendingRequests.filter(r => r.id !== id));
+      toast.success('تمت الموافقة على الطلب');
+
+      await logAuditAction(
+        organizationId,
+        currentUserProfile?.id || '',
+        currentUserProfile?.full_name || 'مدير',
+        'REQUEST_APPROVED',
+        {
+          targetType: 'user',
+          targetId: newUser.id,
+          targetName: newUser.name,
+          newValue: { role: newUser.role, status: newUser.status },
+        }
+      );
+    }
+  };
+
+  const handleRejectRequest = async (id: string) => {
+    if (confirm('هل أنت متأكد من رفض هذا الطلب؟')) {
+      const request = pendingRequests.find(r => r.id === id);
+      if (!request) return;
+
+      setPendingRequests(pendingRequests.filter(r => r.id !== id));
+      toast.success('تم رفض الطلب');
+
+      await logAuditAction(
+        organizationId,
+        currentUserProfile?.id || '',
+        currentUserProfile?.full_name || 'مدير',
+        'REQUEST_REJECTED',
+        {
+          targetType: 'join_request',
+          targetId: id,
+          targetName: request.name,
+          notes: `تم رفض طلب الانضمام كـ ${request.role}`,
+        }
+      );
+    }
+  };
+
+  const handleExportUsers = () => {
+    toast.success('جاري تصدير قائمة المستخدمين...');
+    // TODO: تنفيذ التصدير الفعلي
+  };
+
+  const getStatusColor = (status: ExtendedUser['status']) => {
+    switch (status) {
+      case 'نشط':
+        return 'bg-green-100 text-green-800';
+      case 'معلق':
+        return 'bg-red-100 text-red-800';
+      case 'قيد المراجعة':
+        return 'bg-yellow-100 text-yellow-800';
+    }
+  };
+
+  const getRoleBadgeColor = (role: string) => {
+    switch (role) {
+      case 'مشرف':
+        return 'bg-indigo-100 text-indigo-800';
+      case 'معلم':
+        return 'bg-blue-100 text-blue-800';
+      case 'طالب':
+        return 'bg-emerald-100 text-emerald-800';
+      case 'ولي أمر':
+        return 'bg-orange-100 text-orange-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case 'مشرف':
+        return Shield;
+      case 'معلم':
+        return User;
+      case 'طالب':
+        return User;
+      case 'ولي أمر':
+        return User;
+      default:
+        return User;
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* الرأس */}
-      <div className="flex items-center justify-between">
+      {/* العنوان والإجراءات */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-2xl">التقارير والإحصائيات</h2>
-          <p className="text-gray-600 mt-1">تقارير شاملة عن الأداء والتقدم</p>
+          <h2 className="text-2xl">إدارة المستخدمين</h2>
+          <p className="text-gray-600 mt-1">إدارة شاملة لجميع المستخدمين في المنصة</p>
         </div>
         <div className="flex gap-2">
-          <Select value={selectedCircle} onValueChange={setSelectedCircle}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="جميع الحلقات" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">جميع الحلقات</SelectItem>
-              {circles.map((circle) => (
-                <SelectItem key={circle.id} value={circle.id}>
-                  {circle.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="week">هذا الأسبوع</SelectItem>
-              <SelectItem value="month">هذا الشهر</SelectItem>
-              <SelectItem value="quarter">هذا الربع</SelectItem>
-              <SelectItem value="year">هذا العام</SelectItem>
-            </SelectContent>
-          </Select>
-          <ExportReportButton
-            reportData={preparePDFData()}
-            fileName="quran_platform_report"
-            className="bg-emerald-600 hover:bg-emerald-700"
-          />
+          <Button onClick={handleExportUsers} variant="outline">
+            <Download className="w-4 h-4 ml-2" />
+            تصدير
+          </Button>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-emerald-600 hover:bg-emerald-700">
+                <Plus className="w-4 h-4 ml-2" />
+                إضافة مستخدم
+              </Button>
+            </DialogTrigger>
+            <DialogContent dir="rtl">
+              <DialogHeader>
+                <DialogTitle>إضافة مستخدم جديد</DialogTitle>
+                <DialogDescription>أضف مستخدم جديد مباشرة إلى المنصة</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="user-name">الاسم الكامل *</Label>
+                    <Input
+                      id="user-name"
+                      placeholder="محمد أحمد"
+                      value={newUser.name}
+                      onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="user-gender">الجنس *</Label>
+                    <Select value={newUser.gender} onValueChange={(value) => setNewUser({ ...newUser, gender: value })}>
+                      <SelectTrigger id="user-gender">
+                        <SelectValue placeholder="اختر الجنس" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ذكر">ذكر</SelectItem>
+                        <SelectItem value="أنثى">أنثى</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="user-email">البريد الإلكتروني *</Label>
+                  <Input
+                    id="user-email"
+                    type="email"
+                    placeholder="user@example.com"
+                    value={newUser.email}
+                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                    dir="ltr"
+                    className="text-right"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="user-phone">رقم الجوال</Label>
+                  <Input
+                    id="user-phone"
+                    type="tel"
+                    placeholder="05xxxxxxxx"
+                    value={newUser.phone}
+                    onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
+                    dir="ltr"
+                    className="text-right"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="user-role">الدور *</Label>
+                  <Select value={newUser.role} onValueChange={(value) => setNewUser({ ...newUser, role: value })}>
+                    <SelectTrigger id="user-role">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="مشرف">مشرف</SelectItem>
+                      <SelectItem value="معلم">معلم</SelectItem>
+                      <SelectItem value="طالب">طالب</SelectItem>
+                      <SelectItem value="ولي أمر">ولي أمر</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button onClick={handleAddUser} className="w-full bg-emerald-600 hover:bg-emerald-700">
+                  <UserPlus className="w-4 h-4 ml-2" />
+                  إضافة المستخدم
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
-      {/* الإحصائيات العامة */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* الإحصائيات */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-sm text-gray-600">إجمالي الطلاب</p>
-                <p className="text-3xl mt-2">{summaryStats.totalStudents}</p>
-              </div>
-              <div className="bg-blue-500 p-3 rounded-lg">
-                <Users className="w-6 h-6 text-white" />
-              </div>
-            </div>
-            <div className="flex items-center gap-1 text-sm text-green-600">
-              <TrendingUp className="w-4 h-4" />
-              <span>+{summaryStats.totalStudentsChange}%</span>
-              <span className="text-gray-500">عن الشهر الماضي</span>
+            <div className="text-center">
+              <p className="text-sm text-gray-600">إجمالي المستخدمين</p>
+              <p className="text-3xl mt-2 text-blue-600">{stats.total}</p>
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-sm text-gray-600">معدل الحضور</p>
-                <p className="text-3xl mt-2">{summaryStats.attendanceRate}%</p>
-              </div>
-              <div className="bg-emerald-500 p-3 rounded-lg">
-                <CheckCircle className="w-6 h-6 text-white" />
-              </div>
-            </div>
-            <div className="flex items-center gap-1 text-sm text-green-600">
-              <TrendingUp className="w-4 h-4" />
-              <span>+{summaryStats.attendanceChange}%</span>
-              <span className="text-gray-500">عن الشهر الماضي</span>
+            <div className="text-center">
+              <p className="text-sm text-gray-600">المستخدمون النشطون</p>
+              <p className="text-3xl mt-2 text-green-600">{stats.active}</p>
+              <Progress value={(stats.active / stats.total) * 100} className="h-2 mt-2" />
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-sm text-gray-600">إجمالي التسميع</p>
-                <p className="text-3xl mt-2">{summaryStats.totalRecitations}</p>
-              </div>
-              <div className="bg-purple-500 p-3 rounded-lg">
-                <BookOpen className="w-6 h-6 text-white" />
-              </div>
-            </div>
-            <div className="flex items-center gap-1 text-sm text-green-600">
-              <TrendingUp className="w-4 h-4" />
-              <span>+{summaryStats.recitationsChange}%</span>
-              <span className="text-gray-500">عن الشهر الماضي</span>
+            <div className="text-center">
+              <p className="text-sm text-gray-600">المعلقون</p>
+              <p className="text-3xl mt-2 text-red-600">{stats.suspended}</p>
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-sm text-gray-600">الأجزاء المحفوظة</p>
-                <p className="text-3xl mt-2">{summaryStats.totalParts}</p>
-              </div>
-              <div className="bg-orange-500 p-3 rounded-lg">
-                <Award className="w-6 h-6 text-white" />
-              </div>
-            </div>
-            <div className="flex items-center gap-1 text-sm text-green-600">
-              <TrendingUp className="w-4 h-4" />
-              <span>+{summaryStats.partsChange}%</span>
-              <span className="text-gray-500">عن الشهر الماضي</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-sm text-gray-600">معدل التقدم</p>
-                <p className="text-3xl mt-2">{summaryStats.progressRate}%</p>
-              </div>
-              <div className="bg-indigo-500 p-3 rounded-lg">
-                <Activity className="w-6 h-6 text-white" />
-              </div>
-            </div>
-            <div className="flex items-center gap-1 text-sm text-green-600">
-              <TrendingUp className="w-4 h-4" />
-              <span>+{summaryStats.progressChange}%</span>
-              <span className="text-gray-500">عن الشهر الماضي</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-sm text-gray-600">المعلمون النشطون</p>
-                <p className="text-3xl mt-2">{summaryStats.activeTeachers}</p>
-              </div>
-              <div className="bg-cyan-500 p-3 rounded-lg">
-                <Users className="w-6 h-6 text-white" />
-              </div>
-            </div>
-            <div className="flex items-center gap-1 text-sm text-green-600">
-              <TrendingUp className="w-4 h-4" />
-              <span>+{summaryStats.teachersChange}</span>
-              <span className="text-gray-500">عن الشهر الماضي</span>
+            <div className="text-center">
+              <p className="text-sm text-gray-600">قيد المراجعة</p>
+              <p className="text-3xl mt-2 text-yellow-600">{stats.pending}</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
-          <TabsTrigger value="attendance">الحضور</TabsTrigger>
-          <TabsTrigger value="recitations">التسميع</TabsTrigger>
-          <TabsTrigger value="circles">الحلقات</TabsTrigger>
-          <TabsTrigger value="teachers">المعلمون</TabsTrigger>
-          <TabsTrigger value="students">الطلاب المتميزون</TabsTrigger>
-          <TabsTrigger value="individual">تقارير فردية</TabsTrigger>
+      {/* التبويبات */}
+      <Tabs defaultValue="active" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="active">المستخدمون النشطون ({stats.active})</TabsTrigger>
+          <TabsTrigger value="pending">
+            الطلبات قيد المراجعة
+            {pendingRequests.length > 0 && (
+              <Badge className="mr-2 bg-red-500">{pendingRequests.length}</Badge>
+            )}
+          </TabsTrigger>
         </TabsList>
 
-        {/* نظرة عامة */}
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* التقدم الشهري */}
-            <Card>
-              <CardHeader>
-                <CardTitle>التقدم الشهري</CardTitle>
-                <CardDescription>تطور الأداء خلال الأشهر الأخيرة</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={monthlyProgress}>
-                    <defs>
-                      <linearGradient id="colorRecitations" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorAttendance" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Area 
-                      type="monotone" 
-                      dataKey="recitations" 
-                      stroke="#8b5cf6" 
-                      fillOpacity={1} 
-                      fill="url(#colorRecitations)" 
-                      name="التسميع"
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="attendance" 
-                      stroke="#10b981" 
-                      fillOpacity={1} 
-                      fill="url(#colorAttendance)" 
-                      name="الحضور %"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* توزيع الحضور */}
-            <Card>
-              <CardHeader>
-                <CardTitle>توزيع الحضور</CardTitle>
-                <CardDescription>تصنيف حالات الحضور والغياب</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <RePieChart>
-                    <Pie
-                      data={attendanceByType}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, value }: any) => {
-                        const total = attendanceByType.reduce((sum, item) => sum + item.value, 0);
-                        const percentage = ((value / total) * 100);
-                        return `${name} ${percentage.toFixed(1)}%`;
-                      }}
-                      outerRadius={100}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {attendanceByType.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </RePieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* توزيع التسميع */}
-            <Card>
-              <CardHeader>
-                <CardTitle>توزيع التسميع</CardTitle>
-                <CardDescription>تصنيف أنواع التسميع (حفظ، مراجعة، تثبيت)</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <RePieChart>
-                    <Pie
-                      data={recitationsByType}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, value }: any) => {
-                        const total = attendanceByType.reduce((sum, item) => sum + item.value, 0);
-                        const percentage = ((value / total) * 100);
-                        return `${name} ${percentage.toFixed(1)}%`;
-                      }}
-                      outerRadius={100}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {recitationsByType.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </RePieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* عدد الطلاب والأجزاء */}
-            <Card>
-              <CardHeader>
-                <CardTitle>نمو الطلاب والحفظ</CardTitle>
-                <CardDescription>تطور عدد الطلاب والأجزاء المحفوظة</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={monthlyProgress}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="students" fill="#3b82f6" name="الطلاب" />
-                    <Bar dataKey="parts" fill="#f59e0b" name="الأجزاء" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* تقرير الحضور */}
-        <TabsContent value="attendance" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
-            {attendanceByType.map((type) => (
-              <Card key={type.name}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm text-gray-600">{type.name}</p>
-                    <div 
-                      className="w-3 h-3 rounded-full" 
-                      style={{ backgroundColor: type.color }}
-                    />
-                  </div>
-                  <p className="text-2xl">{type.value}</p>
-                  <p className="text-sm text-gray-500 mt-1">{type.percentage.toFixed(1)}% من الإجمالي</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
+        {/* المستخدمون النشطون */}
+        <TabsContent value="active" className="space-y-4">
+          {/* الفلاتر */}
           <Card>
             <CardHeader>
-              <CardTitle>الحضور اليومي - آخر 30 يوم</CardTitle>
-              <CardDescription>تتبع حالات الحضور والغياب يومياً</CardDescription>
+              <CardTitle>البحث والتصفية</CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <AreaChart data={dailyAttendance}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Area 
-                    type="monotone" 
-                    dataKey="present" 
-                    stackId="1"
-                    stroke="#10b981" 
-                    fill="#10b981" 
-                    name="حاضر"
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="البحث بالاسم، البريد، أو الجوال..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pr-10"
                   />
-                  <Area 
-                    type="monotone" 
-                    dataKey="late" 
-                    stackId="1"
-                    stroke="#6366f1" 
-                    fill="#6366f1" 
-                    name="متأخر"
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="excused" 
-                    stackId="1"
-                    stroke="#f59e0b" 
-                    fill="#f59e0b" 
-                    name="مستأذن"
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="absent" 
-                    stackId="1"
-                    stroke="#ef4444" 
-                    fill="#ef4444" 
-                    name="غائب"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>نسب الحضور حسب الحلقة</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-right">الحلقة</TableHead>
-                    <TableHead className="text-right">المعلم</TableHead>
-                    <TableHead className="text-right">عدد الطلاب</TableHead>
-                    <TableHead className="text-right">نسبة الحضور</TableHead>
-                    <TableHead className="text-right">التصنيف</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {circlePerformance.map((circle) => (
-                    <TableRow key={circle.id}>
-                      <TableCell className="font-medium">{circle.name}</TableCell>
-                      <TableCell>{circle.teacher}</TableCell>
-                      <TableCell>{circle.students} طالب</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Progress value={circle.attendance} className="h-2 w-32" />
-                          <span>{circle.attendance}%</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge 
-                          className={
-                            circle.attendance >= 90 ? 'bg-green-100 text-green-800' :
-                            circle.attendance >= 80 ? 'bg-blue-100 text-blue-800' :
-                            circle.attendance >= 70 ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }
-                        >
-                          {circle.attendance >= 90 ? 'ممتاز' :
-                           circle.attendance >= 80 ? 'جيد جداً' :
-                           circle.attendance >= 70 ? 'جيد' : 'يحتاج تحسين'}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* تقرير التسميع */}
-        <TabsContent value="recitations" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-            {recitationsByType.map((type) => (
-              <Card key={type.name}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm text-gray-600">{type.name}</p>
-                    <div 
-                      className="w-3 h-3 rounded-full" 
-                      style={{ backgroundColor: type.color }}
-                    />
-                  </div>
-                  <p className="text-2xl">{type.value}</p>
-                  <p className="text-sm text-gray-500 mt-1">{type.percentage.toFixed(1)}% من الإجمالي</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>تفاصيل التسميع حسب الحلقة</CardTitle>
-              <CardDescription>توزيع أنواع التسميع لكل حلقة</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={circlePerformance}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="newMemorization" fill="#8b5cf6" name="حفظ جديد" />
-                  <Bar dataKey="review" fill="#3b82f6" name="مراجعة" />
-                  <Bar dataKey="reinforcement" fill="#06b6d4" name="تثبيت" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>إحصائيات التسميع التفصيلية</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-right">الحلقة</TableHead>
-                    <TableHead className="text-right">إجمالي التسميع</TableHead>
-                    <TableHead className="text-right">حفظ جديد</TableHead>
-                    <TableHead className="text-right">مراجعة</TableHead>
-                    <TableHead className="text-right">تثبيت</TableHead>
-                    <TableHead className="text-right">معدل الطالب</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {circlePerformance.map((circle) => (
-                    <TableRow key={circle.id}>
-                      <TableCell className="font-medium">{circle.name}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{circle.totalRecitations} تسميع</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className="bg-purple-100 text-purple-800">
-                          {circle.newMemorization}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className="bg-blue-100 text-blue-800">
-                          {circle.review}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className="bg-cyan-100 text-cyan-800">
-                          {circle.reinforcement}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {(circle.totalRecitations / circle.students).toFixed(1)} / طالب
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* تقرير الحلقات */}
-        <TabsContent value="circles" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>مقارنة أداء الحلقات</CardTitle>
-              <CardDescription>تقييم شامل لجميع الحلقات</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={circlePerformance}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="attendance" fill="#10b981" name="الحضور %" />
-                  <Bar dataKey="progress" fill="#3b82f6" name="التقدم %" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>تفاصيل أداء الحلقات</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-right">الحلقة</TableHead>
-                    <TableHead className="text-right">المعلم</TableHead>
-                    <TableHead className="text-right">الطلاب</TableHead>
-                    <TableHead className="text-right">الحضور</TableHead>
-                    <TableHead className="text-right">التقدم</TableHead>
-                    <TableHead className="text-right">التسميع</TableHead>
-                    <TableHead className="text-right">التقييم</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {circlePerformance.map((circle) => (
-                    <TableRow key={circle.id}>
-                      <TableCell className="font-medium">{circle.name}</TableCell>
-                      <TableCell>{circle.teacher}</TableCell>
-                      <TableCell>{circle.students} طالب</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Progress value={circle.attendance} className="h-2 w-20" />
-                          <span className="text-sm">{circle.attendance}%</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Progress value={circle.progress} className="h-2 w-20" />
-                          <span className="text-sm">{circle.progress}%</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>{circle.totalRecitations}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <span className="text-yellow-500">★</span>
-                          <span>{circle.rating}</span>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* تقرير المعلمين */}
-        <TabsContent value="teachers" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>مقارنة أداء المعلمين</CardTitle>
-              <CardDescription>تقييم أداء المعلمين وإنتاجيتهم</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={teacherPerformance}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="recitations" fill="#8b5cf6" name="إجمالي التسميع" />
-                  <Bar dataKey="students" fill="#3b82f6" name="عدد الطلاب" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>تفاصيل أداء المعلمين</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-right">المعلم</TableHead>
-                    <TableHead className="text-right">الحلقات</TableHead>
-                    <TableHead className="text-right">الطلاب</TableHead>
-                    <TableHead className="text-right">التسميع</TableHead>
-                    <TableHead className="text-right">حفظ جديد</TableHead>
-                    <TableHead className="text-right">مراجعة</TableHead>
-                    <TableHead className="text-right">الحضور</TableHead>
-                    <TableHead className="text-right">التقييم</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {teacherPerformance.map((teacher) => (
-                    <TableRow key={teacher.id}>
-                      <TableCell className="font-medium">{teacher.name}</TableCell>
-                      <TableCell>{teacher.circles} حلقة</TableCell>
-                      <TableCell>{teacher.students} طالب</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{teacher.recitations}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className="bg-purple-100 text-purple-800">
-                          {teacher.newMemorization}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className="bg-blue-100 text-blue-800">
-                          {teacher.review}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{teacher.attendance}%</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          {[...Array(5)].map((_, i) => (
-                            <span
-                              key={i}
-                              className={`${
-                                i < Math.floor(teacher.avgRating)
-                                  ? 'text-yellow-400'
-                                  : 'text-gray-300'
-                              }`}
-                            >
-                              ★
-                            </span>
-                          ))}
-                          <span className="mr-1 text-sm">{teacher.avgRating}</span>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* تقرير الطلاب المتميزين */}
-        <TabsContent value="students" className="space-y-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>الطلاب المتميزون</CardTitle>
-                <CardDescription>أفضل 5 طلاب هذا الشهر</CardDescription>
+                </div>
+                <Select value={selectedRole} onValueChange={setSelectedRole}>
+                  <SelectTrigger className="w-full md:w-48">
+                    <SelectValue placeholder="جميع الأدوار" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">جميع الأدوار</SelectItem>
+                    <SelectItem value="مشرف">مشرف ({stats.byRole['مشرف']})</SelectItem>
+                    <SelectItem value="معلم">معلم ({stats.byRole['معلم']})</SelectItem>
+                    <SelectItem value="طالب">طالب ({stats.byRole['طالب']})</SelectItem>
+                    <SelectItem value="ولي أمر">ولي أمر ({stats.byRole['ولي أمر']})</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                  <SelectTrigger className="w-full md:w-48">
+                    <SelectValue placeholder="جميع الحالات" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">جميع الحالات</SelectItem>
+                    <SelectItem value="نشط">نشط</SelectItem>
+                    <SelectItem value="معلق">معلق</SelectItem>
+                    <SelectItem value="قيد المراجعة">قيد المراجعة</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <Award className="w-8 h-8 text-yellow-500" />
+            </CardContent>
+          </Card>
+
+          {/* جدول المستخدمين */}
+          <Card>
+            <CardHeader>
+              <CardTitle>قائمة المستخدمين ({filteredUsers.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-right">المستخدم</TableHead>
+                      <TableHead className="text-right hidden md:table-cell">معلومات التواصل</TableHead>
+                      <TableHead className="text-right">الدور</TableHead>
+                      <TableHead className="text-right hidden lg:table-cell">تفاصيل إضافية</TableHead>
+                      <TableHead className="text-right">الحالة</TableHead>
+                      <TableHead className="text-right hidden md:table-cell">آخر نشاط</TableHead>
+                      <TableHead className="text-right">الإجراءات</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredUsers.map((user) => {
+                      const RoleIcon = getRoleIcon(user.role);
+                      return (
+                        <TableRow key={user.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                                <RoleIcon className="w-5 h-5 text-gray-600" />
+                              </div>
+                              <div>
+                                <p className="font-medium">{user.name}</p>
+                                <p className="text-xs text-gray-500">{user.gender}</p>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <div className="space-y-1 text-sm">
+                              <p className="flex items-center gap-1" dir="ltr">
+                                <Mail className="w-3 h-3" />
+                                <span className="text-right">{user.email}</span>
+                              </p>
+                              {user.phone && (
+                                <p className="flex items-center gap-1" dir="ltr">
+                                  <Phone className="w-3 h-3" />
+                                  <span className="text-right">{user.phone}</span>
+                                </p>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={getRoleBadgeColor(user.role)}>{user.role}</Badge>
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell">
+                            <div className="text-sm text-gray-600">
+                              {user.role === 'معلم' && user.circlesCount && (
+                                <p>{user.circlesCount} حلقات • {user.studentsCount} طالب</p>
+                              )}
+                              {user.role === 'طالب' && user.circle && (
+                                <p>{user.circle}</p>
+                              )}
+                              {user.role === 'ولي أمر' && user.childrenCount && (
+                                <p>{user.childrenCount} أبناء</p>
+                              )}
+                              {user.role === 'مشرف' && user.circlesCount && (
+                                <p>يشرف على {user.circlesCount} حلقات</p>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={getStatusColor(user.status)}>{user.status}</Badge>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <p className="text-sm text-gray-600">{user.lastActive}</p>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleViewUser(user)}
+                                title="عرض التفاصيل"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEditUser(user)}
+                                title="تعديل"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              {user.status === 'نشط' ? (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleSuspendUser(user.id)}
+                                  title="تعليق"
+                                >
+                                  <Ban className="w-4 h-4 text-orange-600" />
+                                </Button>
+                              ) : (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleActivateUser(user.id)}
+                                  title="تفعيل"
+                                >
+                                  <CheckCircle className="w-4 h-4 text-green-600" />
+                                </Button>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteUser(user.id)}
+                                title="حذف"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-600" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+              {filteredUsers.length === 0 && (
+                <div className="text-center py-12 text-gray-500">
+                  <User className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                  <p>لا توجد نتائج مطابقة للبحث</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* الطلبات قيد المراجعة */}
+        <TabsContent value="pending" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>الطلبات قيد المراجعة</CardTitle>
+              <CardDescription>راجع ووافق على طلبات الانضمام الجديدة</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {topStudents.map((student) => (
-                  <div key={student.rank} className="flex items-center gap-4 p-4 border rounded-lg hover:shadow-md transition-shadow">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                      student.rank === 1 ? 'bg-yellow-100 text-yellow-700' :
-                      student.rank === 2 ? 'bg-gray-100 text-gray-700' :
-                      student.rank === 3 ? 'bg-orange-100 text-orange-700' :
-                      'bg-blue-100 text-blue-700'
-                    }`}>
-                      <span className="text-xl font-bold">#{student.rank}</span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium">{student.name}</h3>
-                      <p className="text-sm text-gray-600">{student.circle}</p>
-                    </div>
-                    <div className="text-center px-4 border-r">
-                      <p className="text-2xl font-bold text-emerald-600">{student.parts}</p>
-                      <p className="text-xs text-gray-600">جزء</p>
-                    </div>
-                    <div className="text-center px-4 border-r">
-                      <p className="text-2xl font-bold text-blue-600">{student.pages}</p>
-                      <p className="text-xs text-gray-600">صفحة</p>
-                    </div>
-                    <div className="text-center px-4 border-r">
-                      <p className="text-2xl font-bold text-purple-600">{student.recitations}</p>
-                      <p className="text-xs text-gray-600">تسميع</p>
-                    </div>
-                    <div className="w-32">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-600">التقدم</span>
-                        <span>{student.progress}%</span>
+                {pendingRequests.map((request) => (
+                  <div key={request.id} className="border rounded-lg p-4">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                            <UserPlus className="w-6 h-6 text-gray-600" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-lg">{request.name}</h3>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge className={getRoleBadgeColor(request.role)}>{request.role}</Badge>
+                              <Badge variant="secondary">{request.gender}</Badge>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mr-15 space-y-2">
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <Mail className="w-4 h-4" />
+                            <span dir="ltr">{request.email}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <Phone className="w-4 h-4" />
+                            <span dir="ltr">{request.phone}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <Calendar className="w-4 h-4" />
+                            <span>تاريخ التقديم: {request.requestDate}</span>
+                          </div>
+                          {request.notes && (
+                            <Alert>
+                              <AlertCircle className="h-4 w-4" />
+                              <AlertDescription>{request.notes}</AlertDescription>
+                            </Alert>
+                          )}
+                        </div>
                       </div>
-                      <Progress value={student.progress} className="h-2" />
-                      <div className="flex justify-between text-sm mt-1">
-                        <span className="text-gray-600">الحضور</span>
-                        <span>{student.attendance}%</span>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          className="bg-green-600 hover:bg-green-700"
+                          onClick={() => handleApproveRequest(request.id)}
+                        >
+                          <CheckCircle className="w-4 h-4 ml-2" />
+                          موافقة
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-red-600 hover:bg-red-50"
+                          onClick={() => handleRejectRequest(request.id)}
+                        >
+                          <XCircle className="w-4 h-4 ml-2" />
+                          رفض
+                        </Button>
                       </div>
-                      <Progress value={student.attendance} className="h-2" />
                     </div>
                   </div>
                 ))}
+                {pendingRequests.length === 0 && (
+                  <div className="text-center py-12 text-gray-500">
+                    <Clock className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                    <p>لا توجد طلبات قيد المراجعة</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>توزيع التسميع للطلاب المتميزين</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <RePieChart>
-                    <Pie
-                      data={[
-                        { name: 'حفظ جديد', value: topStudents.reduce((sum, s) => sum + s.newMemorization, 0), color: '#8b5cf6' },
-                        { name: 'مراجعة', value: topStudents.reduce((sum, s) => sum + s.review, 0), color: '#3b82f6' },
-                        { name: 'تثبيت', value: topStudents.reduce((sum, s) => sum + s.reinforcement, 0), color: '#06b6d4' },
-                      ]}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, value }) => `${name}: ${value}`}
-                      outerRadius={100}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {RECITATION_COLORS.map((color, index) => (
-                        <Cell key={`cell-${index}`} fill={color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </RePieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle>مقارنة أداء الطلاب المتميزين</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={topStudents}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="parts" fill="#10b981" name="الأجزاء" />
-                    <Bar dataKey="recitations" fill="#8b5cf6" name="التسميع" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* تقارير فردية */}
-        <TabsContent value="individual" className="space-y-4">
-          <IndividualStudentReports />
         </TabsContent>
       </Tabs>
+
+      {/* مودال عرض تفاصيل المستخدم */}
+      {selectedUser && (
+        <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+          <DialogContent dir="rtl" className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>تفاصيل المستخدم</DialogTitle>
+              <DialogDescription>معلومات كاملة عن المستخدم</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                  <User className="w-8 h-8 text-gray-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-medium">{selectedUser.name}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge className={getRoleBadgeColor(selectedUser.role)}>{selectedUser.role}</Badge>
+                    <Badge className={getStatusColor(selectedUser.status)}>{selectedUser.status}</Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <p className="text-sm text-gray-600">البريد الإلكتروني</p>
+                  <p className="font-medium" dir="ltr">{selectedUser.email}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-gray-600">رقم الجوال</p>
+                  <p className="font-medium" dir="ltr">{selectedUser.phone || 'غير محدد'}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-gray-600">الجنس</p>
+                  <p className="font-medium">{selectedUser.gender}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-gray-600">تاريخ الانضمام</p>
+                  <p className="font-medium">{selectedUser.joinDate}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-gray-600">آخر نشاط</p>
+                  <p className="font-medium">{selectedUser.lastActive}</p>
+                </div>
+                {selectedUser.role === 'معلم' && (
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-600">الإحصائيات</p>
+                    <p className="font-medium">{selectedUser.circlesCount} حلقات • {selectedUser.studentsCount} طالب</p>
+                  </div>
+                )}
+                {selectedUser.role === 'طالب' && selectedUser.circle && (
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-600">الحلقة</p>
+                    <p className="font-medium">{selectedUser.circle}</p>
+                  </div>
+                )}
+                {selectedUser.role === 'ولي أمر' && selectedUser.childrenCount && (
+                  <div className="space-y-1">
+                    <p className="text-sm text-gray-600">عدد الأبناء</p>
+                    <p className="font-medium">{selectedUser.childrenCount}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2 pt-4 border-t">
+                <Button onClick={() => setIsViewDialogOpen(false)} variant="outline" className="flex-1">
+                  إغلاق
+                </Button>
+                <Button onClick={() => {
+                  setIsViewDialogOpen(false);
+                  handleEditUser(selectedUser);
+                }} className="flex-1 bg-emerald-600">
+                  <Edit className="w-4 h-4 ml-2" />
+                  تعديل
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* مودال تعديل المستخدم */}
+      {editFormData && selectedUser && (
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent dir="rtl" className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>تعديل صلاحيات المستخدم</DialogTitle>
+              <DialogDescription>تحديث الدور والحالة للمستخدم</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-6">
+              <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                  <User className="w-8 h-8 text-gray-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-medium">{selectedUser.name}</h3>
+                  <p className="text-sm text-gray-600">{selectedUser.email}</p>
+                </div>
+              </div>
+
+              {/* حقول التعديل */}
+              <div className="space-y-4">
+                <Alert className="bg-blue-50 border-blue-200">
+                  <AlertCircle className="h-4 w-4 text-blue-600" />
+                  <AlertDescription className="text-blue-800">
+                    تغيير دور أو حالة المستخدم سيتم تسجيله في سجل التدقيق ويمكن مراجعته لاحقاً.
+                  </AlertDescription>
+                </Alert>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-role">الدور / الصلاحية</Label>
+                    <Select
+                      value={editFormData.role}
+                      onValueChange={(value) => setEditFormData({ ...editFormData, role: value })}
+                    >
+                      <SelectTrigger id="edit-role">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="مدير">مدير</SelectItem>
+                        <SelectItem value="مشرف">مشرف</SelectItem>
+                        <SelectItem value="معلم">معلم</SelectItem>
+                        <SelectItem value="طالب">طالب</SelectItem>
+                        <SelectItem value="ولي أمر">ولي أمر</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {selectedUser.role !== editFormData.role && (
+                      <p className="text-xs text-orange-600">
+                        سيتم تغيير الدور من "{selectedUser.role}" إلى "{editFormData.role}"
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-status">الحالة</Label>
+                    <Select
+                      value={editFormData.status}
+                      onValueChange={(value) => setEditFormData({ ...editFormData, status: value as any })}
+                    >
+                      <SelectTrigger id="edit-status">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="نشط">نشط</SelectItem>
+                        <SelectItem value="معلق">معلق</SelectItem>
+                        <SelectItem value="قيد المراجعة">قيد المراجعة</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {selectedUser.status !== editFormData.status && (
+                      <p className="text-xs text-orange-600">
+                        سيتم تغيير الحالة من "{selectedUser.status}" إلى "{editFormData.status}"
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* معاينة التغييرات */}
+                {(selectedUser.role !== editFormData.role || selectedUser.status !== editFormData.status) && (
+                  <div className="border border-orange-200 bg-orange-50 p-4 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Shield className="w-4 h-4 text-orange-600" />
+                      <p className="font-medium text-orange-800">ملخص التغييرات</p>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      {selectedUser.role !== editFormData.role && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-600">الدور:</span>
+                          <Badge className={getRoleBadgeColor(selectedUser.role)}>{selectedUser.role}</Badge>
+                          <span className="text-gray-400">←</span>
+                          <Badge className={getRoleBadgeColor(editFormData.role)}>{editFormData.role}</Badge>
+                        </div>
+                      )}
+                      {selectedUser.status !== editFormData.status && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-600">الحالة:</span>
+                          <Badge className={getStatusColor(selectedUser.status)}>{selectedUser.status}</Badge>
+                          <span className="text-gray-400">←</span>
+                          <Badge className={getStatusColor(editFormData.status)}>{editFormData.status}</Badge>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* معلومات إضافية */}
+                <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg text-sm">
+                  <div>
+                    <p className="text-gray-600">الجنس</p>
+                    <p className="font-medium">{selectedUser.gender}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">تاريخ الانضمام</p>
+                    <p className="font-medium">{selectedUser.joinDate}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">رقم الجوال</p>
+                    <p className="font-medium" dir="ltr">{selectedUser.phone || 'غير محدد'}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">آخر نشاط</p>
+                    <p className="font-medium">{selectedUser.lastActive}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-4 border-t">
+                <Button onClick={() => setIsEditDialogOpen(false)} variant="outline" className="flex-1">
+                  إلغاء
+                </Button>
+                <Button
+                  onClick={handleSaveEditUser}
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                  disabled={selectedUser.role === editFormData.role && selectedUser.status === editFormData.status}
+                >
+                  <CheckCircle className="w-4 h-4 ml-2" />
+                  حفظ التغييرات
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
