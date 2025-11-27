@@ -91,7 +91,7 @@ export function DashboardLayout({ user, organization, role, children, currentSec
       { icon: BookOpen, label: 'حلقاتي', section: 'circles' },
       { icon: CheckCircle, label: 'تسجيل الحضور', section: 'attendance-recorder' },
       { icon: ClipboardList, label: 'التسميع', section: 'recitations' },
-      { icon: Calendar, label: 'الت��ليف اليومي', section: 'assignments' },
+      { icon: Calendar, label: 'التكليف اليومي', section: 'assignments' },
       { icon: QrCode, label: 'مسح QR', section: 'qr-scanner' },
       { icon: Settings, label: 'الإعدادات', section: 'settings' },
     ],
