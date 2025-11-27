@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Plus, Filter, BookOpen, User, Calendar, Award } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase, isDemoMode } from '../../lib/supabase';
-import type { Profile, Circle, Recitation } from '../lib/supabase';
+import type { Profile, Circle, Recitation } from '../../lib/supabase';
 
 interface RecitationsPageProps {
   organizationId: string;
@@ -457,7 +457,7 @@ export function RecitationsPage({ organizationId, userRole, userId }: Recitation
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="mistakes">عدد الأخطاء</Label>
+                    <Label htmlFor="mistakes">عدد الأخ��اء</Label>
                     <Input
                       id="mistakes"
                       type="number"
@@ -491,7 +491,7 @@ export function RecitationsPage({ organizationId, userRole, userId }: Recitation
                     إلغاء
                   </Button>
                   <Button type="submit">
-                    تسجيل التسميع
+                    تسجيل الت��ميع
                   </Button>
                 </div>
               </form>
