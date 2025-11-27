@@ -181,121 +181,97 @@ export function QuickAttendancePanel({
   }
 
   return (
-    <div className="space-y-4">
-      {/* Stats Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-        <div className="p-3 border rounded-lg bg-gray-50">
-          <p className="text-xs text-gray-600">إجمالي</p>
-          <p className="text-lg font-semibold mt-1">{stats.total}</p>
+    <div className="space-y-3">
+      {/* Stats Summary - Compact */}
+      <div className="grid grid-cols-4 gap-1.5 text-center text-xs">
+        <div className="p-2 border rounded bg-gray-50">
+          <p className="text-gray-600">{stats.total}</p>
+          <p className="text-gray-500 text-xs">إجمالي</p>
         </div>
-        <div className="p-3 border rounded-lg bg-green-50">
-          <p className="text-xs text-green-600">حاضر</p>
-          <p className="text-lg font-semibold text-green-600 mt-1">{stats.present}</p>
+        <div className="p-2 border rounded bg-green-50">
+          <p className="text-green-600 font-semibold">{stats.present}</p>
+          <p className="text-green-600 text-xs">حاضر</p>
         </div>
-        <div className="p-3 border rounded-lg bg-red-50">
-          <p className="text-xs text-red-600">غائب</p>
-          <p className="text-lg font-semibold text-red-600 mt-1">{stats.absent}</p>
+        <div className="p-2 border rounded bg-red-50">
+          <p className="text-red-600 font-semibold">{stats.absent}</p>
+          <p className="text-red-600 text-xs">غائب</p>
         </div>
-        <div className="p-3 border rounded-lg bg-yellow-50">
-          <p className="text-xs text-yellow-600">متأخر/بعذر</p>
-          <p className="text-lg font-semibold text-yellow-600 mt-1">{stats.late + stats.excused}</p>
+        <div className="p-2 border rounded bg-yellow-50">
+          <p className="text-yellow-600 font-semibold">{stats.late + stats.excused}</p>
+          <p className="text-yellow-600 text-xs">آخر</p>
         </div>
       </div>
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute right-3 top-3 w-4 h-4 text-gray-400" />
+        <Search className="absolute right-2.5 top-2.5 w-4 h-4 text-gray-400" />
         <Input
-          placeholder="ابحث عن الطالب..."
+          placeholder="ابحث..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pr-10"
+          className="pr-9 py-2 text-sm"
         />
       </div>
 
       {/* Students List */}
       {loading ? (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center text-gray-500 py-8">جاري التحميل...</div>
-          </CardContent>
-        </Card>
+        <div className="text-center text-gray-500 text-sm py-4">جاري التحميل...</div>
       ) : filteredStudents.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center text-gray-500 py-8">لا يوجد طلاب</div>
-          </CardContent>
-        </Card>
+        <div className="text-center text-gray-500 text-sm py-4">لا يوجد طلاب</div>
       ) : (
-        <div className="space-y-3 max-h-80 overflow-y-auto">
+        <div className="space-y-2 max-h-72 overflow-y-auto">
           {filteredStudents.map((student) => (
             <div
               key={student.id}
-              className="p-3 border rounded-lg flex items-center justify-between hover:bg-gray-50 transition-colors"
+              className="p-2.5 border rounded text-sm flex items-center justify-between gap-2 hover:bg-gray-50"
             >
-              <div className="flex items-center gap-3 flex-1">
-                <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-emerald-700 font-medium text-sm">
-                    {student.name.charAt(0)}
-                  </span>
-                </div>
-                <div>
-                  <p className="font-medium text-sm">{student.name}</p>
-                  {student.attendance && getAttendanceBadge(student.attendance)}
-                </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-xs truncate">{student.name}</p>
+                {student.attendance && (
+                  <div className="text-xs mt-0.5">
+                    {getAttendanceBadge(student.attendance)}
+                  </div>
+                )}
               </div>
-              <div className="flex gap-1 flex-shrink-0">
+              <div className="flex gap-0.5 flex-shrink-0">
                 <Button
                   size="sm"
                   variant={student.attendance === 'present' ? 'default' : 'outline'}
                   className={
                     student.attendance === 'present'
-                      ? 'bg-green-600 hover:bg-green-700 h-8 px-2'
-                      : 'h-8 px-2'
+                      ? 'bg-green-600 hover:bg-green-700 h-7 w-7 p-0'
+                      : 'h-7 w-7 p-0'
                   }
                   onClick={() => markAttendance(student.id, 'present')}
                   title="حاضر"
                 >
-                  <CheckCircle className="w-4 h-4" />
+                  <CheckCircle className="w-3.5 h-3.5" />
                 </Button>
                 <Button
                   size="sm"
                   variant={student.attendance === 'absent' ? 'default' : 'outline'}
                   className={
                     student.attendance === 'absent'
-                      ? 'bg-red-600 hover:bg-red-700 h-8 px-2'
-                      : 'h-8 px-2'
+                      ? 'bg-red-600 hover:bg-red-700 h-7 w-7 p-0'
+                      : 'h-7 w-7 p-0'
                   }
                   onClick={() => markAttendance(student.id, 'absent')}
                   title="غائب"
                 >
-                  <XCircle className="w-4 h-4" />
+                  <XCircle className="w-3.5 h-3.5" />
                 </Button>
                 <Button
                   size="sm"
                   variant={student.attendance === 'late' ? 'default' : 'outline'}
                   className={
                     student.attendance === 'late'
-                      ? 'bg-yellow-600 hover:bg-yellow-700 h-8 px-2'
-                      : 'h-8 px-2'
+                      ? 'bg-yellow-600 hover:bg-yellow-700 h-7 w-7 p-0'
+                      : 'h-7 w-7 p-0'
                   }
                   onClick={() => markAttendance(student.id, 'late')}
                   title="متأخر"
                 >
-                  <Clock className="w-4 h-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant={student.attendance === 'excused' ? 'default' : 'outline'}
-                  className={
-                    student.attendance === 'excused'
-                      ? 'bg-blue-600 hover:bg-blue-700 h-8 px-2 text-xs'
-                      : 'h-8 px-2 text-xs'
-                  }
-                  onClick={() => markAttendance(student.id, 'excused')}
-                  title="بعذر"
-                >
-                  بعذر
+                  <Clock className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
@@ -305,15 +281,13 @@ export function QuickAttendancePanel({
 
       {/* Save Button */}
       {hasChanges && (
-        <div className="pt-4 border-t">
-          <Button
-            onClick={submitAttendance}
-            className="w-full bg-emerald-600 hover:bg-emerald-700"
-          >
-            <Save className="w-4 h-4 ml-2" />
-            حفظ الحضور
-          </Button>
-        </div>
+        <Button
+          onClick={submitAttendance}
+          className="w-full h-8 text-sm bg-emerald-600 hover:bg-emerald-700"
+        >
+          <Save className="w-3.5 h-3.5 ml-1" />
+          حفظ
+        </Button>
       )}
     </div>
   );
