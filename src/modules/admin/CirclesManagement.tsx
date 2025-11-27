@@ -40,6 +40,7 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
     try {
       setLoading(true);
 
+      
       // Demo mode - use mock data
       if (isDemoMode()) {
         const mockCircles: any[] = [
@@ -63,6 +64,7 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
             description: 'حلقة متقدمة',
             teacher_id: 'teacher2',
             teacher: { id: 'teacher2', full_name: 'عمر الم��لم' },
+            teacher: { id: 'teacher2', full_name: 'عمر المعلم' },
             level: 'advanced',
             max_students: 15,
             is_active: true,
@@ -129,6 +131,7 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })) || []);
+      setTeachers(data || []);
     } catch (error: any) {
       console.error('Error fetching teachers:', error);
     }
@@ -235,6 +238,7 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
       if (!isDemoMode()) {
         toast.error('فشل في حذف الحلقة');
       }
+      toast.error('فشل في حذف الحلقة');
     }
   };
 
