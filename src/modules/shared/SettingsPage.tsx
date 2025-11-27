@@ -131,7 +131,7 @@ export function SettingsPage({ user }: SettingsPageProps) {
 
                 <div className="space-y-2">
                   <Label>الجنس</Label>
-                  <Input value={user.gender === 'male' ? 'ذكر' : 'أنثى'} disabled className="bg-gray-50" />
+                  <Input value={user?.gender === 'male' ? 'ذكر' : 'أنثى'} disabled className="bg-gray-50" />
                 </div>
               </div>
 
@@ -263,7 +263,7 @@ export function SettingsPage({ user }: SettingsPageProps) {
                     value={passwordData.newPassword}
                     onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
                   />
-                  <p className="text-xs text-gray-500">يجب أن تحتوي على 8 أحرف على الأقل</p>
+                  <p className="text-xs text-gray-500">يجب ��ن تحتوي على 8 أحرف على الأقل</p>
                 </div>
 
                 <div className="space-y-2">
