@@ -121,18 +121,35 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
   const handleManualInput = async () => {
     try {
       if (!manualInput.trim()) {
-        toast.error('يرج�� إدخال رقم الطالب');
+        toast.error('يرجى إدخال رقم أو اسم الطالب');
         return;
       }
 
-      const mockStudentData = {
-        student_id: manualInput,
-        full_name: 'طالب من الإدخال اليدوي',
-        organization_id: organizationId,
-        type: 'student_qr',
-      };
+      const searchQuery = manualInput.toLowerCase();
 
-      processScannedData(mockStudentData);
+      if (isDemoMode()) {
+        // In demo mode, accept any input as valid student ID
+        navigateToStudentActions(manualInput);
+        setManualInput('');
+        setShowManualDialog(false);
+        toast.success('جاري البحث عن الطالب...');
+        return;
+      }
+
+      // Search by student ID or name
+      const { data: students, error } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .eq('organization_id', organizationId)
+        .or(`id.ilike.%${searchQuery}%,full_name.ilike.%${searchQuery}%`)
+        .limit(1);
+
+      if (error || !students || students.length === 0) {
+        toast.error('لم يتم العثور على الطالب');
+        return;
+      }
+
+      navigateToStudentActions(students[0].id);
       setManualInput('');
       setShowManualDialog(false);
     } catch (error) {
