@@ -526,13 +526,13 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
                 onAttendanceUpdate={handleDataRefresh}
               />
 
-              <div className="pt-4 border-t">
+              <div className="pt-3 border-t">
                 <Button
-                  onClick={() => setCurrentSection('attendance')}
-                  className="w-full"
+                  onClick={() => setCurrentSection('recorder')}
+                  className="w-full h-8 text-sm"
                   variant="outline"
                 >
-                  واجهة تسجيل الحضور الكاملة مع المزيد من الخيارات
+                  عرض كامل
                 </Button>
               </div>
             </CardContent>
