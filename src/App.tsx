@@ -32,9 +32,19 @@ function AppContent() {
 
   // إذا كان المستخدم مسجل دخول وله profile، انتقل للوحة التحكم
   useEffect(() => {
+    console.log('🔍 App useEffect - checking auth state:', {
+      user: user?.id,
+      profile: profile?.id,
+      organization: organization?.id,
+      currentView
+    });
+
     if (user && profile && organization) {
+      console.log('✅ All auth data available - navigating to dashboard');
       setCurrentView('dashboard');
       setSelectedOrg(organization);
+    } else if (user && !profile) {
+      console.warn('⚠️ User logged in but no profile data');
     }
   }, [user, profile, organization]);
 
