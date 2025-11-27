@@ -1,6 +1,6 @@
 import * as React from "react";
 import { type DialogProps } from "@radix-ui/react-dialog";
-import { CommandPrimitive } from "cmdk";
+import { Command as CommandPrimitive } from "cmdk";
 import { SearchIcon } from "lucide-react";
 
 import { cn } from "./utils";
