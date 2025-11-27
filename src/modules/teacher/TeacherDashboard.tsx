@@ -367,7 +367,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">لوحة تحكم المعلم</h1>
-        <p className="text-gray-600">مرحباً {user.full_name}، تابع تقدم طلابك</p>
+        <p className="text-gray-600">مرحباً {user.full_name}، ��ابع تقدم طلابك</p>
       </div>
 
       {/* الإحصائيات */}
@@ -426,16 +426,16 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
               </CardTitle>
               <CardDescription>تسجيل التسميع مع الإمكانيات الكاملة</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">اختر الحلقة</label>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium">الحلقة</label>
                   <select
                     value={selectedCircleForRecitation}
                     onChange={(e) => setSelectedCircleForRecitation(e.target.value)}
-                    className="w-full h-10 px-3 border rounded-md text-sm"
+                    className="w-full h-8 px-2 border rounded text-xs"
                   >
-                    <option value="">-- اختر حلقة --</option>
+                    <option value="">-- اختر --</option>
                     {circles.map(circle => (
                       <option key={circle.id} value={circle.id}>
                         {circle.name}
@@ -443,13 +443,13 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
                     ))}
                   </select>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">التاريخ</label>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium">التاريخ</label>
                   <input
                     type="date"
                     value={selectedDateForRecitation}
                     onChange={(e) => setSelectedDateForRecitation(e.target.value)}
-                    className="w-full h-10 px-3 border rounded-md text-sm"
+                    className="w-full h-8 px-2 border rounded text-xs"
                   />
                 </div>
               </div>
