@@ -325,7 +325,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
     { title: 'طلابي', value: stats.totalStudents.toString(), icon: Users, color: 'bg-blue-500', trend: '+2' },
     { title: 'التسميع اليوم', value: stats.todayRecitations.toString(), icon: BookOpen, color: 'bg-emerald-500', trend: '+5' },
     { title: 'الحضور اليوم', value: stats.todayAttendance.toString(), icon: CheckCircle, color: 'bg-green-500', trend: '+1' },
-    { title: 'حل��اتي', value: stats.activeCircles.toString(), icon: Clock, color: 'bg-orange-500', trend: '0' },
+    { title: 'حلقاتي', value: stats.activeCircles.toString(), icon: Clock, color: 'bg-orange-500', trend: '0' },
   ];
 
   const renderOverview = () => (
@@ -362,7 +362,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
         onDataUpdate={handleDataRefresh}
       />
 
-      {/* النسخ السريعة من التسميع ��الحضور */}
+      {/* النسخ السريعة من التسميع والحضور */}
       <Tabs defaultValue="recitations" dir="rtl">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="recitations" className="flex items-center gap-2">
@@ -389,7 +389,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
                   عرض كامل
                 </Button>
               </CardTitle>
-              <CardDescription>آخر 10 جلسات تسميع</CardDescription>
+              <CardDescription>آخر 10 جلسات تسميع مع خيارات التسجيل</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="relative">
@@ -405,7 +405,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
               {filteredRecitations.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">لا توجد جلسات تسميع</div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-3 max-h-96 overflow-y-auto">
                   {filteredRecitations.map((record) => (
                     <div
                       key={record.id}
@@ -427,7 +427,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
                           </Badge>
                         </div>
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 mb-3">
                         <span>التاريخ: {new Date(record.date).toLocaleDateString('ar-SA')}</span>
                         <span className="mx-2">•</span>
                         <span>الأخطاء: {record.mistakes_count}</span>
@@ -437,13 +437,16 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
                 </div>
               )}
 
-              <Button
-                onClick={() => setCurrentSection('recitations')}
-                className="w-full"
-                variant="outline"
-              >
-                عرض جميع سجلات التسميع
-              </Button>
+              <div className="pt-4 border-t">
+                <p className="text-sm text-gray-600 mb-2">استخدم الوصول السريع للطالب لتسجيل تسميع جديد</p>
+                <Button
+                  onClick={() => setCurrentSection('recitations')}
+                  className="w-full"
+                  variant="outline"
+                >
+                  عرض جميع سجلات التسميع والتسجيل
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -462,7 +465,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
                   عرض كامل
                 </Button>
               </CardTitle>
-              <CardDescription>آخر 10 سجلات حضور</CardDescription>
+              <CardDescription>آخر 10 سجلات حضور مع إمكانية التعديل</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="relative">
@@ -478,39 +481,36 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
               {filteredAttendance.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">لا توجد سجلات حضور</div>
               ) : (
-                <div className="overflow-x-auto">
-                  <Table dir="rtl">
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>اسم الطالب</TableHead>
-                        <TableHead>التاريخ</TableHead>
-                        <TableHead>الحالة</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredAttendance.map((record) => (
-                        <TableRow key={record.id}>
-                          <TableCell className="font-medium">{record.studentName}</TableCell>
-                          <TableCell>{new Date(record.date).toLocaleDateString('ar-SA')}</TableCell>
-                          <TableCell>
-                            <Badge className={getStatusBadge(record.status).color}>
-                              {getStatusBadge(record.status).label}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                <div className="space-y-3 max-h-80 overflow-y-auto">
+                  {filteredAttendance.map((record) => (
+                    <div
+                      key={record.id}
+                      className="p-3 border rounded-lg flex items-center justify-between hover:bg-gray-50 transition-colors"
+                    >
+                      <div>
+                        <p className="font-medium text-sm">{record.studentName}</p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(record.date).toLocaleDateString('ar-SA')}
+                        </p>
+                      </div>
+                      <Badge className={getStatusBadge(record.status).color}>
+                        {getStatusBadge(record.status).label}
+                      </Badge>
+                    </div>
+                  ))}
                 </div>
               )}
 
-              <Button
-                onClick={() => setCurrentSection('attendance')}
-                className="w-full"
-                variant="outline"
-              >
-                عرض جميع سجلات الحضور
-              </Button>
+              <div className="pt-4 border-t">
+                <p className="text-sm text-gray-600 mb-2">استخدم الوصول السريع للطالب أو الواجهة الكاملة لتحديث الحضور</p>
+                <Button
+                  onClick={() => setCurrentSection('attendance')}
+                  className="w-full"
+                  variant="outline"
+                >
+                  واجهة تسجيل الحضور الكاملة
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
