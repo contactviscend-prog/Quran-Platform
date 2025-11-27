@@ -28,23 +28,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Fetch user profile
   const fetchProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      // First, fetch the profile without nested select
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          organization:organizations(*)
-        `)
+        .select('*')
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
+      if (profileError) throw profileError;
 
-      if (data) {
-        setProfile(data);
-        setOrganization(data.organization);
+      if (profileData) {
+        setProfile(profileData);
+
+        // Then, fetch the organization separately if needed
+        if (profileData.organization_id) {
+          const { data: orgData, error: orgError } = await supabase
+            .from('organizations')
+            .select('*')
+            .eq('id', profileData.organization_id)
+            .single();
+
+          if (orgError) {
+            console.warn('Warning fetching organization:', orgError.message);
+          } else if (orgData) {
+            setOrganization(orgData);
+          }
+        }
       }
     } catch (error: any) {
-      console.error('Error fetching profile:', error.message);
+      console.error('Error fetching profile:', error?.message || error);
     }
   };
 
