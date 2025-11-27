@@ -231,76 +231,54 @@ export function QuickMemorizationRecord({
 
   return (
     <>
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="relative">
-          <Search className="absolute right-3 top-3 w-4 h-4 text-gray-400" />
+          <Search className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
           <Input
-            placeholder="ابحث عن الطالب..."
+            placeholder="ابحث..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pr-10"
+            className="pr-9 py-2 text-sm"
           />
         </div>
 
         {loading ? (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center text-gray-500 py-8">جاري التحميل...</div>
-            </CardContent>
-          </Card>
+          <div className="text-center text-gray-500 text-sm py-4">جاري التحميل...</div>
         ) : filteredStudents.length === 0 ? (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center text-gray-500 py-8">لا يوجد طلاب</div>
-            </CardContent>
-          </Card>
+          <div className="text-center text-gray-500 text-sm py-4">لا يوجد طلاب</div>
         ) : (
-          <div className="space-y-3 max-h-96 overflow-y-auto">
+          <div className="space-y-2 max-h-72 overflow-y-auto">
             {filteredStudents.map((student) => (
               <div
                 key={student.student_id}
-                className={`p-4 border rounded-lg hover:bg-gray-50 transition-colors ${
-                  student.recitation_recorded ? 'bg-green-50/30' : ''
-                } ${!student.can_recite ? 'opacity-60 bg-gray-50' : ''}`}
+                className={`p-2.5 border rounded text-sm flex items-center justify-between gap-2 ${
+                  student.recitation_recorded ? 'bg-green-50 border-green-200' : ''
+                } ${!student.can_recite ? 'opacity-50 bg-gray-50' : 'hover:bg-gray-50'}`}
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1">
-                    <p className="font-medium text-sm mb-2">{student.student_name}</p>
-                    <div className="flex items-center gap-2 flex-wrap mb-2">
-                      {student.recitation_recorded && (
-                        <>
-                          <Badge className="bg-green-100 text-green-800 text-xs">
-                            <CheckCircle className="w-3 h-3 ml-1" />
-                            تم التسميع
-                          </Badge>
-                          {student.recitation_type && (
-                            <Badge className="text-xs">{getTypeLabel(student.recitation_type)}</Badge>
-                          )}
-                          {student.recitation_grade && (
-                            <Badge className={`${getGradeColor(student.recitation_grade)} text-xs`}>
-                              {getGradeLabel(student.recitation_grade)}
-                            </Badge>
-                          )}
-                        </>
-                      )}
-                      {!student.can_recite && (
-                        <Badge className="bg-red-100 text-red-800 text-xs">غائب</Badge>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-xs truncate">{student.student_name}</p>
+                  {student.recitation_recorded && (
+                    <div className="flex gap-1 mt-1 flex-wrap">
+                      <Badge className="bg-green-100 text-green-800 text-xs h-5">
+                        ✓
+                      </Badge>
+                      {student.recitation_grade && (
+                        <Badge className={`${getGradeColor(student.recitation_grade)} text-xs h-5`}>
+                          {getGradeLabel(student.recitation_grade)}
+                        </Badge>
                       )}
                     </div>
-                    {student.recitation_recorded && student.mistakes_count !== undefined && (
-                      <p className="text-xs text-gray-600">الأخطاء: {student.mistakes_count}</p>
-                    )}
-                  </div>
-                  <Button
-                    size="sm"
-                    disabled={!student.can_recite}
-                    variant={student.recitation_recorded ? 'outline' : 'default'}
-                    onClick={() => openRecitationDialog(student)}
-                    className={student.recitation_recorded ? 'text-xs' : ''}
-                  >
-                    {student.recitation_recorded ? 'تعديل' : 'تسجيل'}
-                  </Button>
+                  )}
                 </div>
+                <Button
+                  size="sm"
+                  disabled={!student.can_recite}
+                  variant={student.recitation_recorded ? 'outline' : 'default'}
+                  onClick={() => openRecitationDialog(student)}
+                  className="h-7 px-2 text-xs flex-shrink-0"
+                >
+                  {student.recitation_recorded ? 'تعديل' : 'تسجيل'}
+                </Button>
               </div>
             ))}
           </div>
