@@ -407,7 +407,7 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <QrCode className="w-5 h-5" />
-            الوصول السريع لل��الب
+            الوصول السريع للطالب
           </CardTitle>
         </CardHeader>
         <CardContent>
