@@ -178,7 +178,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       toast.success('تم إنشاء الحساب بنجاح');
-      return data;
     } catch (error: any) {
       console.error('Error signing up:', error.message);
       toast.error('خطأ في إنشاء الحساب: ' + error.message);
