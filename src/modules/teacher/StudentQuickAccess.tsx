@@ -213,13 +213,20 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
   };
 
   const handleManualBarcodeScan = (barcode: string) => {
+    if (!barcode.trim()) {
+      return;
+    }
+
     const student = students.find(s =>
-      s.barcode.toLowerCase() === barcode.toLowerCase()
+      s.barcode.toLowerCase() === barcode.toLowerCase() ||
+      s.full_name.toLowerCase().includes(barcode.toLowerCase()) ||
+      s.id === barcode
     );
+
     if (student) {
       handleStudentSelect(student);
     } else {
-      toast.error('الطالب غير موجود');
+      toast.error(`الطالب برقم ${barcode} غير موجود`);
     }
   };
 
@@ -228,10 +235,12 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
 
     try {
       const today = new Date().toISOString().split('T')[0];
-      
+
       if (isDemoMode()) {
+        await new Promise(resolve => setTimeout(resolve, 300));
         toast.success(`تم تسجيل ${attendanceStatus === 'present' ? 'حضور' : 'غياب'} ${selectedStudent.full_name}`);
         setShowDialog(false);
+        onDataUpdate?.();
         return;
       }
 
@@ -245,14 +254,19 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
           organization_id: organizationId
         });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('fetch')) {
+          throw new Error('خطأ في الاتصال بالخادم');
+        }
+        throw error;
+      }
 
       toast.success(`تم تسجيل ${attendanceStatus === 'present' ? 'حضور' : 'غياب'} ${selectedStudent.full_name}`);
       setShowDialog(false);
       onDataUpdate?.();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error recording attendance:', error);
-      toast.error('فشل في تسجيل الحضور');
+      toast.error(error?.message || 'فشل في تسجيل الحضور');
     }
   };
 
@@ -379,7 +393,7 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
                 variant="outline"
                 size="icon"
                 onClick={startQRScanner}
-                title="م��ح الباركود"
+                title="مسح الباركود"
               >
                 <QrCode className="w-4 h-4" />
               </Button>
