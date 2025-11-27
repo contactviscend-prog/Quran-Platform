@@ -273,6 +273,19 @@ export function QuickAttendancePanel({
                 >
                   <Clock className="w-3.5 h-3.5" />
                 </Button>
+                <Button
+                  size="sm"
+                  variant={student.attendance === 'excused' ? 'default' : 'outline'}
+                  className={
+                    student.attendance === 'excused'
+                      ? 'bg-blue-600 hover:bg-blue-700 h-7 px-1.5 text-xs'
+                      : 'h-7 px-1.5 text-xs'
+                  }
+                  onClick={() => markAttendance(student.id, 'excused')}
+                  title="بعذر"
+                >
+                  بعذر
+                </Button>
               </div>
             </div>
           ))}
