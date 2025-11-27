@@ -275,10 +275,22 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
 
     try {
       const today = new Date().toISOString().split('T')[0];
-      
+
       if (isDemoMode()) {
+        await new Promise(resolve => setTimeout(resolve, 300));
         toast.success(`تم تسجيل التسميع لـ ${selectedStudent.full_name}`);
         setShowDialog(false);
+        onDataUpdate?.();
+        setRecitationData({
+          type: 'memorization',
+          surah_number: 1,
+          from_ayah: 1,
+          to_ayah: 1,
+          grade: 'good',
+          mistakes_count: 0,
+          mistakes_description: '',
+          notes: ''
+        });
         return;
       }
 
@@ -292,7 +304,12 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
           ...recitationData
         });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('fetch')) {
+          throw new Error('خطأ في الاتصال بالخادم');
+        }
+        throw error;
+      }
 
       toast.success(`تم تسجيل التسميع لـ ${selectedStudent.full_name}`);
       setShowDialog(false);
@@ -309,9 +326,9 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
         mistakes_description: '',
         notes: ''
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error recording recitation:', error);
-      toast.error('فشل في تسجيل التسميع');
+      toast.error(error?.message || 'فشل في تسجيل التسميع');
     }
   };
 
@@ -434,7 +451,7 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
                     autoFocus
                   />
                   <p className="text-xs text-gray-600">
-                    اوجّه الكاميرا على الباركود أو أدخل رمز الطالب يدويا ثم اضغط Enter
+                    اوجّه الكاميرا على الباركود أو أدخل رمز الطالب يدويا ثم اضغ�� Enter
                   </p>
                 </div>
               </div>
