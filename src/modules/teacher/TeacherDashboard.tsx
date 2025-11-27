@@ -7,6 +7,8 @@ import { QRCodeScanner } from '../shared/QRCodeScanner';
 import { SettingsPage } from '../shared/SettingsPage';
 import { AttendanceRecorder } from '../shared/AttendanceRecorder';
 import { StudentQuickAccess } from './StudentQuickAccess';
+import { QuickMemorizationRecord } from '../../components/QuickMemorizationRecord';
+import { QuickAttendancePanel } from '../../components/QuickAttendancePanel';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
@@ -65,8 +67,18 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
   const [recitationSearch, setRecitationSearch] = useState('');
   const [attendanceSearch, setAttendanceSearch] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
+  const [selectedCircleForRecitation, setSelectedCircleForRecitation] = useState<string>('');
+  const [selectedDateForRecitation, setSelectedDateForRecitation] = useState<string>(
+    new Date().toISOString().split('T')[0]
+  );
+  const [selectedCircleForAttendance, setSelectedCircleForAttendance] = useState<string>('');
+  const [selectedDateForAttendance, setSelectedDateForAttendance] = useState<string>(
+    new Date().toISOString().split('T')[0]
+  );
+  const [circles, setCircles] = useState<any[]>([]);
 
   useEffect(() => {
+    fetchCircles();
     fetchStats();
     fetchRecentData();
     const interval = setInterval(() => {
@@ -75,6 +87,29 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
     }, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval);
   }, [organization.id, user.id, refreshKey]);
+
+  const fetchCircles = async () => {
+    try {
+      if (isDemoMode()) {
+        setCircles([
+          { id: 'circle1', name: 'حلقة الفجر' },
+          { id: 'circle2', name: 'حلقة المغرب' },
+        ]);
+        return;
+      }
+
+      const { data } = await supabase
+        .from('circles')
+        .select('id, name')
+        .eq('organization_id', organization.id)
+        .eq('teacher_id', user.id)
+        .eq('is_active', true);
+
+      setCircles(data || []);
+    } catch (error) {
+      console.error('Error fetching circles:', error);
+    }
+  };
 
   const fetchStats = async () => {
     try {
@@ -380,7 +415,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>سجل التسميع - نسخة سريعة</span>
+                <span>سجل التسميع - نسخة متقدمة</span>
                 <Button
                   variant="outline"
                   size="sm"
@@ -389,62 +424,50 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
                   عرض كامل
                 </Button>
               </CardTitle>
-              <CardDescription>آخر 10 جلسات تسميع مع خيارات التسجيل</CardDescription>
+              <CardDescription>تسجيل التسميع مع الإمكانيات الكاملة</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="relative">
-                <Search className="absolute right-3 top-3 w-4 h-4 text-gray-400" />
-                <Input
-                  placeholder="ابحث عن الطالب..."
-                  value={recitationSearch}
-                  onChange={(e) => setRecitationSearch(e.target.value)}
-                  className="pr-10"
-                />
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium">الحلقة</label>
+                  <select
+                    value={selectedCircleForRecitation}
+                    onChange={(e) => setSelectedCircleForRecitation(e.target.value)}
+                    className="w-full h-8 px-2 border rounded text-xs"
+                  >
+                    <option value="">-- اختر --</option>
+                    {circles.map(circle => (
+                      <option key={circle.id} value={circle.id}>
+                        {circle.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium">التاريخ</label>
+                  <input
+                    type="date"
+                    value={selectedDateForRecitation}
+                    onChange={(e) => setSelectedDateForRecitation(e.target.value)}
+                    className="w-full h-8 px-2 border rounded text-xs"
+                  />
+                </div>
               </div>
 
-              {filteredRecitations.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">لا توجد جلسات تسميع</div>
-              ) : (
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {filteredRecitations.map((record) => (
-                    <div
-                      key={record.id}
-                      className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <p className="font-medium text-sm">{record.student_name}</p>
-                          <p className="text-sm text-gray-600">
-                            {record.surah_name} (الآية {record.from_ayah} إلى {record.to_ayah})
-                          </p>
-                        </div>
-                        <div className="flex gap-2">
-                          <Badge className={getTypeBadge(record.type).color}>
-                            {getTypeBadge(record.type).label}
-                          </Badge>
-                          <Badge className={getGradeBadge(record.grade).color}>
-                            {getGradeBadge(record.grade).label}
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="text-xs text-gray-500 mb-3">
-                        <span>التاريخ: {new Date(record.date).toLocaleDateString('ar-SA')}</span>
-                        <span className="mx-2">•</span>
-                        <span>الأخطاء: {record.mistakes_count}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <QuickMemorizationRecord
+                user={user}
+                organization={organization}
+                circleId={selectedCircleForRecitation}
+                date={selectedDateForRecitation}
+              />
 
-              <div className="pt-4 border-t">
-                <p className="text-sm text-gray-600 mb-2">استخدم الوصول السريع للطالب لتسجيل تسميع جديد</p>
+              <div className="pt-3 border-t">
                 <Button
                   onClick={() => setCurrentSection('recitations')}
-                  className="w-full"
+                  className="w-full h-8 text-sm"
                   variant="outline"
                 >
-                  عرض جميع سجلات التسميع والتسجيل
+                  عرض كامل
                 </Button>
               </div>
             </CardContent>
@@ -456,7 +479,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>الحضور والغياب - نسخة سريعة</span>
+                <span>الحضور والغياب - نسخة متقدمة</span>
                 <Button
                   variant="outline"
                   size="sm"
@@ -465,50 +488,51 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
                   عرض كامل
                 </Button>
               </CardTitle>
-              <CardDescription>آخر 10 سجلات حضور مع إمكانية التعديل</CardDescription>
+              <CardDescription>تسجيل الحضور بسهولة مع الحفظ الفوري</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="relative">
-                <Search className="absolute right-3 top-3 w-4 h-4 text-gray-400" />
-                <Input
-                  placeholder="ابحث عن الطالب..."
-                  value={attendanceSearch}
-                  onChange={(e) => setAttendanceSearch(e.target.value)}
-                  className="pr-10"
-                />
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium">الحلقة</label>
+                  <select
+                    value={selectedCircleForAttendance}
+                    onChange={(e) => setSelectedCircleForAttendance(e.target.value)}
+                    className="w-full h-8 px-2 border rounded text-xs"
+                  >
+                    <option value="">-- اختر --</option>
+                    {circles.map(circle => (
+                      <option key={circle.id} value={circle.id}>
+                        {circle.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium">التاريخ</label>
+                  <input
+                    type="date"
+                    value={selectedDateForAttendance}
+                    onChange={(e) => setSelectedDateForAttendance(e.target.value)}
+                    className="w-full h-8 px-2 border rounded text-xs"
+                  />
+                </div>
               </div>
 
-              {filteredAttendance.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">لا توجد سجلات حضور</div>
-              ) : (
-                <div className="space-y-3 max-h-80 overflow-y-auto">
-                  {filteredAttendance.map((record) => (
-                    <div
-                      key={record.id}
-                      className="p-3 border rounded-lg flex items-center justify-between hover:bg-gray-50 transition-colors"
-                    >
-                      <div>
-                        <p className="font-medium text-sm">{record.studentName}</p>
-                        <p className="text-xs text-gray-500">
-                          {new Date(record.date).toLocaleDateString('ar-SA')}
-                        </p>
-                      </div>
-                      <Badge className={getStatusBadge(record.status).color}>
-                        {getStatusBadge(record.status).label}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <QuickAttendancePanel
+                user={user}
+                organization={organization}
+                circleId={selectedCircleForAttendance}
+                date={selectedDateForAttendance}
+                onAttendanceUpdate={handleDataRefresh}
+              />
 
-              <div className="pt-4 border-t">
-                <p className="text-sm text-gray-600 mb-2">استخدم الوصول السريع للطالب أو الواجهة الكاملة لتحديث الحضور</p>
+              <div className="pt-3 border-t">
                 <Button
-                  onClick={() => setCurrentSection('attendance')}
-                  className="w-full"
+                  onClick={() => setCurrentSection('attendance-recorder')}
+                  className="w-full h-8 text-sm"
                   variant="outline"
                 >
-                  واجهة تسجيل الحضور الكاملة
+                  عرض كامل
                 </Button>
               </div>
             </CardContent>
