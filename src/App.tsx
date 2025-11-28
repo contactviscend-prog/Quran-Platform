@@ -67,9 +67,7 @@ function LandingRoute() {
   if (loading) return <LoadingScreen />;
 
   return (
-    <Suspense fallback={<LoadingScreen />}>
-      <LandingPage onGetStarted={() => navigate('/organizations')} />
-    </Suspense>
+    <LandingPage onGetStarted={() => navigate('/organizations')} />
   );
 }
 
@@ -92,9 +90,7 @@ function OrganizationsRoute() {
   };
 
   return (
-    <Suspense fallback={<LoadingScreen />}>
-      <OrganizationSelector onSelectOrg={handleOrgSelect} />
-    </Suspense>
+    <OrganizationSelector onSelectOrg={handleOrgSelect} />
   );
 }
 
