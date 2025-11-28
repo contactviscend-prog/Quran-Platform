@@ -252,7 +252,11 @@ function RegisterPageWrapper({ orgSlug, onBack, onSuccess }: { orgSlug: string; 
     return <LoadingScreen />;
   }
 
-  return <JoinRequestForm organization={organization} onBack={onBack} onSuccess={onSuccess} />;
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <JoinRequestForm organization={organization} onBack={onBack} onSuccess={onSuccess} />
+    </Suspense>
+  );
 }
 
 // Dashboard Route - renders appropriate dashboard based on role
