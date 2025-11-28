@@ -6,7 +6,8 @@ import { Badge } from '../../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Search, Users, BookOpen, TrendingUp, Award, Eye, Star } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { supabase, isDemoMode } from '../../lib/supabase';
+import { mockTeachers } from '../../lib/mockData';
 import { toast } from 'sonner';
 
 interface SupervisorTeachersPageProps {
@@ -52,6 +53,14 @@ export function SupervisorTeachersPage({ organizationId }: SupervisorTeachersPag
   const fetchTeachers = async () => {
     try {
       setLoading(true);
+
+      // Demo mode - use mock data
+      if (isDemoMode()) {
+        setTeachers(mockTeachers as any);
+        setFilteredTeachers(mockTeachers as any);
+        setLoading(false);
+        return;
+      }
 
       // Get all teachers
       const { data: teachersData, error: teachersError } = await supabase
