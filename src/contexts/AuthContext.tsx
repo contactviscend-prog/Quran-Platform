@@ -200,7 +200,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ خطأ في تسجيل الدخول من Supabase:', error.message);
+        throw new Error(error.message || 'فشل تسجيل الدخول');
+      }
 
       console.log('✅ نجح تسجيل الدخول للمستخدم:', data.user?.id);
 
