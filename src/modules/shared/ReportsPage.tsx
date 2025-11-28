@@ -306,17 +306,6 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
         return;
       }
 
-      // جلب الحلقات
-      const { data: circlesData } = await supabase
-        .from('circles')
-        .select('id, name')
-        .eq('organization_id', organizationId)
-        .eq('is_active', true);
-
-      if (circlesData) {
-        setCircles(circlesData);
-      }
-
       // حساب الفترة الزمنية
       const now = new Date();
       let startDate = new Date();
@@ -334,15 +323,24 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
       const startDateStr = startDate.toISOString().split('T')[0];
       const today = new Date().toISOString().split('T')[0];
 
-      // جلب عدد الطلاب النشطين
-      const { count: totalStudents } = await supabase
+      // جلب الحلقات مع معلومات المعلمين
+      const { data: circlesData } = await supabase
+        .from('circles')
+        .select('id, name, teacher_id, teacher:profiles!circles_teacher_id_fkey(id, full_name)')
+        .eq('organization_id', organizationId)
+        .eq('is_active', true);
+
+      setCircles(circlesData || []);
+
+      // جلب جميع الطلاب
+      const { data: studentsData } = await supabase
         .from('profiles')
-        .select('*', { count: 'exact', head: true })
+        .select('id, full_name')
         .eq('organization_id', organizationId)
         .eq('role', 'student')
         .eq('status', 'active');
 
-      // جلب عدد المعلمين
+      // جلب جميع المعلمين
       const { count: totalTeachers } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true })
@@ -353,7 +351,7 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
       // جلب إحصائيات الحضور
       const { data: attendanceData } = await supabase
         .from('attendance')
-        .select('status')
+        .select('id, status, circle_id, student_id, date')
         .eq('organization_id', organizationId)
         .gte('date', startDateStr)
         .lte('date', today);
@@ -371,27 +369,163 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
       // جلب إحصائيات التسميع
       const { data: recitationData } = await supabase
         .from('recitations')
-        .select('type')
+        .select('id, type, student_id, teacher_id, circle_id, grade, date, from_ayah, to_ayah')
         .eq('organization_id', organizationId)
-        .gte('created_at', startDate.toISOString());
+        .gte('date', startDateStr)
+        .lte('date', today);
 
       const recitationStats = {
         memorization: recitationData?.filter(r => r.type === 'memorization').length || 0,
         review: recitationData?.filter(r => r.type === 'review').length || 0,
-        consolidation: recitationData?.filter(r => r.type === 'consolidation').length || 0,
+        consolidation: recitationData?.filter(r => r.type === 'test').length || 0,
       };
 
       const totalRecitations = Object.values(recitationStats).reduce((a, b) => a + b, 0);
 
-      // تحديث الإحصائيات
+      // حساب أداء الحلقات
+      const circlePerformanceData = (circlesData || []).map(circle => {
+        const circleAttendance = attendanceData?.filter(a => a.circle_id === circle.id) || [];
+        const circleRecitations = recitationData?.filter(r => r.circle_id === circle.id) || [];
+        const circleStudents = circleAttendance.map(a => a.student_id).filter((v, i, a) => a.indexOf(v) === i).length;
+
+        const presentCount = circleAttendance.filter(a => a.status === 'present').length;
+        const attendance = circleAttendance.length > 0 ? Math.round((presentCount / circleAttendance.length) * 100) : 0;
+
+        const excellentGrades = circleRecitations.filter(r => r.grade === 'excellent').length;
+        const totalGraded = circleRecitations.filter(r => r.grade).length;
+        const progress = totalGraded > 0 ? Math.round((excellentGrades / totalGraded) * 100) : 0;
+
+        return {
+          id: circle.id,
+          name: circle.name,
+          teacher: (circle.teacher as any)?.[0]?.full_name || 'بدون معلم',
+          students: circleStudents,
+          attendance,
+          progress,
+          rating: Math.min(5, 3 + (attendance / 50)),
+          totalRecitations: circleRecitations.length,
+          newMemorization: circleRecitations.filter(r => r.type === 'memorization').length,
+          review: circleRecitations.filter(r => r.type === 'review').length,
+          reinforcement: circleRecitations.filter(r => r.type === 'test').length,
+        };
+      });
+
+      setCirclePerformance(circlePerformanceData);
+
+      // حساب أداء المعلمين
+      const { data: teachersData } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .eq('organization_id', organizationId)
+        .eq('role', 'teacher')
+        .eq('status', 'active');
+
+      const teacherPerformanceData = (teachersData || []).map(teacher => {
+        const teacherCircles = circlesData?.filter(c => c.teacher_id === teacher.id) || [];
+        const teacherRecitations = recitationData?.filter(r => r.teacher_id === teacher.id) || [];
+        const teacherAttendance = attendanceData?.filter(a =>
+          teacherCircles.some(c => c.id === a.circle_id)
+        ) || [];
+
+        const studentIds = teacherRecitations.map(r => r.student_id).filter((v, i, a) => a.indexOf(v) === i);
+        const presentCount = teacherAttendance.filter(a => a.status === 'present').length;
+        const attendance = teacherAttendance.length > 0 ? Math.round((presentCount / teacherAttendance.length) * 100) : 0;
+
+        const excellentGrades = teacherRecitations.filter(r => r.grade === 'excellent').length;
+        const completion = teacherRecitations.length > 0 ? Math.round((excellentGrades / teacherRecitations.length) * 100) : 0;
+
+        return {
+          id: teacher.id,
+          name: teacher.full_name,
+          circles: teacherCircles.length,
+          students: studentIds.length,
+          recitations: teacherRecitations.length,
+          newMemorization: teacherRecitations.filter(r => r.type === 'memorization').length,
+          review: teacherRecitations.filter(r => r.type === 'review').length,
+          reinforcement: teacherRecitations.filter(r => r.type === 'test').length,
+          avgRating: Math.min(5, 3 + (attendance / 50)),
+          attendance,
+          completion,
+        };
+      });
+
+      setTeacherPerformance(teacherPerformanceData);
+
+      // حساب أفضل الطلاب بناءً على التسميع والحضور
+      const topStudentsData = (studentsData || []).map(student => {
+        const studentRecitations = recitationData?.filter(r => r.student_id === student.id) || [];
+        const studentAttendance = attendanceData?.filter(a => a.student_id === student.id) || [];
+
+        const presentCount = studentAttendance.filter(a => a.status === 'present').length;
+        const attendance = studentAttendance.length > 0 ? Math.round((presentCount / studentAttendance.length) * 100) : 0;
+
+        const excellentGrades = studentRecitations.filter(r => r.grade === 'excellent').length;
+        const progress = studentRecitations.length > 0 ? Math.round((excellentGrades / studentRecitations.length) * 100) : 0;
+
+        const totalAyahs = studentRecitations.reduce((sum, r) => sum + (r.to_ayah - r.from_ayah + 1), 0);
+
+        return {
+          rank: 0,
+          name: student.full_name,
+          circle: 'حلقة',
+          parts: Math.floor(totalAyahs / 30),
+          pages: totalAyahs,
+          progress,
+          attendance,
+          recitations: studentRecitations.length,
+          newMemorization: studentRecitations.filter(r => r.type === 'memorization').length,
+          review: studentRecitations.filter(r => r.type === 'review').length,
+          reinforcement: studentRecitations.filter(r => r.type === 'test').length,
+        };
+      }).sort((a, b) => (b.progress + b.attendance) - (a.progress + a.attendance))
+        .slice(0, 5)
+        .map((student, index) => ({ ...student, rank: index + 1 }));
+
+      setTopStudents(topStudentsData);
+
+      // حساب التقدم الشهري (آخر 6 أشهر)
+      const monthlyData = [];
+      const today_date = new Date();
+      for (let i = 5; i >= 0; i--) {
+        const monthStart = new Date(today_date.getFullYear(), today_date.getMonth() - i, 1);
+        const monthEnd = new Date(today_date.getFullYear(), today_date.getMonth() - i + 1, 0);
+
+        const monthAttendance = attendanceData?.filter(a => {
+          const date = new Date(a.date);
+          return date >= monthStart && date <= monthEnd;
+        }) || [];
+
+        const monthRecitations = recitationData?.filter(r => {
+          const date = new Date(r.date);
+          return date >= monthStart && date <= monthEnd;
+        }) || [];
+
+        const monthStudents = new Set(monthAttendance.map(a => a.student_id)).size;
+        const monthPresent = monthAttendance.filter(a => a.status === 'present').length;
+        const monthAttRate = monthAttendance.length > 0 ? Math.round((monthPresent / monthAttendance.length) * 100) : 0;
+
+        const monthNames = ['محرم', 'صفر', 'ربيع الأول', 'ربيع الثاني', 'جمادى الأول', 'جمادى الثاني'];
+
+        monthlyData.push({
+          month: monthNames[monthStart.getMonth()] || `شهر ${monthStart.getMonth() + 1}`,
+          students: Math.max(monthStudents, studentsData?.length || 0),
+          recitations: monthRecitations.length,
+          attendance: monthAttRate,
+          parts: Math.floor(monthRecitations.length / 10) || 1,
+        });
+      }
+
+      setMonthlyProgress(monthlyData);
+
+      // تحديث الإحصائيات العامة
       setSummaryStats({
-        totalStudents: totalStudents || 0,
+        totalStudents: studentsData?.length || 0,
         totalStudentsChange: 5,
         attendanceRate,
         attendanceChange: 5,
-        totalParts: 1240,
+        totalParts: recitationData?.reduce((sum, r) => sum + (r.to_ayah - r.from_ayah + 1), 0) || 0,
         partsChange: 18,
-        progressRate: 82,
+        progressRate: attendanceRate,
         progressChange: 8,
         totalRecitations,
         recitationsChange: 15,
