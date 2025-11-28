@@ -315,6 +315,17 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
         name: editFormData.name,
       };
 
+      // تحذير عند تغيير دور المدير
+      if (oldData.role !== newData.role && (oldData.role === 'مدير' || newData.role === 'مدير')) {
+        const confirmMessage = oldData.role === 'مدير'
+          ? `تحذير: أنت بصدد إزالة صلاحيات المدير من "${selectedUser.name}". هل أنت متأكد؟`
+          : `تحذير: أنت بصدد تعيين "${selectedUser.name}" كمدير. هذا سيمنحه صلاحيات إدارية كاملة. هل أنت متأكد؟`;
+
+        if (!confirm(confirmMessage)) {
+          return;
+        }
+      }
+
       if (isDemoMode()) {
         setUsers(users.map(u =>
           u.id === selectedUser.id
@@ -648,7 +659,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
             targetType: 'join_request',
             targetId: id,
             targetName: request.name,
-            notes: `تم رفض طلب الانضمام كـ ${request.role}`,
+            notes: `تم رفض ��لب الانضمام كـ ${request.role}`,
           }
         );
       } catch (error) {
@@ -695,7 +706,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
         return Shield;
       case 'معلم':
         return User;
-      case 'طالب':
+      case 'ط��لب':
         return User;
       case 'ولي أمر':
         return User;
@@ -727,7 +738,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
             <DialogContent dir="rtl">
               <DialogHeader>
                 <DialogTitle>إضافة م��تخدم جديد</DialogTitle>
-                <DialogDescription>أضف مستخدم جديد مباشرة إلى المنصة</DialogDescription>
+                <DialogDescription>أضف مستخدم جديد مباشرة إلى المنص��</DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
