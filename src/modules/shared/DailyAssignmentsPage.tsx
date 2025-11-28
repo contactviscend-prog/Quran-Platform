@@ -86,51 +86,108 @@ export function DailyAssignmentsPage({ userId, userRole, organizationId }: Daily
     try {
       setLoading(true);
       
-      // Mock data for demo - في الواقع يجب جلبها من قاعدة البيانات
-      const mockAssignments: Assignment[] = [
-        {
-          id: '1',
-          title: 'حفظ سورة البقرة',
-          description: 'حفظ الآيات من 1 إلى 10 من سورة البقرة',
-          circle_name: 'حلقة الفجر',
-          teacher_name: 'أحمد المعلم',
-          surah_from: 'البقرة',
-          verse_from: 1,
-          surah_to: 'البقرة',
-          verse_to: 10,
-          due_date: '2024-01-25',
-          status: 'pending',
-        },
-        {
-          id: '2',
-          title: 'مراجعة سورة آل عمران',
-          description: 'مراجعة الآيات من 50 إلى 75',
-          circle_name: 'حلقة الفجر',
-          teacher_name: 'أحمد المعلم',
-          surah_from: 'آل عمران',
-          verse_from: 50,
-          surah_to: 'آل عمران',
-          verse_to: 75,
-          due_date: '2024-01-20',
-          status: 'completed',
-          completed_at: '2024-01-19',
-        },
-        {
-          id: '3',
-          title: 'حفظ سورة النساء',
-          description: 'حف�� الآيات من 1 إلى 20',
-          circle_name: 'حلقة الظهر',
-          teacher_name: 'عمر الحافظ',
-          surah_from: 'النساء',
-          verse_from: 1,
-          surah_to: 'النساء',
-          verse_to: 20,
-          due_date: '2024-01-18',
-          status: 'overdue',
-        },
-      ];
+      if (isDemoMode()) {
+        // Mock data for demo mode
+        const mockAssignments: Assignment[] = [
+          {
+            id: '1',
+            title: 'حفظ سورة البقرة',
+            description: 'حفظ الآيات من 1 إلى 10 من سورة البقرة',
+            circle_name: 'حلقة الفجر',
+            teacher_name: 'أحمد المعلم',
+            surah_from: 'البقرة',
+            verse_from: 1,
+            surah_to: 'البقرة',
+            verse_to: 10,
+            due_date: '2024-01-25',
+            status: 'pending',
+          },
+          {
+            id: '2',
+            title: 'مراجعة سورة آل عمران',
+            description: 'مراجعة الآيات من 50 إلى 75',
+            circle_name: 'حلقة الفجر',
+            teacher_name: 'أحمد المعلم',
+            surah_from: 'آل عمران',
+            verse_from: 50,
+            surah_to: 'آل عمران',
+            verse_to: 75,
+            due_date: '2024-01-20',
+            status: 'completed',
+            completed_at: '2024-01-19',
+          },
+          {
+            id: '3',
+            title: 'حفظ سورة النساء',
+            description: 'حفظ الآيات من 1 إلى 20',
+            circle_name: 'حلقة الظهر',
+            teacher_name: 'عمر الحافظ',
+            surah_from: 'النساء',
+            verse_from: 1,
+            surah_to: 'النساء',
+            verse_to: 20,
+            due_date: '2024-01-18',
+            status: 'overdue',
+          },
+        ];
 
-      setAssignments(mockAssignments);
+        setAssignments(mockAssignments);
+        setLoading(false);
+        return;
+      }
+
+      // Real database fetch
+      let query = supabase
+        .from('daily_assignments')
+        .select(`
+          id,
+          title,
+          description,
+          circle:circles(id, name),
+          teacher:profiles!daily_assignments_teacher_id_fkey(full_name),
+          surah_from,
+          verse_from,
+          surah_to,
+          verse_to,
+          due_date,
+          status,
+          completed_at,
+          notes
+        `)
+        .eq('organization_id', organizationId);
+
+      // Filter by user role
+      if (userRole === 'student') {
+        query = query.eq('assigned_to_student', userId);
+      } else if (userRole === 'teacher') {
+        query = query.eq('teacher_id', userId);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Error fetching assignments:', error);
+        setAssignments([]);
+        return;
+      }
+
+      const formattedAssignments: Assignment[] = (data || []).map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        circle_name: item.circle?.name || 'بدون حلقة',
+        teacher_name: item.teacher?.full_name || 'بدون معلم',
+        surah_from: item.surah_from,
+        verse_from: item.verse_from,
+        surah_to: item.surah_to,
+        verse_to: item.verse_to,
+        due_date: item.due_date,
+        status: item.status,
+        completed_at: item.completed_at,
+        notes: item.notes,
+      }));
+
+      setAssignments(formattedAssignments);
     } catch (error: any) {
       console.error('Error fetching assignments:', error);
       toast.error('فشل تحميل التكليفات');
