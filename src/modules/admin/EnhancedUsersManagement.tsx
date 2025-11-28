@@ -1195,6 +1195,44 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Role Change Confirmation Dialog */}
+      <AlertDialog open={isRoleChangeConfirmOpen} onOpenChange={setIsRoleChangeConfirmOpen}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-red-600" />
+              تأكيد تغيير الدور إلى مدير
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingRoleChange && (
+                <div className="space-y-3 mt-2">
+                  <p>
+                    أنت على وشك تغيير دور المستخدم <strong>{pendingRoleChange.user.name}</strong> إلى <strong>مدير</strong>.
+                  </p>
+                  <p className="text-red-600 font-medium">
+                    تحذير: هذا سيمنح المستخدم سلطات إدارية كاملة على النظام. تأكد من أن هذا المستخدم يحتاج فعلاً لهذه الصلاحيات.
+                  </p>
+                  <p>
+                    هل تريد المتابعة؟
+                  </p>
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex gap-2 justify-end pt-4">
+            <AlertDialogCancel onClick={handleCancelRoleChange}>
+              إلغاء
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmRoleChange}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              تأكيد التغيير
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
