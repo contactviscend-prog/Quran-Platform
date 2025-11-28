@@ -98,6 +98,32 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
             studentsCount: 45
           },
           {
+            id: '3',
+            name: 'محمود الشيخ',
+            email: 'mahmoud@example.com',
+            phone: '0505554444',
+            role: 'معلم',
+            gender: 'ذكر',
+            status: 'نشط',
+            joinDate: '1445-06-10',
+            lastActive: '1446-03-19',
+            circlesCount: 2,
+            studentsCount: 30
+          },
+          {
+            id: '4',
+            name: 'عائشة المعلمة',
+            email: 'aisha@example.com',
+            phone: '0507776666',
+            role: 'معلم',
+            gender: 'أنثى',
+            status: 'نشط',
+            joinDate: '1445-08-01',
+            lastActive: '1446-03-20',
+            circlesCount: 2,
+            studentsCount: 25
+          },
+          {
             id: '2',
             name: 'فاطمة الطالبة',
             email: 'fatima@example.com',
@@ -108,6 +134,29 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
             joinDate: '1445-08-20',
             lastActive: '1446-03-20',
             circle: 'حلقة الفجر'
+          },
+          {
+            id: '5',
+            name: 'محمد الطالب',
+            email: 'mohmad.student@example.com',
+            phone: '0508889999',
+            role: 'طالب',
+            gender: 'ذكر',
+            status: 'نشط',
+            joinDate: '1445-09-05',
+            lastActive: '1446-03-18',
+            circle: 'حلقة الظهر'
+          },
+          {
+            id: '6',
+            name: 'علي المشرف',
+            email: 'ali.supervisor@example.com',
+            phone: '0501112233',
+            role: 'مشرف',
+            gender: 'ذكر',
+            status: 'نشط',
+            joinDate: '1445-05-01',
+            lastActive: '1446-03-20'
           },
         ]);
         setPendingRequests([
