@@ -102,8 +102,6 @@ function OrganizationsRoute() {
 function LoginRoute() {
   const navigate = useNavigate();
   const { user, profile, organization: authOrg } = useAuth();
-  const pathname = window.location.pathname;
-  const orgSlug = pathname.split('/')[2]; // /login/:orgSlug
 
   // Auto-redirect if already logged in
   useEffect(() => {
@@ -111,6 +109,10 @@ function LoginRoute() {
       navigate(`/${authOrg.slug}/dashboard`, { replace: true });
     }
   }, [user, profile, authOrg, navigate]);
+
+  // Get orgSlug from URL
+  const pathname = window.location.pathname;
+  const orgSlug = pathname.split('/')[2]; // /login/:orgSlug
 
   return (
     <Suspense fallback={<LoadingScreen />}>
