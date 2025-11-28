@@ -420,7 +420,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
 
     try {
       if (isDemoMode()) {
-        toast.success('تم إضافة الحلقة بنجاح (Demo Mode)');
+        toast.success('تم إضاف�� الحلقة بنجاح (Demo Mode)');
         setNewCircle({ name: '', teacher_id: '', level: 'beginner', description: '', max_students: 20 });
         setIsAddCircleDialogOpen(false);
         fetchAllData();
@@ -760,7 +760,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
         {/* الحلقات الأخيرة */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">الح��قات الأخيرة</CardTitle>
+            <CardTitle className="text-lg">الحلقات الأخيرة</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -801,10 +801,9 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
 
       case 'recitations':
         return (
-          <RecitationsPage
-            organizationId={organization.id}
-            userRole="admin"
-            userId={user.id}
+          <EnhancedRecitationPage
+            user={user}
+            organization={organization}
           />
         );
 
