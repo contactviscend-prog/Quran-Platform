@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -14,6 +14,7 @@ import { Progress } from '../../components/ui/progress';
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { useAuth } from '../../contexts/AuthContext';
 import { logAuditAction } from '../../lib/auditLog';
+import { supabase, isDemoMode, getRoleLabel, getStatusLabel } from '../../lib/supabase';
 
 interface ExtendedUser {
   id: string;
@@ -128,7 +129,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
       email: 'noura@example.com',
       phone: '0508889999',
       role: 'معلم',
-      gender: 'أنثى',
+      gender: 'أن��ى',
       status: 'نشط',
       joinDate: '1445-07-18',
       lastActive: '1446-03-20',
@@ -554,7 +555,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                     <Label htmlFor="user-gender">الجنس *</Label>
                     <Select value={newUser.gender} onValueChange={(value) => setNewUser({ ...newUser, gender: value })}>
                       <SelectTrigger id="user-gender">
-                        <SelectValue placeholder="اختر الجنس" />
+                        <SelectValue placeholder="اختر ��لجنس" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="ذكر">ذكر</SelectItem>
@@ -768,7 +769,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                               {user.role === 'ولي أمر' && user.childrenCount && (
                                 <p>{user.childrenCount} أبناء</p>
                               )}
-                              {user.role === 'مشرف' && user.circlesCount && (
+                              {user.role === '��شرف' && user.circlesCount && (
                                 <p>يشرف على {user.circlesCount} حلقات</p>
                               )}
                             </div>
@@ -1078,7 +1079,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                   </div>
                 </div>
 
-                {/* معاينة التغييرات */}
+                {/* معاينة التغييرا�� */}
                 {(selectedUser.role !== editFormData.role || selectedUser.status !== editFormData.status) && (
                   <div className="border border-orange-200 bg-orange-50 p-4 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
