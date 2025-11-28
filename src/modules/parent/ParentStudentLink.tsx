@@ -109,7 +109,7 @@ export function ParentStudentLink({ organizationId }: ParentStudentLinkProps) {
     try {
       // Check if already linked
       const { data: existing } = await supabase
-        .from('parent_students')
+        .from('parent_student_links')
         .select('id')
         .eq('parent_id', selectedParent)
         .eq('student_id', selectedStudent)
