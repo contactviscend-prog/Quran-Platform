@@ -36,10 +36,7 @@ export function OrganizationRequestPage({ onBack }: OrganizationRequestPageProps
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // محاكاة إرسال الطلب
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     setIsSubmitting(false);
     setSuccess(true);
   };

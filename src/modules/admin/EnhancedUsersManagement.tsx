@@ -23,7 +23,7 @@ interface ExtendedUser {
   phone: string;
   role: string;
   gender: 'ذكر' | 'أنثى';
-  status: 'نشط' | 'غير نشط' | 'معلق' | 'قيد المراجعة';
+  status: 'نشط' | 'معلق' | 'قيد المراجعة';
   joinDate: string;
   lastActive: string;
   circle?: string;
@@ -98,6 +98,32 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
             studentsCount: 45
           },
           {
+            id: '3',
+            name: 'محمود الشيخ',
+            email: 'mahmoud@example.com',
+            phone: '0505554444',
+            role: 'معلم',
+            gender: 'ذكر',
+            status: 'نشط',
+            joinDate: '1445-06-10',
+            lastActive: '1446-03-19',
+            circlesCount: 2,
+            studentsCount: 30
+          },
+          {
+            id: '4',
+            name: 'عائشة المعلمة',
+            email: 'aisha@example.com',
+            phone: '0507776666',
+            role: 'معلم',
+            gender: 'أنثى',
+            status: 'نشط',
+            joinDate: '1445-08-01',
+            lastActive: '1446-03-20',
+            circlesCount: 2,
+            studentsCount: 25
+          },
+          {
             id: '2',
             name: 'فاطمة الطالبة',
             email: 'fatima@example.com',
@@ -108,6 +134,29 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
             joinDate: '1445-08-20',
             lastActive: '1446-03-20',
             circle: 'حلقة الفجر'
+          },
+          {
+            id: '5',
+            name: 'محمد الطالب',
+            email: 'mohmad.student@example.com',
+            phone: '0508889999',
+            role: 'طالب',
+            gender: 'ذكر',
+            status: 'نشط',
+            joinDate: '1445-09-05',
+            lastActive: '1446-03-18',
+            circle: 'حلقة الظهر'
+          },
+          {
+            id: '6',
+            name: 'علي المشرف',
+            email: 'ali.supervisor@example.com',
+            phone: '0501112233',
+            role: 'مشرف',
+            gender: 'ذكر',
+            status: 'نشط',
+            joinDate: '1445-05-01',
+            lastActive: '1446-03-20'
           },
         ]);
         setPendingRequests([
@@ -141,17 +190,29 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
       ]);
 
       if (usersData.data) {
-        const formattedUsers = usersData.data.map((user: any) => ({
-          id: user.id,
-          name: user.full_name,
-          email: user.email || '',
-          phone: user.phone || '',
-          role: getRoleLabel(user.role),
-          gender: user.gender === 'male' ? 'ذكر' : 'أنثى',
-          status: getStatusLabel(user.status) as 'نشط' | 'معلق' | 'قيد المراجعة',
-          joinDate: user.created_at?.split('T')[0] || '',
-          lastActive: user.updated_at?.split('T')[0] || '',
-        }));
+        const formattedUsers = usersData.data.map((user: any): ExtendedUser => {
+          const statusLabel = getStatusLabel(user.status);
+          let mappedStatus: 'نشط' | 'معلق' | 'قيد المراجعة' = 'نشط';
+          if (statusLabel === 'معلق') {
+            mappedStatus = 'معلق';
+          } else if (statusLabel === 'قيد المراجعة') {
+            mappedStatus = 'قيد المراجعة';
+          } else if (statusLabel === 'غير نشط') {
+            mappedStatus = 'نشط';
+          }
+
+          return {
+            id: user.id,
+            name: user.full_name,
+            email: user.email || '',
+            phone: user.phone || '',
+            role: getRoleLabel(user.role),
+            gender: user.gender === 'male' ? 'ذكر' : 'أنثى',
+            status: mappedStatus,
+            joinDate: user.created_at?.split('T')[0] || '',
+            lastActive: user.updated_at?.split('T')[0] || '',
+          };
+        });
         setUsers(formattedUsers);
       }
 

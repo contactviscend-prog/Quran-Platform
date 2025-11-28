@@ -171,6 +171,62 @@ export const mockCircles: Circle[] = [
   },
 ];
 
+// Mock Teachers for Demo
+export const mockTeachers = [
+  {
+    id: 'user-3',
+    full_name: 'خالد المعلم',
+    phone: '0501234569',
+    gender: 'male' as const,
+    circles_count: 2,
+    students_count: 13,
+    recitations_count: 45,
+    average_rating: 4.8,
+    attendance_rate: 95,
+    status: 'active' as const,
+    last_activity: '2024-01-20T10:30:00Z',
+  },
+  {
+    id: 'user-6',
+    full_name: 'فاطمة الشيخة',
+    phone: '0507654321',
+    gender: 'female' as const,
+    circles_count: 2,
+    students_count: 18,
+    recitations_count: 62,
+    average_rating: 4.9,
+    attendance_rate: 98,
+    status: 'active' as const,
+    last_activity: '2024-01-20T14:15:00Z',
+  },
+  {
+    id: 'user-7',
+    full_name: 'محمود القاضي',
+    phone: '0509876543',
+    gender: 'male' as const,
+    circles_count: 1,
+    students_count: 10,
+    recitations_count: 35,
+    average_rating: 4.6,
+    attendance_rate: 92,
+    status: 'active' as const,
+    last_activity: '2024-01-19T09:45:00Z',
+  },
+  {
+    id: 'user-8',
+    full_name: 'نور حسن',
+    phone: '0501112222',
+    gender: 'female' as const,
+    circles_count: 1,
+    students_count: 8,
+    recitations_count: 28,
+    average_rating: 4.5,
+    attendance_rate: 88,
+    status: 'active' as const,
+    last_activity: '2024-01-20T11:20:00Z',
+  },
+];
+
 // Store for demo mode session
 let demoSession: { user: any; profile: Profile; organization: Organization } | null = null;
 
