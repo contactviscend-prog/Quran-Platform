@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   // Fetch user profile
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string): Promise<{ profile: Profile; organization: Organization } | null> => {
     try {
       console.log('🔍 جاري جلب profile للمستخدم:', userId);
 
@@ -50,13 +50,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       console.log('✅ تم جلب profile:', profileData);
 
-      // Set profile state FIRST
-      setProfile(profileData);
-
-      // Then, fetch the organization separately if needed
+      // Then, fetch the organization separately
+      let orgData: Organization | null = null;
       if (profileData.organization_id) {
         console.log('🔍 جاري جلب organization:', profileData.organization_id);
-        const { data: orgData, error: orgError } = await supabase
+        const { data, error: orgError } = await supabase
           .from('organizations')
           .select('*')
           .eq('id', profileData.organization_id)
@@ -67,19 +65,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw orgError;
         }
 
-        if (!orgData) {
+        if (!data) {
           console.warn('⚠️ لم يتم جلب organization - قد لا يكون موجوداً');
           throw new Error('Organization not found');
         }
 
+        orgData = data as Organization;
         console.log('✅ تم جلب organization:', orgData);
+      }
+
+      // Set both states
+      setProfile(profileData);
+      if (orgData) {
         setOrganization(orgData);
       }
 
       console.log('✅ تم جلب جميع البيانات بنجاح');
+      return { profile: profileData, organization: orgData || {} as Organization };
     } catch (error: any) {
       console.error('❌ Error fetching profile:', error?.message || error);
-      // Don't throw - let signIn handle it
+      return null;
     }
   };
 
