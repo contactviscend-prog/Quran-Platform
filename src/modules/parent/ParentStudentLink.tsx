@@ -71,12 +71,12 @@ export function ParentStudentLink({ organizationId }: ParentStudentLinkProps) {
 
       // Fetch linked students
       const { data: linksData } = await supabase
-        .from('parent_students')
+        .from('parent_children_links')
         .select(`
           parent_id,
           student_id,
-          student:profiles!parent_students_student_id_fkey(id, full_name),
-          parent:profiles!parent_students_parent_id_fkey(id, full_name)
+          student:profiles!parent_children_links_student_id_fkey(id, full_name),
+          parent:profiles!parent_children_links_parent_id_fkey(id, full_name)
         `)
         .eq('organization_id', organizationId);
 
