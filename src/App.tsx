@@ -172,7 +172,11 @@ function LoginPageWrapper({ orgSlug, onBack, onRegister }: { orgSlug: string; on
     return <LoadingScreen />;
   }
 
-  return <LoginPage organization={organization} onBack={onBack} onRegister={onRegister} />;
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <LoginPageComponent organization={organization} onBack={onBack} onRegister={onRegister} />
+    </Suspense>
+  );
 }
 
 // Register/Join Request Route
