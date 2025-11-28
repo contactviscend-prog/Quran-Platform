@@ -227,7 +227,7 @@ export function ParentStudentLink({ organizationId }: ParentStudentLinkProps) {
                 <Label>الطالب *</Label>
                 <Select value={selectedStudent} onValueChange={setSelectedStudent}>
                   <SelectTrigger>
-                    <SelectValue placeholder="اختر طال��" />
+                    <SelectValue placeholder="اختر طالب" />
                   </SelectTrigger>
                   <SelectContent>
                     {students.map((student) => (
