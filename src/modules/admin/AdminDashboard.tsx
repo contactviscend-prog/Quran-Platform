@@ -420,7 +420,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
 
     try {
       if (isDemoMode()) {
-        toast.success('تم إضاف�� الحلقة بنجاح (Demo Mode)');
+        toast.success('تم إضافة الحلقة بنجاح (Demo Mode)');
         setNewCircle({ name: '', teacher_id: '', level: 'beginner', description: '', max_students: 20 });
         setIsAddCircleDialogOpen(false);
         fetchAllData();
