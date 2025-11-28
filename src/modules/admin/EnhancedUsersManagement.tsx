@@ -141,17 +141,29 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
       ]);
 
       if (usersData.data) {
-        const formattedUsers = usersData.data.map((user: any) => ({
-          id: user.id,
-          name: user.full_name,
-          email: user.email || '',
-          phone: user.phone || '',
-          role: getRoleLabel(user.role),
-          gender: user.gender === 'male' ? 'ذكر' : 'أنثى',
-          status: getStatusLabel(user.status) as 'نشط' | 'معلق' | 'قيد المراجعة',
-          joinDate: user.created_at?.split('T')[0] || '',
-          lastActive: user.updated_at?.split('T')[0] || '',
-        }));
+        const formattedUsers = usersData.data.map((user: any): ExtendedUser => {
+          const statusLabel = getStatusLabel(user.status);
+          let mappedStatus: 'نشط' | 'معلق' | 'قيد المراجعة' = 'نشط';
+          if (statusLabel === 'معلق') {
+            mappedStatus = 'معلق';
+          } else if (statusLabel === 'قيد المراجعة') {
+            mappedStatus = 'قيد المراجعة';
+          } else if (statusLabel === 'غير نشط') {
+            mappedStatus = 'نشط';
+          }
+
+          return {
+            id: user.id,
+            name: user.full_name,
+            email: user.email || '',
+            phone: user.phone || '',
+            role: getRoleLabel(user.role),
+            gender: user.gender === 'male' ? 'ذكر' : 'أنثى',
+            status: mappedStatus,
+            joinDate: user.created_at?.split('T')[0] || '',
+            lastActive: user.updated_at?.split('T')[0] || '',
+          };
+        });
         setUsers(formattedUsers);
       }
 
