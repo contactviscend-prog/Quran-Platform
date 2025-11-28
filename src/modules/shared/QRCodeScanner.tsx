@@ -176,7 +176,7 @@ export function QRCodeScanner({ teacherId, organizationId, onScan }: QRCodeScann
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
-        toast.success('تم فتح الكاميرا - وجه رمز الاستجابة السريعة نحو الكامي��ا');
+        toast.success('تم فتح الكاميرا - وجه رمز الاستجابة السريعة نحو الكاميرا');
       }
     } catch (error) {
       console.error('Error starting camera:', error);
