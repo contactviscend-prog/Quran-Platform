@@ -146,7 +146,7 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
 
       // Demo mode - simulate save
       if (isDemoMode()) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 100));
         if (editingCircle) {
           toast.success('تم تحديث الحلقة بنجاح (Demo Mode)');
         } else {
