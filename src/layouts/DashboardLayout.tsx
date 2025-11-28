@@ -118,14 +118,6 @@ export function DashboardLayout({ user, organization, role, children, currentSec
       <header className="bg-white border-b sticky top-0 z-40">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="lg:hidden"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            >
-              {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
             <div className="flex items-center gap-2">
               <div className="mx-auto w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center">
                 <BookOpen className="w-6 h-6 text-white" />
