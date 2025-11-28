@@ -314,29 +314,31 @@ function DashboardRoute() {
 
 function AppContent() {
   return (
-    <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<LandingRoute />} />
-      <Route path="/organizations" element={<OrganizationsRoute />} />
-      <Route path="/login/:orgSlug" element={<LoginRoute />} />
-      <Route path="/register/:orgSlug" element={<RegisterRoute />} />
+    <Suspense fallback={<LoadingScreen />}>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<LandingRoute />} />
+        <Route path="/organizations" element={<OrganizationsRoute />} />
+        <Route path="/login/:orgSlug" element={<LoginRoute />} />
+        <Route path="/register/:orgSlug" element={<RegisterRoute />} />
 
-      {/* Protected Organization Routes with slug-based URLs */}
-      <Route
-        path="/:orgSlug/dashboard"
-        element={
-          <ProtectedRoute>
-            <DashboardRoute />
-          </ProtectedRoute>
-        }
-      />
+        {/* Protected Organization Routes with slug-based URLs */}
+        <Route
+          path="/:orgSlug/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardRoute />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Redirect legacy /dashboard to /:orgSlug/dashboard */}
-      <Route path="/dashboard" element={<DashboardRedirectRoute />} />
+        {/* Redirect legacy /dashboard to /:orgSlug/dashboard */}
+        <Route path="/dashboard" element={<DashboardRedirectRoute />} />
 
-      {/* Catch all - redirect to home */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* Catch all - redirect to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   );
 }
 
