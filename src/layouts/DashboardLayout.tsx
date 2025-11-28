@@ -120,7 +120,7 @@ export function DashboardLayout({ user, organization, role, children, currentSec
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
             {/* Menu Button - Next to Logo */}
-            <div className="lg:hidden relative">
+            <div className="lg:hidden relative z-50">
               <Button
                 variant="ghost"
                 size="sm"
@@ -130,14 +130,14 @@ export function DashboardLayout({ user, organization, role, children, currentSec
                 {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
 
-              {/* Dropdown Menu - Appears Above Header */}
+              {/* Dropdown Menu - Fixed positioning above header */}
               {isMenuOpen && (
-                <div className="absolute left-0 top-full mt-0 bg-white border border-gray-200 rounded-lg shadow-2xl z-50 min-w-[240px] max-h-[60vh] flex flex-col">
-                  <div className="overflow-y-auto flex-1">
+                <div className="fixed left-0 right-0 top-16 bg-white border-b border-gray-200 shadow-2xl z-40 max-h-[70vh] overflow-y-auto">
+                  <div className="flex flex-col">
                     {currentMenuItems.map((item, index) => (
                       <button
                         key={index}
-                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-right hover:bg-gray-50 transition-colors ${
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-right hover:bg-gray-50 transition-colors border-b border-gray-100 ${
                           currentSection === item.section ? 'bg-emerald-50 text-emerald-700 font-medium' : ''
                         }`}
                         onClick={() => {
@@ -151,10 +151,8 @@ export function DashboardLayout({ user, organization, role, children, currentSec
                         <span>{item.label}</span>
                       </button>
                     ))}
-                  </div>
-                  <div className="border-t sticky bottom-0 bg-white">
                     <button
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-right text-red-600 hover:bg-red-50 transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-right text-red-600 hover:bg-red-50 transition-colors border-t border-gray-200"
                       onClick={handleLogout}
                     >
                       <LogOut className="w-4 h-4 flex-shrink-0" />
