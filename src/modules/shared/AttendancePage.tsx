@@ -79,7 +79,7 @@ export function AttendancePage({ organizationId, userRole, userId }: AttendanceP
     } catch (error: any) {
       console.error('Error fetching attendance records:', error);
       if (!isDemoMode()) {
-        toast.error('فشل في تحميل سجلات ا��حضور');
+        toast.error('فشل في تحميل سجلات الحضور');
       }
     } finally {
       setLoading(false);
