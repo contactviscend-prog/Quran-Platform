@@ -10,4 +10,12 @@ export default defineConfig({
       '@': path.resolve(__dirname, './'),
     },
   },
+  optimizeDeps: {
+    exclude: [
+      '@radix-ui/react-alert-dialog',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-slot',
+      '@radix-ui/react-primitive',
+    ],
+  },
 });
