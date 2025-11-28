@@ -267,7 +267,7 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl">إدارة الحلقات</h2>
-          <p className="text-gray-600">إدارة حلقات الت��فيظ والمعلمين</p>
+          <p className="text-gray-600">إدارة حلقات التحفيظ والمعلمين</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
           setIsAddDialogOpen(open);
