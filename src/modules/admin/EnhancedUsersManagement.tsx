@@ -284,10 +284,30 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
       name: editFormData.name,
     };
 
+    // Check if role is changing to admin - request confirmation
+    if (oldData.role !== newData.role && newData.role === 'مدير') {
+      setPendingRoleChange({
+        user: selectedUser,
+        newRole: newData.role,
+      });
+      setIsRoleChangeConfirmOpen(true);
+      return;
+    }
+
+    // Proceed with the save
+    await performEditUserSave(selectedUser, editFormData, oldData, newData);
+  };
+
+  const performEditUserSave = async (
+    user: ExtendedUser,
+    formData: any,
+    oldData: any,
+    newData: any
+  ) => {
     // تحديث البيانات
     setUsers(users.map(u =>
-      u.id === selectedUser.id
-        ? { ...u, ...editFormData }
+      u.id === user.id
+        ? { ...u, ...formData }
         : u
     ));
 
@@ -300,8 +320,8 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
         'USER_ROLE_CHANGED',
         {
           targetType: 'user',
-          targetId: selectedUser.id,
-          targetName: selectedUser.name,
+          targetId: user.id,
+          targetName: user.name,
           oldValue: { role: oldData.role },
           newValue: { role: newData.role },
           notes: `تم تغيير الدور من "${oldData.role}" إلى "${newData.role}"`,
@@ -317,8 +337,8 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
         'USER_STATUS_CHANGED',
         {
           targetType: 'user',
-          targetId: selectedUser.id,
-          targetName: selectedUser.name,
+          targetId: user.id,
+          targetName: user.name,
           oldValue: { status: oldData.status },
           newValue: { status: newData.status },
           notes: `تم تغيير الحالة من "${oldData.status}" إلى "${newData.status}"`,
@@ -334,8 +354,8 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
         'USER_UPDATED',
         {
           targetType: 'user',
-          targetId: selectedUser.id,
-          targetName: selectedUser.name,
+          targetId: user.id,
+          targetName: user.name,
           oldValue: oldData,
           newValue: newData,
         }
@@ -344,6 +364,31 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
 
     setIsEditDialogOpen(false);
     toast.success('تم تحديث بيانات المستخدم بنجاح');
+  };
+
+  const handleConfirmRoleChange = async () => {
+    if (!pendingRoleChange || !selectedUser || !editFormData) return;
+
+    const oldData = {
+      role: selectedUser.role,
+      status: selectedUser.status,
+      name: selectedUser.name,
+    };
+
+    const newData = {
+      role: editFormData.role,
+      status: editFormData.status,
+      name: editFormData.name,
+    };
+
+    await performEditUserSave(selectedUser, editFormData, oldData, newData);
+    setIsRoleChangeConfirmOpen(false);
+    setPendingRoleChange(null);
+  };
+
+  const handleCancelRoleChange = () => {
+    setIsRoleChangeConfirmOpen(false);
+    setPendingRoleChange(null);
   };
 
   const handleViewUser = (user: ExtendedUser) => {
