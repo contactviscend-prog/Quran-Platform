@@ -58,7 +58,7 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
             </div>
             <h2 className="text-2xl font-semibold mb-2">تم إرسال طلبك بنجاح!</h2>
             <p className="text-gray-600 mb-6">
-              سيتم مراجعة طلبك والتواصل معك قريبا�� عبر البريد الإلكتروني أو الهاتف
+              سيتم مراجعة طلبك والتواصل معك قريباً عبر البريد الإلكتروني أو الهاتف
             </p>
             <Button onClick={onBack} className="bg-emerald-600 hover:bg-emerald-700">
               العودة إلى الصفحة الرئيسية
@@ -82,13 +82,13 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
             <div className="mx-auto w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center mb-4">
               <User className="w-8 h-8 text-white" />
             </div>
-            <CardTitle className="text-3xl">تسجيل مستخد�� جديد</CardTitle>
+            <CardTitle className="text-3xl">تسجيل مستخدم جديد</CardTitle>
             <div className="mt-3 flex items-center justify-center gap-2 text-gray-600">
               <Building2 className="w-4 h-4" />
               <span>{organization.name}</span>
             </div>
             <CardDescription className="mt-2">
-              املأ البيان��ت التالية لتقديم طلب الانضمام
+              املأ البيانات التالية لتقديم طلب الانضمام
             </CardDescription>
           </CardHeader>
 
@@ -167,7 +167,7 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="dateOfBirth">تاري�� الميلاد *</Label>
+                <Label htmlFor="dateOfBirth">تاريخ الميلاد *</Label>
                 <Input
                   id="dateOfBirth"
                   type="date"
