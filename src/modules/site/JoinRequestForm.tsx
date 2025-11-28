@@ -38,7 +38,7 @@ export function JoinRequestForm({ organization, onBack, onSuccess }: JoinRequest
     e.preventDefault();
     
     if (!formData.role || !formData.gender) {
-      toast.error('الرجاء ملء جميع الح��ول المطلوبة');
+      toast.error('الرجاء ملء جميع الحقول المطلوبة');
       return;
     }
 
