@@ -468,7 +468,7 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
                     autoFocus
                   />
                   <p className="text-xs text-gray-600">
-                    اوجّه الكاميرا على الباركود أو أدخل رمز الطالب يدويا ثم اضغ�� Enter
+                    اوجّه الكاميرا على الباركود أو أدخل رمز الطالب يدويا ثم اضغط Enter
                   </p>
                 </div>
               </div>
@@ -632,7 +632,7 @@ export function StudentQuickAccess({ organizationId, teacherId, circleId, onData
                       <SelectItem value="very_good">جيد جداً (85-94%)</SelectItem>
                       <SelectItem value="good">جيد (75-84%)</SelectItem>
                       <SelectItem value="acceptable">مقبول (65-74%)</SelectItem>
-                      <SelectItem value="needs_improvement">يحتاج تحسي�� (&lt;65%)</SelectItem>
+                      <SelectItem value="needs_improvement">يحتاج تحسين (&lt;65%)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
