@@ -41,6 +41,7 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ user, organization, role, children, currentSection = 'overview', onSectionChange }: DashboardLayoutProps) {
   const { signOut } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [navScrollRef, setNavScrollRef] = useState<HTMLDivElement | null>(null);
 
   const handleLogout = async () => {
     try {
