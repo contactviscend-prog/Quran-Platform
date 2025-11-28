@@ -206,32 +206,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (data.user) {
         console.log('🔐 تم تسجيل الدخول - جاري جلب البيانات...');
-        await fetchProfile(data.user.id);
+        const profileData = await fetchProfile(data.user.id);
+
+        if (!profileData) {
+          throw new Error('فشل جلب بيانات المستخدم');
+        }
 
         // Validate that user belongs to the expected organization
-        if (expectedOrgSlug && profile) {
+        if (expectedOrgSlug) {
           console.log('🔍 التحقق من أن المستخدم ينتمي لمؤسسة:', expectedOrgSlug);
 
-          // Get the organization of the user
-          const { data: userOrg, error: orgError } = await supabase
-            .from('organizations')
-            .select('*')
-            .eq('id', profile.organization_id)
-            .single();
-
-          if (orgError || !userOrg) {
+          if (!profileData.organization) {
             console.error('❌ لم يتمكن من جلب بيانات مؤسسة المستخدم');
             throw new Error('حدث خطأ في التحقق من المؤسسة');
           }
 
-          if (userOrg.slug !== expectedOrgSlug) {
-            console.warn(`⚠️ المستخدم من مؤسسة ${userOrg.slug}، لكن محاولة الدخول من ${expectedOrgSlug}`);
+          if (profileData.organization.slug !== expectedOrgSlug) {
+            console.warn(`⚠️ المستخدم من مؤسسة ${profileData.organization.slug}، لكن محاولة الدخول من ${expectedOrgSlug}`);
             // Sign out the user since they're trying to access wrong organization
             await supabase.auth.signOut();
             setUser(null);
             setProfile(null);
             setOrganization(null);
-            throw new Error(`هذا الحساب ينتمي لمؤسسة أخرى (${userOrg.name}). الرجاء استخدام بوابة مؤسستك الصحيحة.`);
+            throw new Error(`هذا الحساب ينتمي لمؤسسة أخرى (${profileData.organization.name}). الرجاء استخدام بوابة مؤسستك الصحيحة.`);
           }
         }
 
