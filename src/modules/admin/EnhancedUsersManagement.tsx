@@ -335,7 +335,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
 
       const statusMap: { [key: string]: string } = {
         'نشط': 'active',
-        'مع��ق': 'suspended',
+        'معلق': 'suspended',
         'قيد المراجعة': 'pending',
       };
 
@@ -454,21 +454,39 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
       const user = users.find(u => u.id === id);
       if (!user) return;
 
-      setUsers(users.filter(u => u.id !== id));
-      toast.success('تم حذف المستخدم');
-
-      await logAuditAction(
-        organizationId,
-        currentUserProfile?.id || '',
-        currentUserProfile?.full_name || 'مدير',
-        'USER_DELETED',
-        {
-          targetType: 'user',
-          targetId: id,
-          targetName: user.name,
-          oldValue: { role: user.role, status: user.status },
+      try {
+        if (isDemoMode()) {
+          setUsers(users.filter(u => u.id !== id));
+          toast.success('تم حذف المستخدم (Demo Mode)');
+          return;
         }
-      );
+
+        const { error } = await supabase
+          .from('profiles')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+
+        setUsers(users.filter(u => u.id !== id));
+        toast.success('تم حذف المستخدم');
+
+        await logAuditAction(
+          organizationId,
+          currentUserProfile?.id || '',
+          currentUserProfile?.full_name || 'مدير',
+          'USER_DELETED',
+          {
+            targetType: 'user',
+            targetId: id,
+            targetName: user.name,
+            oldValue: { role: user.role, status: user.status },
+          }
+        );
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        toast.error('فشل حذف المستخدم');
+      }
     }
   };
 
@@ -506,7 +524,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
   };
 
   const handleRejectRequest = async (id: string) => {
-    if (confirm('هل أنت متأكد من رفض هذا الط��ب؟')) {
+    if (confirm('هل أنت متأكد من رفض هذا الطلب؟')) {
       const request = pendingRequests.find(r => r.id === id);
       if (!request) return;
 
@@ -711,7 +729,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
       {/* التبويبات */}
       <Tabs defaultValue="active" className="space-y-4">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="active">المستخدمون النشطون ({stats.active})</TabsTrigger>
+          <TabsTrigger value="active">الم��تخدمون النشطون ({stats.active})</TabsTrigger>
           <TabsTrigger value="pending">
             الطلبات قيد المراجعة
             {pendingRequests.length > 0 && (
@@ -758,7 +776,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                     <SelectItem value="all">جميع الحالات</SelectItem>
                     <SelectItem value="نشط">نشط</SelectItem>
                     <SelectItem value="معلق">معلق</SelectItem>
-                    <SelectItem value="قيد المراجعة">قيد المراجعة</SelectItem>
+                    <SelectItem value="قيد المراجعة">قيد ال��راجعة</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1116,7 +1134,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="edit-status">��لحالة</Label>
+                    <Label htmlFor="edit-status">الحالة</Label>
                     <Select
                       value={editFormData.status}
                       onValueChange={(value) => setEditFormData({ ...editFormData, status: value as any })}
