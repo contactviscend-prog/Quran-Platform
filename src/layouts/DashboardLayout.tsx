@@ -158,13 +158,47 @@ export function DashboardLayout({ user, organization, role, children, currentSec
         </div>
       </header>
 
+      {/* Mobile Horizontal Navigation */}
+      <div className="lg:hidden bg-white border-b sticky top-[73px] z-30 overflow-x-auto">
+        <nav
+          ref={setNavScrollRef}
+          className="flex gap-2 p-3 overflow-x-auto scrollbar-hide"
+        >
+          {currentMenuItems.map((item, index) => (
+            <Button
+              key={index}
+              variant={currentSection === item.section ? 'default' : 'outline'}
+              size="sm"
+              className={`flex-shrink-0 whitespace-nowrap ${
+                currentSection === item.section ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600' : ''
+              }`}
+              onClick={() => {
+                if (onSectionChange) {
+                  onSectionChange(item.section);
+                }
+              }}
+            >
+              <item.icon className="w-4 h-4 ml-2" />
+              <span className="hidden sm:inline">{item.label}</span>
+            </Button>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-shrink-0 whitespace-nowrap text-red-600 hover:text-red-700 hover:bg-red-50"
+            onClick={handleLogout}
+          >
+            <LogOut className="w-4 h-4 ml-2" />
+            <span className="hidden sm:inline">خروج</span>
+          </Button>
+        </nav>
+      </div>
+
       <div className="flex">
         {/* Sidebar */}
         <aside
           className={`
-            fixed lg:sticky top-[73px] right-0 h-[calc(100vh-73px)] bg-white border-l w-64 z-30
-            transition-transform duration-300 lg:translate-x-0
-            ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
+            hidden lg:block sticky top-[73px] right-0 h-[calc(100vh-73px)] bg-white border-l w-64 overflow-y-auto
           `}
         >
           <nav className="p-4 space-y-2">
@@ -178,9 +212,6 @@ export function DashboardLayout({ user, organization, role, children, currentSec
                 onClick={() => {
                   if (onSectionChange) {
                     onSectionChange(item.section);
-                  }
-                  if (isSidebarOpen) {
-                    setIsSidebarOpen(false);
                   }
                 }}
               >
@@ -208,14 +239,6 @@ export function DashboardLayout({ user, organization, role, children, currentSec
             </div>
           </div>
         </aside>
-
-        {/* Overlay for mobile */}
-        {isSidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-        )}
 
         {/* Main Content */}
         <main className="flex-1 p-4 lg:p-8">
