@@ -215,7 +215,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
           email: newUser.email,
           phone: newUser.phone,
           role: newUser.role,
-          gender: newUser.gender as 'ذكر' | 'أنثى',
+          gender: newUser.gender as 'ذك��' | 'أنثى',
           status: 'نشط',
           joinDate: new Date().toISOString().split('T')[0],
           lastActive: new Date().toISOString().split('T')[0],
@@ -583,24 +583,42 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
 
   const handleRejectRequest = async (id: string) => {
     if (confirm('هل أنت متأكد من رفض هذا الطلب؟')) {
-      const request = pendingRequests.find(r => r.id === id);
-      if (!request) return;
+      try {
+        const request = pendingRequests.find(r => r.id === id);
+        if (!request) return;
 
-      setPendingRequests(pendingRequests.filter(r => r.id !== id));
-      toast.success('تم رفض الطلب');
-
-      await logAuditAction(
-        organizationId,
-        currentUserProfile?.id || '',
-        currentUserProfile?.full_name || 'مدير',
-        'REQUEST_REJECTED',
-        {
-          targetType: 'join_request',
-          targetId: id,
-          targetName: request.name,
-          notes: `تم رفض طلب الانضمام كـ ${request.role}`,
+        if (isDemoMode()) {
+          setPendingRequests(pendingRequests.filter(r => r.id !== id));
+          toast.success('تم رفض الطلب (Demo Mode)');
+          return;
         }
-      );
+
+        const { error } = await supabase
+          .from('join_requests')
+          .update({ status: 'rejected' })
+          .eq('id', id);
+
+        if (error) throw error;
+
+        setPendingRequests(pendingRequests.filter(r => r.id !== id));
+        toast.success('تم رفض الطلب');
+
+        await logAuditAction(
+          organizationId,
+          currentUserProfile?.id || '',
+          currentUserProfile?.full_name || 'مدير',
+          'REQUEST_REJECTED',
+          {
+            targetType: 'join_request',
+            targetId: id,
+            targetName: request.name,
+            notes: `تم رفض طلب الانضمام كـ ${request.role}`,
+          }
+        );
+      } catch (error) {
+        console.error('Error rejecting request:', error);
+        toast.error('فشل رفض الطلب');
+      }
     }
   };
 
@@ -787,7 +805,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
       {/* التبويبات */}
       <Tabs defaultValue="active" className="space-y-4">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="active">المستخدمون النشطون ({stats.active})</TabsTrigger>
+          <TabsTrigger value="active">المستخدم��ن النشطون ({stats.active})</TabsTrigger>
           <TabsTrigger value="pending">
             الطلبات قيد المراجعة
             {pendingRequests.length > 0 && (
