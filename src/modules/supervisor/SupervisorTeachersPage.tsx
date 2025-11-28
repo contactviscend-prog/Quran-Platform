@@ -293,59 +293,61 @@ export function SupervisorTeachersPage({ organizationId }: SupervisorTeachersPag
               <p className="text-gray-600">لا يوجد معلمون</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-right">المعلم</TableHead>
-                  <TableHead className="text-right">الجنس</TableHead>
-                  <TableHead className="text-right">الحلقات</TableHead>
-                  <TableHead className="text-right">الطلاب</TableHead>
-                  <TableHead className="text-right">التسميع</TableHead>
-                  <TableHead className="text-right">التقييم</TableHead>
-                  <TableHead className="text-right">الحضور</TableHead>
-                  <TableHead className="text-right">الحالة</TableHead>
-                  <TableHead className="text-right">الإجراءات</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredTeachers.map((teacher) => (
-                  <TableRow key={teacher.id}>
-                    <TableCell className="font-medium">{teacher.full_name}</TableCell>
-                    <TableCell>{teacher.gender === 'male' ? 'ذكر' : 'أنثى'}</TableCell>
-                    <TableCell>{teacher.circles_count} حلقة</TableCell>
-                    <TableCell>{teacher.students_count} طالب</TableCell>
-                    <TableCell>{teacher.recitations_count} مرة</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Star className={`w-4 h-4 ${getRatingColor(teacher.average_rating)} fill-current`} />
-                        <span className={`font-medium ${getRatingColor(teacher.average_rating)}`}>
-                          {teacher.average_rating}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getAttendanceColor(teacher.attendance_rate)}>
-                        {teacher.attendance_rate}%
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={teacher.status === 'active' ? 'default' : 'secondary'}>
-                        {teacher.status === 'active' ? 'نشط' : 'غير نشط'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedTeacher(teacher)}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-right">المعلم</TableHead>
+                    <TableHead className="text-right hidden sm:table-cell">الجنس</TableHead>
+                    <TableHead className="text-right">الحلقات</TableHead>
+                    <TableHead className="text-right hidden md:table-cell">الطلاب</TableHead>
+                    <TableHead className="text-right hidden lg:table-cell">التسميع</TableHead>
+                    <TableHead className="text-right">التقييم</TableHead>
+                    <TableHead className="text-right hidden md:table-cell">الحضور</TableHead>
+                    <TableHead className="text-right">الحالة</TableHead>
+                    <TableHead className="text-right">الإجراءات</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredTeachers.map((teacher) => (
+                    <TableRow key={teacher.id}>
+                      <TableCell className="font-medium">{teacher.full_name}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{teacher.gender === 'male' ? 'ذكر' : 'أنثى'}</TableCell>
+                      <TableCell>{teacher.circles_count} حلقة</TableCell>
+                      <TableCell className="hidden md:table-cell">{teacher.students_count} طالب</TableCell>
+                      <TableCell className="hidden lg:table-cell">{teacher.recitations_count} مرة</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Star className={`w-4 h-4 ${getRatingColor(teacher.average_rating)} fill-current`} />
+                          <span className={`font-medium ${getRatingColor(teacher.average_rating)}`}>
+                            {teacher.average_rating}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <Badge className={getAttendanceColor(teacher.attendance_rate)}>
+                          {teacher.attendance_rate}%
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={teacher.status === 'active' ? 'default' : 'secondary'}>
+                          {teacher.status === 'active' ? 'نشط' : 'غير نشط'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedTeacher(teacher)}
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
