@@ -126,7 +126,7 @@ export function StudentDashboard({ user, organization }: StudentDashboardProps) 
       case 'very_good':
         return 'جيد جداً';
       case 'good':
-        return 'ج��د';
+        return 'جيد';
       case 'acceptable':
         return 'مقبول';
       case 'needs_improvement':
