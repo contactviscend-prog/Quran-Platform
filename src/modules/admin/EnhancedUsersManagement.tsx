@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -14,6 +14,7 @@ import { Progress } from '../../components/ui/progress';
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { useAuth } from '../../contexts/AuthContext';
 import { logAuditAction } from '../../lib/auditLog';
+import { supabase, isDemoMode, getRoleLabel, getStatusLabel } from '../../lib/supabase';
 
 interface ExtendedUser {
   id: string;
@@ -50,6 +51,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<ExtendedUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // حالة النموذج المعدل
   const [editFormData, setEditFormData] = useState<{
@@ -61,126 +63,8 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
     gender: 'ذكر' | 'أنثى';
   } | null>(null);
 
-  const [users, setUsers] = useState<ExtendedUser[]>([
-    {
-      id: '1',
-      name: 'أحمد المعلم',
-      email: 'ahmed@example.com',
-      phone: '0501234567',
-      role: 'معلم',
-      gender: 'ذكر',
-      status: 'نشط',
-      joinDate: '1445-07-15',
-      lastActive: '1446-03-20',
-      circlesCount: 3,
-      studentsCount: 45
-    },
-    {
-      id: '2',
-      name: 'فاطمة الطالبة',
-      email: 'fatima@example.com',
-      phone: '0509876543',
-      role: 'طالب',
-      gender: 'أنثى',
-      status: 'نشط',
-      joinDate: '1445-08-20',
-      lastActive: '1446-03-20',
-      circle: 'حلقة الفجر'
-    },
-    {
-      id: '3',
-      name: 'عبدالله ولي الأمر',
-      email: 'abdullah@example.com',
-      phone: '0505551234',
-      role: 'ولي أمر',
-      gender: 'ذكر',
-      status: 'نشط',
-      joinDate: '1445-08-21',
-      lastActive: '1446-03-19',
-      childrenCount: 2
-    },
-    {
-      id: '4',
-      name: 'خالد المشرف',
-      email: 'khaled@example.com',
-      phone: '0507778899',
-      role: 'مشرف',
-      gender: 'ذكر',
-      status: 'نشط',
-      joinDate: '1445-07-10',
-      lastActive: '1446-03-20',
-      circlesCount: 8
-    },
-    {
-      id: '5',
-      name: 'محمد الجديد',
-      email: 'mohamed@example.com',
-      phone: '0503334455',
-      role: 'طالب',
-      gender: 'ذكر',
-      status: 'قيد المراجعة',
-      joinDate: '1446-03-01',
-      lastActive: '1446-03-01'
-    },
-    {
-      id: '6',
-      name: 'نورة المعلمة',
-      email: 'noura@example.com',
-      phone: '0508889999',
-      role: 'معلم',
-      gender: 'أنثى',
-      status: 'نشط',
-      joinDate: '1445-07-18',
-      lastActive: '1446-03-20',
-      circlesCount: 2,
-      studentsCount: 30
-    },
-    {
-      id: '7',
-      name: 'سارة الطالبة',
-      email: 'sara@example.com',
-      phone: '0509998888',
-      role: 'طالب',
-      gender: 'أنثى',
-      status: 'معلق',
-      joinDate: '1445-09-10',
-      lastActive: '1446-02-15',
-      circle: 'حلقة العصر'
-    },
-  ]);
-
-  const [pendingRequests, setPendingRequests] = useState([
-    {
-      id: '1',
-      name: 'سارة أحمد',
-      email: 'sara2@example.com',
-      phone: '0501112233',
-      role: 'طالب',
-      gender: 'أنثى',
-      requestDate: '1446-03-05',
-      notes: 'طالبة جديدة ترغب في الانضمام'
-    },
-    {
-      id: '2',
-      name: 'يوسف محمد',
-      email: 'yousef@example.com',
-      phone: '0504445566',
-      role: 'معلم',
-      gender: 'ذكر',
-      requestDate: '1446-03-06',
-      notes: 'معلم خبرة 5 سنوات'
-    },
-    {
-      id: '3',
-      name: 'نورة عبدالله',
-      email: 'noura2@example.com',
-      phone: '0507778888',
-      role: 'ولي أمر',
-      gender: 'أنثى',
-      requestDate: '1446-03-07',
-      notes: 'لديها طفلان'
-    },
-  ]);
+  const [users, setUsers] = useState<ExtendedUser[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<any[]>([]);
 
   const [newUser, setNewUser] = useState({
     name: '',
@@ -189,6 +73,110 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
     role: 'طالب',
     gender: '',
   });
+
+  useEffect(() => {
+    fetchData();
+  }, [organizationId]);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+
+      if (isDemoMode()) {
+        setUsers([
+          {
+            id: '1',
+            name: 'أحمد المعلم',
+            email: 'ahmed@example.com',
+            phone: '0501234567',
+            role: 'معلم',
+            gender: 'ذكر',
+            status: 'نشط',
+            joinDate: '1445-07-15',
+            lastActive: '1446-03-20',
+            circlesCount: 3,
+            studentsCount: 45
+          },
+          {
+            id: '2',
+            name: 'فاطمة الطالبة',
+            email: 'fatima@example.com',
+            phone: '0509876543',
+            role: 'طالب',
+            gender: 'أنثى',
+            status: 'نشط',
+            joinDate: '1445-08-20',
+            lastActive: '1446-03-20',
+            circle: 'حلقة الفجر'
+          },
+        ]);
+        setPendingRequests([
+          {
+            id: '1',
+            name: 'سارة أحمد',
+            email: 'sara2@example.com',
+            phone: '0501112233',
+            role: 'طالب',
+            gender: 'أنثى',
+            requestDate: '1446-03-05',
+            notes: 'طالبة جديدة ترغب في الانضمام'
+          },
+        ]);
+        setLoading(false);
+        return;
+      }
+
+      const [usersData, requestsData] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('organization_id', organizationId)
+          .order('full_name'),
+        supabase
+          .from('join_requests')
+          .select('*')
+          .eq('organization_id', organizationId)
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false })
+      ]);
+
+      if (usersData.data) {
+        const formattedUsers = usersData.data.map((user: any) => ({
+          id: user.id,
+          name: user.full_name,
+          email: user.email || '',
+          phone: user.phone || '',
+          role: getRoleLabel(user.role),
+          gender: user.gender === 'male' ? 'ذكر' : 'أنثى',
+          status: getStatusLabel(user.status) as 'نشط' | 'معلق' | 'قيد المراجعة',
+          joinDate: user.created_at?.split('T')[0] || '',
+          lastActive: user.updated_at?.split('T')[0] || '',
+        }));
+        setUsers(formattedUsers);
+      }
+
+      if (requestsData.data) {
+        const formattedRequests = requestsData.data.map((req: any) => ({
+          id: req.id,
+          name: req.full_name,
+          email: req.email,
+          phone: req.phone,
+          role: getRoleLabel(req.requested_role),
+          gender: req.gender === 'male' ? 'ذكر' : 'أنثى',
+          requestDate: req.created_at?.split('T')[0] || '',
+          notes: req.notes || ''
+        }));
+        setPendingRequests(formattedRequests);
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      if (!isDemoMode()) {
+        toast.error('فشل في تحميل بيانات المستخدمين');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // حساب الإحصائيات
   const stats: UserStats = {
@@ -213,41 +201,89 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
     return matchesSearch && matchesRole && matchesStatus;
   });
 
-  const handleAddUser = () => {
+  const handleAddUser = async () => {
     if (!newUser.name || !newUser.email || !newUser.gender) {
       toast.error('الرجاء ملء جميع الحقول المطلوبة');
       return;
     }
 
-    const user: ExtendedUser = {
-      id: String(users.length + 1),
-      name: newUser.name,
-      email: newUser.email,
-      phone: newUser.phone,
-      role: newUser.role,
-      gender: newUser.gender as 'ذكر' | 'أنثى',
-      status: 'نشط',
-      joinDate: '1446-03-20',
-      lastActive: '1446-03-20',
-    };
-    setUsers([...users, user]);
-    setNewUser({ name: '', email: '', phone: '', role: 'طالب', gender: '' });
-    setIsAddDialogOpen(false);
-    toast.success('تم إضافة المستخدم بنجاح');
-
-    // تسجيل في Audit Log
-    logAuditAction(
-      organizationId,
-      currentUserProfile?.id || '',
-      currentUserProfile?.full_name || 'مدير',
-      'USER_CREATED',
-      {
-        targetType: 'user',
-        targetId: user.id,
-        targetName: user.name,
-        newValue: { role: user.role, status: user.status },
+    try {
+      if (isDemoMode()) {
+        const user: ExtendedUser = {
+          id: String(Date.now()),
+          name: newUser.name,
+          email: newUser.email,
+          phone: newUser.phone,
+          role: newUser.role,
+          gender: newUser.gender as 'ذكر' | 'أنثى',
+          status: 'نشط',
+          joinDate: new Date().toISOString().split('T')[0],
+          lastActive: new Date().toISOString().split('T')[0],
+        };
+        setUsers([...users, user]);
+        setNewUser({ name: '', email: '', phone: '', role: 'طالب', gender: '' });
+        setIsAddDialogOpen(false);
+        toast.success('تم إضافة المستخدم بنجاح (Demo Mode)');
+        return;
       }
-    );
+
+      const roleMap: { [key: string]: string } = {
+        'معلم': 'teacher',
+        'طالب': 'student',
+        'مشرف': 'supervisor',
+        'ولي أمر': 'parent',
+      };
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert([
+          {
+            organization_id: organizationId,
+            full_name: newUser.name,
+            email: newUser.email,
+            phone: newUser.phone,
+            gender: newUser.gender === 'ذكر' ? 'male' : 'female',
+            role: roleMap[newUser.role] || 'student',
+            status: 'active',
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setUsers([...users, {
+        id: data.id,
+        name: data.full_name,
+        email: data.email || '',
+        phone: data.phone || '',
+        role: newUser.role,
+        gender: newUser.gender as 'ذكر' | 'أنثى',
+        status: 'نشط',
+        joinDate: data.created_at?.split('T')[0] || '',
+        lastActive: data.updated_at?.split('T')[0] || '',
+      }]);
+
+      setNewUser({ name: '', email: '', phone: '', role: 'طالب', gender: '' });
+      setIsAddDialogOpen(false);
+      toast.success('تم إضافة المستخدم بنجاح');
+
+      await logAuditAction(
+        organizationId,
+        currentUserProfile?.id || '',
+        currentUserProfile?.full_name || 'مدير',
+        'USER_CREATED',
+        {
+          targetType: 'user',
+          targetId: data.id,
+          targetName: newUser.name,
+          newValue: { role: newUser.role, status: 'نشط' },
+        }
+      );
+    } catch (error) {
+      console.error('Error adding user:', error);
+      toast.error('فشل إضافة المستخدم');
+    }
   };
 
   const handleEditUser = (user: ExtendedUser) => {
@@ -266,78 +302,113 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
   const handleSaveEditUser = async () => {
     if (!selectedUser || !editFormData) return;
 
-    const oldData = {
-      role: selectedUser.role,
-      status: selectedUser.status,
-      name: selectedUser.name,
-    };
+    try {
+      const oldData = {
+        role: selectedUser.role,
+        status: selectedUser.status,
+        name: selectedUser.name,
+      };
 
-    const newData = {
-      role: editFormData.role,
-      status: editFormData.status,
-      name: editFormData.name,
-    };
+      const newData = {
+        role: editFormData.role,
+        status: editFormData.status,
+        name: editFormData.name,
+      };
 
-    // تحديث البيانات
-    setUsers(users.map(u =>
-      u.id === selectedUser.id
-        ? { ...u, ...editFormData }
-        : u
-    ));
+      // تحذير عند تغيير دور المدير
+      if (oldData.role !== newData.role && (oldData.role === 'مدير' || newData.role === 'مدير')) {
+        const confirmMessage = oldData.role === 'مدير'
+          ? `تحذير: أنت بصدد إزالة صلاحيات المدير من "${selectedUser.name}". هل أنت متأكد؟`
+          : `تحذير: أنت بصدد تعيين "${selectedUser.name}" كمدير. هذا سيمنحه صلاحيات إدارية كاملة. هل أنت متأكد؟`;
 
-    // تسجيل في Audit Log
-    if (oldData.role !== newData.role) {
-      await logAuditAction(
-        organizationId,
-        currentUserProfile?.id || '',
-        currentUserProfile?.full_name || 'مدير',
-        'USER_ROLE_CHANGED',
-        {
-          targetType: 'user',
-          targetId: selectedUser.id,
-          targetName: selectedUser.name,
-          oldValue: { role: oldData.role },
-          newValue: { role: newData.role },
-          notes: `تم تغيير الدور من "${oldData.role}" إلى "${newData.role}"`,
+        if (!confirm(confirmMessage)) {
+          return;
         }
-      );
-    }
+      }
 
-    if (oldData.status !== newData.status) {
-      await logAuditAction(
-        organizationId,
-        currentUserProfile?.id || '',
-        currentUserProfile?.full_name || 'مدير',
-        'USER_STATUS_CHANGED',
-        {
-          targetType: 'user',
-          targetId: selectedUser.id,
-          targetName: selectedUser.name,
-          oldValue: { status: oldData.status },
-          newValue: { status: newData.status },
-          notes: `تم تغيير الحالة من "${oldData.status}" إلى "${newData.status}"`,
-        }
-      );
-    }
+      if (isDemoMode()) {
+        setUsers(users.map(u =>
+          u.id === selectedUser.id
+            ? { ...u, ...editFormData }
+            : u
+        ));
+        setIsEditDialogOpen(false);
+        toast.success('تم تحديث بيانات المستخدم بنجاح (Demo Mode)');
+        return;
+      }
 
-    if (oldData.name !== newData.name || oldData.role !== newData.role || oldData.status !== newData.status) {
-      await logAuditAction(
-        organizationId,
-        currentUserProfile?.id || '',
-        currentUserProfile?.full_name || 'مدير',
-        'USER_UPDATED',
-        {
-          targetType: 'user',
-          targetId: selectedUser.id,
-          targetName: selectedUser.name,
-          oldValue: oldData,
-          newValue: newData,
-        }
-      );
-    }
+      const roleMap: { [key: string]: string } = {
+        'معلم': 'teacher',
+        'طالب': 'student',
+        'مشرف': 'supervisor',
+        'ولي أمر': 'parent',
+      };
 
-    setIsEditDialogOpen(false);
-    toast.success('تم تحديث بيانات المستخدم بنجاح');
+      const statusMap: { [key: string]: string } = {
+        'نشط': 'active',
+        'معلق': 'suspended',
+        'قيد المراجعة': 'pending',
+      };
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: editFormData.name,
+          email: editFormData.email,
+          phone: editFormData.phone,
+          role: roleMap[editFormData.role] || 'student',
+          status: statusMap[editFormData.status] || 'active',
+        })
+        .eq('id', selectedUser.id);
+
+      if (error) throw error;
+
+      setUsers(users.map(u =>
+        u.id === selectedUser.id
+          ? { ...u, ...editFormData }
+          : u
+      ));
+
+      if (oldData.role !== newData.role) {
+        await logAuditAction(
+          organizationId,
+          currentUserProfile?.id || '',
+          currentUserProfile?.full_name || 'مدير',
+          'USER_ROLE_CHANGED',
+          {
+            targetType: 'user',
+            targetId: selectedUser.id,
+            targetName: selectedUser.name,
+            oldValue: { role: oldData.role },
+            newValue: { role: newData.role },
+            notes: `تم تغيير الدور من "${oldData.role}" إلى "${newData.role}"`,
+          }
+        );
+      }
+
+      if (oldData.status !== newData.status) {
+        await logAuditAction(
+          organizationId,
+          currentUserProfile?.id || '',
+          currentUserProfile?.full_name || 'مدير',
+          'USER_STATUS_CHANGED',
+          {
+            targetType: 'user',
+            targetId: selectedUser.id,
+            targetName: selectedUser.name,
+            oldValue: { status: oldData.status },
+            newValue: { status: newData.status },
+            notes: `تم تغيير الحالة من "${oldData.status}" إلى "${newData.status}"`,
+          }
+        );
+      }
+
+      setIsEditDialogOpen(false);
+      toast.success('تم تحديث بيانات المستخدم بنجاح');
+    } catch (error) {
+      console.error('Error updating user:', error);
+      toast.error('فشل تحديث بيانات المستخدم');
+    }
   };
 
   const handleViewUser = (user: ExtendedUser) => {
@@ -346,47 +417,83 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
   };
 
   const handleSuspendUser = async (id: string) => {
-    const user = users.find(u => u.id === id);
-    if (!user) return;
+    try {
+      const user = users.find(u => u.id === id);
+      if (!user) return;
 
-    setUsers(users.map(u => u.id === id ? { ...u, status: 'معلق' as const } : u));
-    toast.success('تم تعليق المستخدم');
-
-    await logAuditAction(
-      organizationId,
-      currentUserProfile?.id || '',
-      currentUserProfile?.full_name || 'مدير',
-      'USER_SUSPENDED',
-      {
-        targetType: 'user',
-        targetId: id,
-        targetName: user.name,
-        oldValue: { status: user.status },
-        newValue: { status: 'معلق' },
+      if (isDemoMode()) {
+        setUsers(users.map(u => u.id === id ? { ...u, status: 'معلق' as const } : u));
+        toast.success('تم تعليق المستخدم (Demo Mode)');
+        return;
       }
-    );
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ status: 'suspended' })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setUsers(users.map(u => u.id === id ? { ...u, status: 'معلق' as const } : u));
+      toast.success('تم تعليق المستخدم');
+
+      await logAuditAction(
+        organizationId,
+        currentUserProfile?.id || '',
+        currentUserProfile?.full_name || 'مدير',
+        'USER_SUSPENDED',
+        {
+          targetType: 'user',
+          targetId: id,
+          targetName: user.name,
+          oldValue: { status: user.status },
+          newValue: { status: 'معلق' },
+        }
+      );
+    } catch (error) {
+      console.error('Error suspending user:', error);
+      toast.error('فشل تعليق المستخدم');
+    }
   };
 
   const handleActivateUser = async (id: string) => {
-    const user = users.find(u => u.id === id);
-    if (!user) return;
+    try {
+      const user = users.find(u => u.id === id);
+      if (!user) return;
 
-    setUsers(users.map(u => u.id === id ? { ...u, status: 'نشط' as const } : u));
-    toast.success('تم تفعيل المستخدم');
-
-    await logAuditAction(
-      organizationId,
-      currentUserProfile?.id || '',
-      currentUserProfile?.full_name || 'مدير',
-      'USER_ACTIVATED',
-      {
-        targetType: 'user',
-        targetId: id,
-        targetName: user.name,
-        oldValue: { status: user.status },
-        newValue: { status: 'نشط' },
+      if (isDemoMode()) {
+        setUsers(users.map(u => u.id === id ? { ...u, status: 'نشط' as const } : u));
+        toast.success('تم تفعيل المستخدم (Demo Mode)');
+        return;
       }
-    );
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ status: 'active' })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setUsers(users.map(u => u.id === id ? { ...u, status: 'نشط' as const } : u));
+      toast.success('تم تفعيل المستخدم');
+
+      await logAuditAction(
+        organizationId,
+        currentUserProfile?.id || '',
+        currentUserProfile?.full_name || 'مدير',
+        'USER_ACTIVATED',
+        {
+          targetType: 'user',
+          targetId: id,
+          targetName: user.name,
+          oldValue: { status: user.status },
+          newValue: { status: 'نشط' },
+        }
+      );
+    } catch (error) {
+      console.error('Error activating user:', error);
+      toast.error('فشل تفعيل المستخدم');
+    }
   };
 
   const handleDeleteUser = async (id: string) => {
@@ -394,38 +501,111 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
       const user = users.find(u => u.id === id);
       if (!user) return;
 
-      setUsers(users.filter(u => u.id !== id));
-      toast.success('تم حذف المستخدم');
-
-      await logAuditAction(
-        organizationId,
-        currentUserProfile?.id || '',
-        currentUserProfile?.full_name || 'مدير',
-        'USER_DELETED',
-        {
-          targetType: 'user',
-          targetId: id,
-          targetName: user.name,
-          oldValue: { role: user.role, status: user.status },
+      try {
+        if (isDemoMode()) {
+          setUsers(users.filter(u => u.id !== id));
+          toast.success('تم حذف المستخدم (Demo Mode)');
+          return;
         }
-      );
+
+        const { error } = await supabase
+          .from('profiles')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+
+        setUsers(users.filter(u => u.id !== id));
+        toast.success('تم حذف المستخدم');
+
+        await logAuditAction(
+          organizationId,
+          currentUserProfile?.id || '',
+          currentUserProfile?.full_name || 'مدير',
+          'USER_DELETED',
+          {
+            targetType: 'user',
+            targetId: id,
+            targetName: user.name,
+            oldValue: { role: user.role, status: user.status },
+          }
+        );
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        toast.error('فشل حذف المستخدم');
+      }
     }
   };
 
   const handleApproveRequest = async (id: string) => {
-    const request = pendingRequests.find(r => r.id === id);
-    if (request) {
+    try {
+      const request = pendingRequests.find(r => r.id === id);
+      if (!request) return;
+
+      if (isDemoMode()) {
+        const newUser: ExtendedUser = {
+          id: String(Date.now()),
+          name: request.name,
+          email: request.email,
+          phone: request.phone,
+          role: request.role,
+          gender: request.gender as 'ذكر' | 'أنثى',
+          status: 'نشط',
+          joinDate: new Date().toISOString().split('T')[0],
+          lastActive: new Date().toISOString().split('T')[0],
+        };
+        setUsers([...users, newUser]);
+        setPendingRequests(pendingRequests.filter(r => r.id !== id));
+        toast.success('تمت الموافقة على الطلب (Demo Mode)');
+        return;
+      }
+
+      const roleMap: { [key: string]: string } = {
+        'معلم': 'teacher',
+        'طالب': 'student',
+        'مشرف': 'supervisor',
+        'ولي أمر': 'parent',
+      };
+
+      const { data, error: updateError } = await supabase
+        .from('join_requests')
+        .update({ status: 'approved' })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (updateError) throw updateError;
+
+      const { data: newUserData, error: insertError } = await supabase
+        .from('profiles')
+        .insert([
+          {
+            organization_id: organizationId,
+            full_name: request.name,
+            email: request.email,
+            phone: request.phone,
+            gender: request.gender === 'ذكر' ? 'male' : 'female',
+            role: roleMap[request.role] || 'student',
+            status: 'active',
+          }
+        ])
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+
       const newUser: ExtendedUser = {
-        id: String(users.length + 1),
-        name: request.name,
-        email: request.email,
-        phone: request.phone,
+        id: newUserData.id,
+        name: newUserData.full_name,
+        email: newUserData.email || '',
+        phone: newUserData.phone || '',
         role: request.role,
         gender: request.gender as 'ذكر' | 'أنثى',
         status: 'نشط',
-        joinDate: '1446-03-20',
-        lastActive: '1446-03-20',
+        joinDate: newUserData.created_at?.split('T')[0] || '',
+        lastActive: newUserData.updated_at?.split('T')[0] || '',
       };
+
       setUsers([...users, newUser]);
       setPendingRequests(pendingRequests.filter(r => r.id !== id));
       toast.success('تمت الموافقة على الطلب');
@@ -442,29 +622,50 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
           newValue: { role: newUser.role, status: newUser.status },
         }
       );
+    } catch (error) {
+      console.error('Error approving request:', error);
+      toast.error('فشل الموافقة على الطلب');
     }
   };
 
   const handleRejectRequest = async (id: string) => {
     if (confirm('هل أنت متأكد من رفض هذا الطلب؟')) {
-      const request = pendingRequests.find(r => r.id === id);
-      if (!request) return;
+      try {
+        const request = pendingRequests.find(r => r.id === id);
+        if (!request) return;
 
-      setPendingRequests(pendingRequests.filter(r => r.id !== id));
-      toast.success('تم رفض الطلب');
-
-      await logAuditAction(
-        organizationId,
-        currentUserProfile?.id || '',
-        currentUserProfile?.full_name || 'مدير',
-        'REQUEST_REJECTED',
-        {
-          targetType: 'join_request',
-          targetId: id,
-          targetName: request.name,
-          notes: `تم رفض طلب الانضمام كـ ${request.role}`,
+        if (isDemoMode()) {
+          setPendingRequests(pendingRequests.filter(r => r.id !== id));
+          toast.success('تم رفض الطلب (Demo Mode)');
+          return;
         }
-      );
+
+        const { error } = await supabase
+          .from('join_requests')
+          .update({ status: 'rejected' })
+          .eq('id', id);
+
+        if (error) throw error;
+
+        setPendingRequests(pendingRequests.filter(r => r.id !== id));
+        toast.success('تم رفض الطلب');
+
+        await logAuditAction(
+          organizationId,
+          currentUserProfile?.id || '',
+          currentUserProfile?.full_name || 'مدير',
+          'REQUEST_REJECTED',
+          {
+            targetType: 'join_request',
+            targetId: id,
+            targetName: request.name,
+            notes: `تم رفض ��لب الانضمام كـ ${request.role}`,
+          }
+        );
+      } catch (error) {
+        console.error('Error rejecting request:', error);
+        toast.error('فشل رفض الطلب');
+      }
     }
   };
 
@@ -505,7 +706,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
         return Shield;
       case 'معلم':
         return User;
-      case 'طالب':
+      case 'ط��لب':
         return User;
       case 'ولي أمر':
         return User;
@@ -536,8 +737,8 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
             </DialogTrigger>
             <DialogContent dir="rtl">
               <DialogHeader>
-                <DialogTitle>إضافة مستخدم جديد</DialogTitle>
-                <DialogDescription>أضف مستخدم جديد مباشرة إلى المنصة</DialogDescription>
+                <DialogTitle>إضافة م��تخدم جديد</DialogTitle>
+                <DialogDescription>أضف مستخدم جديد مباشرة إلى المنص��</DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -954,7 +1155,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                   <p className="font-medium" dir="ltr">{selectedUser.phone || 'غير محدد'}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-gray-600">الجنس</p>
+                  <p className="text-sm text-gray-600">ال��نس</p>
                   <p className="font-medium">{selectedUser.gender}</p>
                 </div>
                 <div className="space-y-1">
@@ -1106,7 +1307,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                   </div>
                 )}
 
-                {/* معلومات إضافية */}
+                {/* معلومات إ��افية */}
                 <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg text-sm">
                   <div>
                     <p className="text-gray-600">الجنس</p>

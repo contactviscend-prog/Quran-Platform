@@ -71,12 +71,12 @@ export function ParentStudentLink({ organizationId }: ParentStudentLinkProps) {
 
       // Fetch linked students
       const { data: linksData } = await supabase
-        .from('parent_students')
+        .from('parent_student_links')
         .select(`
           parent_id,
           student_id,
-          student:profiles!parent_students_student_id_fkey(id, full_name),
-          parent:profiles!parent_students_parent_id_fkey(id, full_name)
+          student:profiles!parent_student_links_student_id_fkey(id, full_name),
+          parent:profiles!parent_student_links_parent_id_fkey(id, full_name)
         `)
         .eq('organization_id', organizationId);
 
@@ -109,7 +109,7 @@ export function ParentStudentLink({ organizationId }: ParentStudentLinkProps) {
     try {
       // Check if already linked
       const { data: existing } = await supabase
-        .from('parent_students')
+        .from('parent_student_links')
         .select('id')
         .eq('parent_id', selectedParent)
         .eq('student_id', selectedStudent)
@@ -121,7 +121,7 @@ export function ParentStudentLink({ organizationId }: ParentStudentLinkProps) {
       }
 
       const { error } = await supabase
-        .from('parent_students')
+        .from('parent_student_links')
         .insert({
           organization_id: organizationId,
           parent_id: selectedParent,
@@ -146,7 +146,7 @@ export function ParentStudentLink({ organizationId }: ParentStudentLinkProps) {
 
     try {
       const { error } = await supabase
-        .from('parent_students')
+        .from('parent_student_links')
         .delete()
         .eq('parent_id', parentId)
         .eq('student_id', studentId);

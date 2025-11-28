@@ -12,7 +12,7 @@ import { supabase, isDemoMode, Profile, Organization, UserRole, getRoleLabel, ge
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { CirclesManagement } from './CirclesManagement';
 import { EnhancedUsersManagement } from './EnhancedUsersManagement';
-import { RecitationsPage } from '../shared/RecitationsPage';
+import { EnhancedRecitationPage } from '../shared/EnhancedRecitationPage';
 import { ReportsPage } from '../shared/ReportsPage';
 import { ParentStudentLink } from '../parent/ParentStudentLink';
 import { SettingsPage } from '../shared/SettingsPage';
@@ -420,7 +420,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
 
     try {
       if (isDemoMode()) {
-        toast.success('تم إضافة الحلقة بنجاح (Demo Mode)');
+        toast.success('تم إضاف�� الحلقة بنجاح (Demo Mode)');
         setNewCircle({ name: '', teacher_id: '', level: 'beginner', description: '', max_students: 20 });
         setIsAddCircleDialogOpen(false);
         fetchAllData();
@@ -801,10 +801,9 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
 
       case 'recitations':
         return (
-          <RecitationsPage
-            organizationId={organization.id}
-            userRole="admin"
-            userId={user.id}
+          <EnhancedRecitationPage
+            user={user}
+            organization={organization}
           />
         );
 
