@@ -74,6 +74,110 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
     gender: '',
   });
 
+  useEffect(() => {
+    fetchData();
+  }, [organizationId]);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+
+      if (isDemoMode()) {
+        setUsers([
+          {
+            id: '1',
+            name: 'أحمد المعلم',
+            email: 'ahmed@example.com',
+            phone: '0501234567',
+            role: 'معلم',
+            gender: 'ذكر',
+            status: 'نشط',
+            joinDate: '1445-07-15',
+            lastActive: '1446-03-20',
+            circlesCount: 3,
+            studentsCount: 45
+          },
+          {
+            id: '2',
+            name: 'فاطمة الطالبة',
+            email: 'fatima@example.com',
+            phone: '0509876543',
+            role: 'طالب',
+            gender: 'أنثى',
+            status: 'نشط',
+            joinDate: '1445-08-20',
+            lastActive: '1446-03-20',
+            circle: 'حلقة الفجر'
+          },
+        ]);
+        setPendingRequests([
+          {
+            id: '1',
+            name: 'سارة أحمد',
+            email: 'sara2@example.com',
+            phone: '0501112233',
+            role: 'طالب',
+            gender: 'أنثى',
+            requestDate: '1446-03-05',
+            notes: 'طالبة جديدة ترغب في الانضمام'
+          },
+        ]);
+        setLoading(false);
+        return;
+      }
+
+      const [usersData, requestsData] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('organization_id', organizationId)
+          .order('full_name'),
+        supabase
+          .from('join_requests')
+          .select('*')
+          .eq('organization_id', organizationId)
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false })
+      ]);
+
+      if (usersData.data) {
+        const formattedUsers = usersData.data.map((user: any) => ({
+          id: user.id,
+          name: user.full_name,
+          email: user.email || '',
+          phone: user.phone || '',
+          role: getRoleLabel(user.role),
+          gender: user.gender === 'male' ? 'ذكر' : 'أنثى',
+          status: getStatusLabel(user.status) as 'نشط' | 'معلق' | 'قيد المراجعة',
+          joinDate: user.created_at?.split('T')[0] || '',
+          lastActive: user.updated_at?.split('T')[0] || '',
+        }));
+        setUsers(formattedUsers);
+      }
+
+      if (requestsData.data) {
+        const formattedRequests = requestsData.data.map((req: any) => ({
+          id: req.id,
+          name: req.full_name,
+          email: req.email,
+          phone: req.phone,
+          role: getRoleLabel(req.requested_role),
+          gender: req.gender === 'male' ? 'ذكر' : 'أنثى',
+          requestDate: req.created_at?.split('T')[0] || '',
+          notes: req.notes || ''
+        }));
+        setPendingRequests(formattedRequests);
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      if (!isDemoMode()) {
+        toast.error('فشل في تحميل بيانات المستخدمين');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // حساب الإحصائيات
   const stats: UserStats = {
     total: users.length,
@@ -346,7 +450,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
           targetType: 'join_request',
           targetId: id,
           targetName: request.name,
-          notes: `تم رف�� طلب الانضمام كـ ${request.role}`,
+          notes: `تم رفض طلب الانضمام كـ ${request.role}`,
         }
       );
     }
@@ -567,7 +671,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                     <SelectValue placeholder="جميع الأدوار" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">جم��ع الأدوار</SelectItem>
+                    <SelectItem value="all">جميع الأدوار</SelectItem>
                     <SelectItem value="مشرف">مشرف ({stats.byRole['مشرف']})</SelectItem>
                     <SelectItem value="معلم">معلم ({stats.byRole['معلم']})</SelectItem>
                     <SelectItem value="طالب">طالب ({stats.byRole['طالب']})</SelectItem>
@@ -891,7 +995,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent dir="rtl" className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>تعديل صلاحيات المستخدم</DialogTitle>
+              <DialogTitle>تعديل صلاحيا�� المستخدم</DialogTitle>
               <DialogDescription>تحديث الدور والحالة للمستخدم</DialogDescription>
             </DialogHeader>
             <div className="space-y-6">
@@ -982,7 +1086,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                         <div className="flex items-center gap-2">
                           <span className="text-gray-600">الحالة:</span>
                           <Badge className={getStatusColor(selectedUser.status)}>{selectedUser.status}</Badge>
-                          <span className="text-gray-400">←</span>
+                          <span className="text-gray-400">���</span>
                           <Badge className={getStatusColor(editFormData.status)}>{editFormData.status}</Badge>
                         </div>
                       )}
