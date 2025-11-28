@@ -720,7 +720,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
             targetType: 'join_request',
             targetId: id,
             targetName: request.name,
-            notes: `تم رفض ��لب الانضمام كـ ${request.role}`,
+            notes: `تم رفض طلب الانضمام كـ ${request.role}`,
           }
         );
       } catch (error) {
@@ -767,7 +767,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
         return Shield;
       case 'معلم':
         return User;
-      case 'ط��لب':
+      case 'طالب':
         return User;
       case 'ولي أمر':
         return User;
@@ -798,8 +798,8 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
             </DialogTrigger>
             <DialogContent dir="rtl">
               <DialogHeader>
-                <DialogTitle>إضافة م��تخدم جديد</DialogTitle>
-                <DialogDescription>أضف مستخدم جديد مباشرة إلى المنص��</DialogDescription>
+                <DialogTitle>إضافة مستخدم جديد</DialogTitle>
+                <DialogDescription>أضف مستخدم جديد مباشرة إلى المنصة</DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -1255,7 +1255,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                   <p className="font-medium" dir="ltr">{selectedUser.phone || 'غير محدد'}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-gray-600">ال��نس</p>
+                  <p className="text-sm text-gray-600">الجنس</p>
                   <p className="font-medium">{selectedUser.gender}</p>
                 </div>
                 <div className="space-y-1">
@@ -1407,7 +1407,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                   </div>
                 )}
 
-                {/* معلومات إ��افية */}
+                {/* معلومات إضافية */}
                 <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg text-sm">
                   <div>
                     <p className="text-gray-600">الجنس</p>
