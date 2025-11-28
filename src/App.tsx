@@ -197,8 +197,8 @@ function RegisterRoute() {
 }
 
 function RegisterPageWrapper({ orgSlug, onBack, onSuccess }: { orgSlug: string; onBack: () => void; onSuccess: () => void }) {
-  const [organization, setOrganization] = require('react').useState<Organization | null>(null);
-  const [loading, setLoading] = require('react').useState(true);
+  const [organization, setOrganization] = useState<Organization | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchOrganization = async () => {
