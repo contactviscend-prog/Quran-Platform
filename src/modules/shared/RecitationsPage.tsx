@@ -224,7 +224,7 @@ export function RecitationsPage({ organizationId, userRole, userId }: Recitation
       
       // Demo mode - simulate save
       if (isDemoMode()) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 100));
         toast.success('تم تسجيل التسميع بنجاح (Demo Mode)');
         fetchRecitations();
         resetForm();

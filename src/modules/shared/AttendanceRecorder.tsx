@@ -240,7 +240,7 @@ export function AttendanceRecorder({ teacherId, organizationId }: AttendanceReco
       // Demo mode - just show success message
       if (isDemoMode()) {
         // Simulate a short delay
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 100));
         toast.success('تم حفظ الحضور بنجاح (Demo Mode)');
         setSaving(false);
         return;

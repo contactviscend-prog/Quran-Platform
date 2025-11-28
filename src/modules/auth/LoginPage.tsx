@@ -31,11 +31,14 @@ export function LoginPage({ organization, onBack, onRegister }: LoginPageProps) 
       // Pass the organization slug to validate user belongs to this organization
       await signIn(email, password, organization.slug);
     } catch (error: any) {
+      const errorMessage = error?.message || String(error);
       // Check if it's an organization mismatch error
-      if (error.message.includes('ينتمي لمؤسسة أخرى')) {
-        setError(error.message);
-      } else {
+      if (errorMessage.includes('ينتمي لمؤسسة أخرى')) {
+        setError(errorMessage);
+      } else if (errorMessage.includes('Invalid login credentials') || errorMessage.includes('invalid_credentials')) {
         setError('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+      } else {
+        setError(errorMessage || 'البريد الإلكتروني أو كلمة المرور غير صحيحة');
       }
     } finally {
       setLoading(false);

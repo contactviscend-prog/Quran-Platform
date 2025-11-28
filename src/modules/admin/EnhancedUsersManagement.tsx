@@ -23,7 +23,7 @@ interface ExtendedUser {
   phone: string;
   role: string;
   gender: 'ذكر' | 'أنثى';
-  status: 'نشط' | 'معلق' | 'قيد المراجعة';
+  status: 'نشط' | 'غير نشط' | 'معلق' | 'قيد المراجعة';
   joinDate: string;
   lastActive: string;
   circle?: string;

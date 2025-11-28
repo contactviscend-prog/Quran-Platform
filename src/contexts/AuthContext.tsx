@@ -10,7 +10,7 @@ interface AuthContextType {
   organization: Organization | null;
   session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string, expectedOrgSlug?: string) => Promise<void>;
   signUp: (email: string, password: string, metadata: any) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -200,7 +200,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ خطأ في تسجيل الدخول من Supabase:', error.message);
+        throw new Error(error.message || 'فشل تسجيل الدخول');
+      }
 
       console.log('✅ نجح تسجيل الدخول للمستخدم:', data.user?.id);
 
