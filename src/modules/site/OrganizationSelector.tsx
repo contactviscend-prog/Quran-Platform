@@ -23,9 +23,17 @@ export function OrganizationSelector({ onSelectOrg }: OrganizationSelectorProps)
 
   const fetchOrganizations = async () => {
     try {
+      // If in demo mode, use mock organizations
+      if (isDemoMode()) {
+        console.log('📝 وضع العرض التوضيحي - استخدام المؤسسات الوهمية');
+        setOrganizations(mockOrganizations);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch from Supabase in database mode
       console.log('🔍 جاري جلب المؤسسات من Supabase...');
 
-      // Fetch from Supabase (no demo mode check - use real data)
       const { data, error } = await supabase
         .from('organizations')
         .select('*')
@@ -33,7 +41,7 @@ export function OrganizationSelector({ onSelectOrg }: OrganizationSelectorProps)
         .order('name');
 
       if (error) {
-        console.error('❌ خطأ ��ن Supabase:', error);
+        console.error('❌ خطأ من Supabase:', error);
         throw error;
       }
 
@@ -43,10 +51,8 @@ export function OrganizationSelector({ onSelectOrg }: OrganizationSelectorProps)
       setOrganizations(data || []);
     } catch (error: any) {
       console.error('Error fetching organizations:', error?.message || error);
-      console.log('⚠️ فشل الاتصال - استخدام البيانات الوهمية للاختبار');
-      // Fallback to mock data only if real data fails
-      setOrganizations(mockOrganizations);
       toast.error('فشل جلب البيانات: ' + (error?.message || 'خطأ غير معروف'));
+      setOrganizations([]);
     } finally {
       setLoading(false);
     }
