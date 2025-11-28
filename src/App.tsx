@@ -1,13 +1,21 @@
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useParams, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { LandingPage } from './modules/site/LandingPage';
-import { OrganizationSelector } from './modules/site/OrganizationSelector';
-import { LoginPage } from './modules/auth/LoginPage';
-import { JoinRequestForm } from './modules/site/JoinRequestForm';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Organization, UserRole, supabase, isDemoMode } from './lib/supabase';
 import { Toaster } from './components/ui/sonner';
-import { useState } from 'react';
+
+// Lazy load pages
+import { lazy, Suspense } from 'react';
+
+const LandingPage = lazy(() => import('./modules/site/LandingPage').then(m => ({ default: m.LandingPage })));
+const OrganizationSelector = lazy(() => import('./modules/site/OrganizationSelector').then(m => ({ default: m.OrganizationSelector })));
+const LoginPage = lazy(() => import('./modules/auth/LoginPage').then(m => ({ default: m.LoginPage })));
+const JoinRequestForm = lazy(() => import('./modules/site/JoinRequestForm').then(m => ({ default: m.JoinRequestForm })));
+const AdminDashboard = lazy(() => import('./modules/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const SupervisorDashboard = lazy(() => import('./modules/supervisor/SupervisorDashboard').then(m => ({ default: m.SupervisorDashboard })));
+const TeacherDashboard = lazy(() => import('./modules/teacher/TeacherDashboard').then(m => ({ default: m.TeacherDashboard })));
+const StudentDashboard = lazy(() => import('./modules/student/StudentDashboard').then(m => ({ default: m.StudentDashboard })));
+const ParentDashboard = lazy(() => import('./modules/parent/ParentDashboard').then(m => ({ default: m.ParentDashboard })));
 
 export type { UserRole, Organization };
 
@@ -20,106 +28,109 @@ export interface User {
   avatar?: string;
 }
 
-// Handle 404 redirect
-function useRedirectHandler() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const redirectPath = sessionStorage.getItem('redirectPath');
-    if (redirectPath) {
-      sessionStorage.removeItem('redirectPath');
-      navigate(redirectPath, { replace: true });
-    }
-  }, [navigate]);
+// Loading Component
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+      <div className="text-center">
+        <div className="w-16 h-16 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-gray-600">جاري التحميل...</p>
+      </div>
+    </div>
+  );
 }
 
-// Protected Route Component
-function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles?: UserRole[] }) {
+// Protected Route - for authenticated users only
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, profile, organization, loading } = useAuth();
-  const navigate = useNavigate();
-  const { orgSlug } = useParams();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/organizations');
-    } else if (!loading && profile && allowedRoles && !allowedRoles.includes(profile.role)) {
-      navigate(`/${organization?.slug || 'org'}/dashboard`);
-    } else if (!loading && organization && orgSlug && organization.slug !== orgSlug) {
-      // التأكد من أن المستخدم في المؤسسة الصحيحة
-      navigate(`/${organization.slug}/dashboard`);
-    }
-  }, [user, profile, loading, navigate, allowedRoles, organization, orgSlug]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">جاري التحميل...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (!user || !profile || !organization) {
-    return null;
+    return <Navigate to="/organizations" replace />;
   }
 
   return <>{children}</>;
 }
 
-// Landing Page Route
+// Landing Route
 function LandingRoute() {
+  const { user, profile, organization, loading } = useAuth();
   const navigate = useNavigate();
-  const { user, profile, organization } = useAuth();
 
   useEffect(() => {
+    if (loading) return;
     if (user && profile && organization) {
-      navigate(`/${organization.slug}/dashboard`);
+      navigate(`/${organization.slug}/dashboard`, { replace: true });
     }
-  }, [user, profile, organization, navigate]);
+  }, [user, profile, organization, loading, navigate]);
 
-  return <LandingPage onGetStarted={() => navigate('/organizations')} />;
+  if (loading) return <LoadingScreen />;
+
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <LandingPage onGetStarted={() => navigate('/organizations')} />
+    </Suspense>
+  );
 }
 
 // Organization Selector Route
 function OrganizationsRoute() {
+  const { user, profile, organization, loading } = useAuth();
   const navigate = useNavigate();
-  const { user, profile, organization } = useAuth();
 
   useEffect(() => {
+    if (loading) return;
     if (user && profile && organization) {
-      navigate(`/${organization.slug}/dashboard`);
+      navigate(`/${organization.slug}/dashboard`, { replace: true });
     }
-  }, [user, profile, organization, navigate]);
+  }, [user, profile, organization, loading, navigate]);
+
+  if (loading) return <LoadingScreen />;
 
   const handleOrgSelect = (org: Organization) => {
     navigate(`/login/${org.slug}`);
   };
 
-  return <OrganizationSelector onSelectOrg={handleOrgSelect} />;
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <OrganizationSelector onSelectOrg={handleOrgSelect} />
+    </Suspense>
+  );
 }
 
 // Login Route
 function LoginRoute() {
-  const { orgSlug } = useParams<{ orgSlug: string }>();
   const navigate = useNavigate();
-  const [organization, setOrganization] = useState<Organization | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { user, profile } = useAuth();
+  const { user, profile, organization: authOrg } = useAuth();
+  const pathname = window.location.pathname;
+  const orgSlug = pathname.split('/')[2]; // /login/:orgSlug
+
+  // Auto-redirect if already logged in
+  useEffect(() => {
+    if (user && profile && authOrg) {
+      navigate(`/${authOrg.slug}/dashboard`, { replace: true });
+    }
+  }, [user, profile, authOrg, navigate]);
+
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <LoginPageWrapper orgSlug={orgSlug} onBack={() => navigate('/organizations')} onRegister={() => navigate(`/register/${orgSlug}`)} />
+    </Suspense>
+  );
+}
+
+function LoginPageWrapper({ orgSlug, onBack, onRegister }: { orgSlug: string; onBack: () => void; onRegister: () => void }) {
+  const [organization, setOrganization] = require('react').useState<Organization | null>(null);
+  const [loading, setLoading] = require('react').useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (user && profile) {
-      const userOrg = (profile as any).organization;
-      if (userOrg) {
-        navigate(`/${userOrg.slug}/dashboard`);
-      }
-      return;
-    }
-
     const fetchOrganization = async () => {
       if (!orgSlug) {
-        navigate('/organizations');
+        onBack();
         return;
       }
 
@@ -130,11 +141,10 @@ function LoginRoute() {
             name: 'مؤسسة النور للتحفيظ',
             slug: orgSlug,
             description: 'مؤسسة تجريبية',
-            // logo_url: null,
             is_active: true,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
-          });
+          } as Organization);
         } else {
           const { data, error } = await supabase
             .from('organizations')
@@ -144,63 +154,59 @@ function LoginRoute() {
             .single();
 
           if (error || !data) {
-            navigate('/organizations');
+            onBack();
             return;
           }
 
-          setOrganization(data);
+          setOrganization(data as Organization);
         }
       } catch (error) {
         console.error('Error fetching organization:', error);
-        navigate('/organizations');
+        onBack();
       } finally {
         setLoading(false);
       }
     };
 
     fetchOrganization();
-  }, [orgSlug, navigate, user, profile]);
+  }, [orgSlug, onBack]);
 
   if (loading || !organization) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">جاري التحميل...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
-  return (
-    <LoginPage
-      organization={organization}
-      onBack={() => navigate('/organizations')}
-      onRegister={() => navigate(`/register/${orgSlug}`)}
-    />
-  );
+  return <LoginPage organization={organization} onBack={onBack} onRegister={onRegister} />;
 }
 
 // Register/Join Request Route
 function RegisterRoute() {
-  const { orgSlug } = useParams<{ orgSlug: string }>();
   const navigate = useNavigate();
-  const [organization, setOrganization] = useState<Organization | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { user, profile } = useAuth();
+  const { user, profile, organization: authOrg } = useAuth();
+  const pathname = window.location.pathname;
+  const orgSlug = pathname.split('/')[2]; // /register/:orgSlug
+
+  // Auto-redirect if already logged in
+  useEffect(() => {
+    if (user && profile && authOrg) {
+      navigate(`/${authOrg.slug}/dashboard`, { replace: true });
+    }
+  }, [user, profile, authOrg, navigate]);
+
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <RegisterPageWrapper orgSlug={orgSlug} onBack={() => navigate(`/login/${orgSlug}`)} onSuccess={() => navigate(`/login/${orgSlug}`)} />
+    </Suspense>
+  );
+}
+
+function RegisterPageWrapper({ orgSlug, onBack, onSuccess }: { orgSlug: string; onBack: () => void; onSuccess: () => void }) {
+  const [organization, setOrganization] = require('react').useState<Organization | null>(null);
+  const [loading, setLoading] = require('react').useState(true);
 
   useEffect(() => {
-    if (user && profile) {
-      const userOrg = (profile as any).organization;
-      if (userOrg) {
-        navigate(`/${userOrg.slug}/dashboard`);
-      }
-      return;
-    }
-
     const fetchOrganization = async () => {
       if (!orgSlug) {
-        navigate('/organizations');
+        onBack();
         return;
       }
 
@@ -211,11 +217,10 @@ function RegisterRoute() {
             name: 'مؤسسة النور للتحفيظ',
             slug: orgSlug,
             description: 'مؤسسة تجريبية',
-            logo_url: null,
             is_active: true,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
-          });
+          } as Organization);
         } else {
           const { data, error } = await supabase
             .from('organizations')
@@ -225,85 +230,37 @@ function RegisterRoute() {
             .single();
 
           if (error || !data) {
-            navigate('/organizations');
+            onBack();
             return;
           }
 
-          setOrganization(data);
+          setOrganization(data as Organization);
         }
       } catch (error) {
         console.error('Error fetching organization:', error);
-        navigate('/organizations');
+        onBack();
       } finally {
         setLoading(false);
       }
     };
 
     fetchOrganization();
-  }, [orgSlug, navigate, user, profile]);
+  }, [orgSlug, onBack]);
 
   if (loading || !organization) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">جاري التحميل...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
-  return (
-    <JoinRequestForm
-      organization={organization}
-      onBack={() => navigate(`/login/${orgSlug}`)}
-      onSuccess={() => navigate(`/login/${orgSlug}`)}
-    />
-  );
+  return <JoinRequestForm organization={organization} onBack={onBack} onSuccess={onSuccess} />;
 }
 
-// Organization Layout - wraps all org-specific routes
-function OrganizationLayout() {
-  const { orgSlug } = useParams<{ orgSlug: string }>();
-  const { organization, profile, loading } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!loading && organization && organization.slug !== orgSlug) {
-      // المستخدم في مؤسسة مختلفة
-      navigate(`/${organization.slug}/dashboard`, { replace: true });
-    }
-  }, [organization, orgSlug, loading, navigate]);
+// Dashboard Route - renders appropriate dashboard based on role
+function DashboardRoute() {
+  const { profile, organization, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">جاري التحميل...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
-
-  if (!organization || !profile) {
-    return <Navigate to="/organizations" replace />;
-  }
-
-  // Render the child routes (dashboard pages)
-  return <Outlet />;
-}
-
-// Dashboard Routes - renders appropriate dashboard based on role
-function DashboardRoutes() {
-  const { profile, organization } = useAuth();
-
-  // Lazy load dashboards
-  const AdminDashboard = require('./modules/admin/AdminDashboard').AdminDashboard;
-  const SupervisorDashboard = require('./modules/supervisor/SupervisorDashboard').SupervisorDashboard;
-  const TeacherDashboard = require('./modules/teacher/TeacherDashboard').TeacherDashboard;
-  const StudentDashboard = require('./modules/student/StudentDashboard').StudentDashboard;
-  const ParentDashboard = require('./modules/parent/ParentDashboard').ParentDashboard;
 
   if (!profile || !organization) {
     return <Navigate to="/organizations" replace />;
@@ -316,23 +273,41 @@ function DashboardRoutes() {
 
   switch (profile.role) {
     case 'admin':
-      return <AdminDashboard {...userProps} />;
+      return (
+        <Suspense fallback={<LoadingScreen />}>
+          <AdminDashboard {...userProps} />
+        </Suspense>
+      );
     case 'supervisor':
-      return <SupervisorDashboard {...userProps} />;
+      return (
+        <Suspense fallback={<LoadingScreen />}>
+          <SupervisorDashboard {...userProps} />
+        </Suspense>
+      );
     case 'teacher':
-      return <TeacherDashboard {...userProps} />;
+      return (
+        <Suspense fallback={<LoadingScreen />}>
+          <TeacherDashboard {...userProps} />
+        </Suspense>
+      );
     case 'student':
-      return <StudentDashboard {...userProps} />;
+      return (
+        <Suspense fallback={<LoadingScreen />}>
+          <StudentDashboard {...userProps} />
+        </Suspense>
+      );
     case 'parent':
-      return <ParentDashboard {...userProps} />;
+      return (
+        <Suspense fallback={<LoadingScreen />}>
+          <ParentDashboard {...userProps} />
+        </Suspense>
+      );
     default:
       return <Navigate to="/organizations" replace />;
   }
 }
 
 function AppContent() {
-  useRedirectHandler();
-
   return (
     <Routes>
       {/* Public Routes */}
@@ -341,31 +316,18 @@ function AppContent() {
       <Route path="/login/:orgSlug" element={<LoginRoute />} />
       <Route path="/register/:orgSlug" element={<RegisterRoute />} />
 
-      {/* Protected Organization Routes */}
+      {/* Protected Organization Routes with slug-based URLs */}
       <Route
-        path="/:orgSlug"
+        path="/:orgSlug/dashboard"
         element={
           <ProtectedRoute>
-            <OrganizationLayout />
-          </ProtectedRoute>
-        }
-      >
-        {/* Dashboard - main entry point for each org */}
-        <Route path="dashboard" element={<DashboardRoutes />} />
-
-        {/* Redirect /:orgSlug to /:orgSlug/dashboard */}
-        <Route index element={<Navigate to="dashboard" replace />} />
-      </Route>
-
-      {/* Legacy route support - redirect /dashboard to /:orgSlug/dashboard */}
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <DashboardRedirect />
+            <DashboardRoute />
           </ProtectedRoute>
         }
       />
+
+      {/* Redirect legacy /dashboard to /:orgSlug/dashboard */}
+      <Route path="/dashboard" element={<DashboardRedirectRoute />} />
 
       {/* Catch all - redirect to home */}
       <Route path="*" element={<Navigate to="/" replace />} />
@@ -373,18 +335,19 @@ function AppContent() {
   );
 }
 
-// Helper component to redirect /dashboard to /:orgSlug/dashboard
-function DashboardRedirect() {
+function DashboardRedirectRoute() {
   const { organization } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (organization) {
       navigate(`/${organization.slug}/dashboard`, { replace: true });
+    } else {
+      navigate('/organizations', { replace: true });
     }
   }, [organization, navigate]);
 
-  return null;
+  return <LoadingScreen />;
 }
 
 function App() {
