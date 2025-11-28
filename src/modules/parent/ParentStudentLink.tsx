@@ -121,7 +121,7 @@ export function ParentStudentLink({ organizationId }: ParentStudentLinkProps) {
       }
 
       const { error } = await supabase
-        .from('parent_students')
+        .from('parent_student_links')
         .insert({
           organization_id: organizationId,
           parent_id: selectedParent,
