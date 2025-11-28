@@ -67,7 +67,11 @@
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig"1, "calt"1;
+    font-family: "Cairo", "Inter", system-ui, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 }
 
@@ -109,10 +113,31 @@
 /* Arabic and RTL Support */
 html {
   font-size: var(--font-size);
+  font-family: "Cairo", "Inter", system-ui, sans-serif;
 }
 
 html[dir="rtl"] {
   direction: rtl;
+  text-align: right;
+}
+
+/* Ensure proper text rendering for Arabic */
+html[lang="ar"],
+html[lang="ar-SA"] {
+  font-family: "Cairo", "Arabic Typesetting", "Arial Unicode MS", Arial, sans-serif;
+  text-align: right;
+  direction: rtl;
+}
+
+/* Fix for form inputs and textareas with Arabic */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+textarea,
+select {
+  font-family: "Cairo", "Inter", system-ui, sans-serif;
 }
 
 /* Custom scrollbar for Arabic interface */

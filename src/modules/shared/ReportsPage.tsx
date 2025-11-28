@@ -635,9 +635,9 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
       </div>
 
       {/* Filter and Export */}
-      <div className="flex gap-4 flex-wrap">
+      <div className="flex flex-col md:flex-row gap-2 md:gap-4 flex-wrap">
         <Select value={selectedCircle} onValueChange={setSelectedCircle}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-full md:w-48">
             <SelectValue placeholder="اختر الحلقة" />
           </SelectTrigger>
           <SelectContent>
@@ -650,7 +650,7 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
           </SelectContent>
         </Select>
         <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-full md:w-40">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -663,12 +663,12 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
         <ExportReportButton
           reportData={preparePDFData()}
           fileName="quran_platform_report"
-          className="bg-emerald-600 hover:bg-emerald-700"
+          className="bg-emerald-600 hover:bg-emerald-700 w-full md:w-auto"
         />
       </div>
 
       {/* الإحصائيات العامة */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between mb-4">
@@ -785,14 +785,14 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
       </div>
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
-          <TabsTrigger value="attendance">الحضور</TabsTrigger>
-          <TabsTrigger value="recitations">التسميع</TabsTrigger>
-          <TabsTrigger value="circles">الحلقات</TabsTrigger>
-          <TabsTrigger value="teachers">المعلمون</TabsTrigger>
-          <TabsTrigger value="students">الطلاب المتميزون</TabsTrigger>
-          <TabsTrigger value="individual">تقارير فردية</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 gap-1 h-auto">
+          <TabsTrigger value="overview" className="text-xs lg:text-sm">نظرة عامة</TabsTrigger>
+          <TabsTrigger value="attendance" className="text-xs lg:text-sm">الحضور</TabsTrigger>
+          <TabsTrigger value="recitations" className="text-xs lg:text-sm">التسميع</TabsTrigger>
+          <TabsTrigger value="circles" className="text-xs lg:text-sm">الحلقات</TabsTrigger>
+          <TabsTrigger value="teachers" className="text-xs lg:text-sm">المعلمون</TabsTrigger>
+          <TabsTrigger value="students" className="text-xs lg:text-sm hidden lg:inline-flex">الطلاب</TabsTrigger>
+          <TabsTrigger value="individual" className="text-xs lg:text-sm hidden lg:inline-flex">تقارير</TabsTrigger>
         </TabsList>
 
         {/* نظرة عامة */}
@@ -958,7 +958,7 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
 
         {/* تقرير الحضور */}
         <TabsContent value="attendance" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4">
             {attendanceByType.map((type) => (
               <Card key={type.name}>
                 <CardContent className="pt-6">
@@ -1038,46 +1038,80 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
             </CardHeader>
             <CardContent>
               {circlePerformance.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-right">الحلقة</TableHead>
-                      <TableHead className="text-right">المعلم</TableHead>
-                      <TableHead className="text-right">عدد الطلاب</TableHead>
-                      <TableHead className="text-right">نسبة الحضور</TableHead>
-                      <TableHead className="text-right">التصنيف</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                <div className="space-y-3 md:space-y-0">
+                  <div className="hidden md:block overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-right">الحلقة</TableHead>
+                          <TableHead className="text-right">المعلم</TableHead>
+                          <TableHead className="text-right">عدد الطلاب</TableHead>
+                          <TableHead className="text-right">نسبة الحضور</TableHead>
+                          <TableHead className="text-right">التصنيف</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {circlePerformance.map((circle) => (
+                          <TableRow key={circle.id}>
+                            <TableCell className="font-medium">{circle.name}</TableCell>
+                            <TableCell>{circle.teacher}</TableCell>
+                            <TableCell>{circle.students} طالب</TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Progress value={circle.attendance} className="h-2 w-20" />
+                                <span>{circle.attendance}%</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                className={
+                                  circle.attendance >= 90 ? 'bg-green-100 text-green-800' :
+                                    circle.attendance >= 80 ? 'bg-blue-100 text-blue-800' :
+                                      circle.attendance >= 70 ? 'bg-yellow-100 text-yellow-800' :
+                                        'bg-red-100 text-red-800'
+                                }
+                              >
+                                {circle.attendance >= 90 ? 'ممتاز' :
+                                  circle.attendance >= 80 ? 'جيد جداً' :
+                                    circle.attendance >= 70 ? 'جيد' : 'يحتاج تحسين'}
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  <div className="md:hidden space-y-2">
                     {circlePerformance.map((circle) => (
-                      <TableRow key={circle.id}>
-                        <TableCell className="font-medium">{circle.name}</TableCell>
-                        <TableCell>{circle.teacher}</TableCell>
-                        <TableCell>{circle.students} طالب</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Progress value={circle.attendance} className="h-2 w-32" />
-                            <span>{circle.attendance}%</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
+                      <div key={circle.id} className="border rounded-lg p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium text-sm">{circle.name}</h4>
                           <Badge
-                            className={
+                            className={`text-xs ${
                               circle.attendance >= 90 ? 'bg-green-100 text-green-800' :
                                 circle.attendance >= 80 ? 'bg-blue-100 text-blue-800' :
                                   circle.attendance >= 70 ? 'bg-yellow-100 text-yellow-800' :
                                     'bg-red-100 text-red-800'
-                            }
+                            }`}
                           >
                             {circle.attendance >= 90 ? 'ممتاز' :
                               circle.attendance >= 80 ? 'جيد جداً' :
                                 circle.attendance >= 70 ? 'جيد' : 'يحتاج تحسين'}
                           </Badge>
-                        </TableCell>
-                      </TableRow>
+                        </div>
+                        <p className="text-xs text-gray-600">معلم: {circle.teacher}</p>
+                        <p className="text-xs text-gray-600">{circle.students} طالب</p>
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span>الحضور</span>
+                            <span>{circle.attendance}%</span>
+                          </div>
+                          <Progress value={circle.attendance} className="h-2" />
+                        </div>
+                      </div>
                     ))}
-                  </TableBody>
-                </Table>
+                  </div>
+                </div>
               ) : (
                 <div className="h-32 flex items-center justify-center text-gray-500">
                   لا توجد بيانات متاحة
@@ -1089,7 +1123,7 @@ export function ReportsPage({ organizationId, userRole, userId }: ReportsPagePro
 
         {/* تقرير التسميع */}
         <TabsContent value="recitations" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 mb-4">
             {recitationsByType.map((type) => (
               <Card key={type.name}>
                 <CardContent className="pt-6">

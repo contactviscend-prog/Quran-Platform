@@ -1,20 +1,20 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useRef } from 'react';
 import { Button } from '../components/ui/button';
-import { 
-  BookOpen, 
-  LogOut, 
-  Menu, 
-  X, 
-  LayoutDashboard, 
-  Users, 
-  GraduationCap, 
-  UserCircle, 
-  Settings, 
-  Bell, 
-  Building2, 
-  ClipboardList, 
-  CheckCircle, 
-  Calendar, 
+import {
+  BookOpen,
+  LogOut,
+  Menu,
+  X,
+  LayoutDashboard,
+  Users,
+  GraduationCap,
+  UserCircle,
+  Settings,
+  Bell,
+  Building2,
+  ClipboardList,
+  CheckCircle,
+  Calendar,
   QrCode,
   Target,
   Award,
@@ -41,7 +41,8 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ user, organization, role, children, currentSection = 'overview', onSectionChange }: DashboardLayoutProps) {
   const { signOut } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [navScrollRef, setNavScrollRef] = useState<HTMLDivElement | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navScrollRef = useRef<HTMLDivElement | null>(null);
 
   const handleLogout = async () => {
     try {
@@ -117,7 +118,109 @@ export function DashboardLayout({ user, organization, role, children, currentSec
       {/* Header */}
       <header className="bg-white border-b sticky top-0 z-40">
         <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            {/* Menu Button - Next to Logo */}
+            <div className="lg:hidden relative z-50">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="hover:bg-gray-100"
+              >
+                {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </Button>
+
+              {/* Dropdown Menu - Centered Modal */}
+              {isMenuOpen && (
+                <>
+                  {/* Overlay */}
+                  <div
+                    className="fixed inset-0 bg-black/30 z-30"
+                    onClick={() => setIsMenuOpen(false)}
+                  />
+
+                  {/* Centered Menu */}
+                  <div className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl z-40 max-h-[90vh] overflow-y-auto w-[90vw] md:w-[420px]">
+                    {/* Close button area */}
+                    <div className="flex items-center justify-between px-4 py-3 border-b">
+                      <button
+                        onClick={() => setIsMenuOpen(false)}
+                        className="p-1 hover:bg-gray-100 rounded"
+                      >
+                        <X className="w-6 h-6" />
+                      </button>
+                      <h3 className="text-base font-semibold">{organization.name}</h3>
+                      <div className="w-6" />
+                    </div>
+
+                    {/* Organization info */}
+                    <div className="px-4 py-4 border-b">
+                      <p className="text-sm text-gray-600">منصة تحفيظ القرآن الكريم</p>
+                    </div>
+
+                    {/* Dashboard button */}
+                    <div className="px-4 py-2">
+                      <button
+                        onClick={() => {
+                          if (onSectionChange) {
+                            onSectionChange('overview');
+                          }
+                          setIsMenuOpen(false);
+                        }}
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg py-3 px-4 flex items-center justify-center gap-2 font-medium transition-colors"
+                      >
+                        <LayoutDashboard className="w-5 h-5" />
+                        <span>لوحة التحكم</span>
+                      </button>
+                    </div>
+
+                    {/* Menu items */}
+                    <div className="px-4 py-2 space-y-1">
+                      {currentMenuItems.slice(1).map((item, index) => (
+                        <button
+                          key={index}
+                          className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-right rounded-lg transition-colors ${
+                            currentSection === item.section
+                              ? 'bg-emerald-50 text-emerald-700 font-medium'
+                              : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                          onClick={() => {
+                            if (onSectionChange) {
+                              onSectionChange(item.section);
+                            }
+                            setIsMenuOpen(false);
+                          }}
+                        >
+                          <item.icon className="w-4 h-4 flex-shrink-0" />
+                          <span>{item.label}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Logout button */}
+                    <div className="px-4 py-4 border-t mt-4">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center justify-end gap-2 px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+                      >
+                        <span>تسجيل الخروج</span>
+                        <LogOut className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Development Credit Card */}
+                    <div className="px-4 py-4 mt-2">
+                      <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl px-4 py-3 text-center space-y-1">
+                        <p className="text-xs font-semibold text-emerald-800">طورت بواسطة</p>
+                        <p className="text-sm font-bold text-emerald-900">فسند للتطوير الرقمي</p>
+                        <p className="text-xs text-emerald-700">م. محمد معياد</p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
             <div className="flex items-center gap-2">
               <div className="mx-auto w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center">
                 <BookOpen className="w-6 h-6 text-white" />
@@ -153,7 +256,7 @@ export function DashboardLayout({ user, organization, role, children, currentSec
       {/* Mobile Horizontal Navigation */}
       <div className="lg:hidden bg-white border-b sticky top-[73px] z-30 overflow-x-auto">
         <nav
-          ref={setNavScrollRef}
+          ref={navScrollRef}
           className="flex gap-2 p-3 overflow-x-auto scrollbar-hide"
         >
           {currentMenuItems.map((item, index) => (
@@ -174,15 +277,6 @@ export function DashboardLayout({ user, organization, role, children, currentSec
               <span className="hidden sm:inline">{item.label}</span>
             </Button>
           ))}
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex-shrink-0 whitespace-nowrap text-red-600 hover:text-red-700 hover:bg-red-50"
-            onClick={handleLogout}
-          >
-            <LogOut className="w-4 h-4 ml-2" />
-            <span className="hidden sm:inline">خروج</span>
-          </Button>
         </nav>
       </div>
 

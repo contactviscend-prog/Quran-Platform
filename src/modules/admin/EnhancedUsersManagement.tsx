@@ -779,19 +779,19 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
   return (
     <div className="space-y-6">
       {/* العنوان والإجراءات */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
         <div>
-          <h2 className="text-2xl">إدارة المستخدمين</h2>
-          <p className="text-gray-600 mt-1">إدارة شاملة لجميع المستخدمين في المنصة</p>
+          <h2 className="text-xl md:text-2xl">إدارة المستخدمين</h2>
+          <p className="text-sm md:text-base text-gray-600 mt-1">إدارة شاملة لجميع المستخدمين في المنصة</p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={handleExportUsers} variant="outline">
+        <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+          <Button onClick={handleExportUsers} variant="outline" className="w-full md:w-auto text-sm">
             <Download className="w-4 h-4 ml-2" />
             تصدير
           </Button>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-emerald-600 hover:bg-emerald-700">
+              <Button className="bg-emerald-600 hover:bg-emerald-700 w-full md:w-auto text-sm">
                 <Plus className="w-4 h-4 ml-2" />
                 إضافة مستخدم
               </Button>
@@ -803,19 +803,20 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
               </DialogHeader>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="user-name">الاسم الكامل *</Label>
+                  <div className="space-y-1 md:space-y-2">
+                    <Label htmlFor="user-name" className="text-xs md:text-sm">الاسم الكامل *</Label>
                     <Input
                       id="user-name"
                       placeholder="محمد أحمد"
                       value={newUser.name}
                       onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                      className="text-sm"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="user-gender">الجنس *</Label>
+                  <div className="space-y-1 md:space-y-2">
+                    <Label htmlFor="user-gender" className="text-xs md:text-sm">الجنس *</Label>
                     <Select value={newUser.gender} onValueChange={(value) => setNewUser({ ...newUser, gender: value })}>
-                      <SelectTrigger id="user-gender">
+                      <SelectTrigger id="user-gender" className="text-sm">
                         <SelectValue placeholder="اختر الجنس" />
                       </SelectTrigger>
                       <SelectContent>
@@ -825,8 +826,8 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                     </Select>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="user-email">البريد الإلكتروني *</Label>
+                <div className="space-y-1 md:space-y-2">
+                  <Label htmlFor="user-email" className="text-xs md:text-sm">البريد الإلكتروني *</Label>
                   <Input
                     id="user-email"
                     type="email"
@@ -834,11 +835,11 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                     value={newUser.email}
                     onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                     dir="ltr"
-                    className="text-right"
+                    className="text-right text-sm"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="user-phone">رقم الجوال</Label>
+                <div className="space-y-1 md:space-y-2">
+                  <Label htmlFor="user-phone" className="text-xs md:text-sm">رقم الجوال</Label>
                   <Input
                     id="user-phone"
                     type="tel"
@@ -846,13 +847,13 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                     value={newUser.phone}
                     onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
                     dir="ltr"
-                    className="text-right"
+                    className="text-right text-sm"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="user-role">الدور *</Label>
+                <div className="space-y-1 md:space-y-2">
+                  <Label htmlFor="user-role" className="text-xs md:text-sm">الدور *</Label>
                   <Select value={newUser.role} onValueChange={(value) => setNewUser({ ...newUser, role: value })}>
-                    <SelectTrigger id="user-role">
+                    <SelectTrigger id="user-role" className="text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -863,8 +864,8 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                     </SelectContent>
                   </Select>
                 </div>
-                <Button onClick={handleAddUser} className="w-full bg-emerald-600 hover:bg-emerald-700">
-                  <UserPlus className="w-4 h-4 ml-2" />
+                <Button onClick={handleAddUser} className="w-full bg-emerald-600 hover:bg-emerald-700 text-sm md:text-base">
+                  <UserPlus className="w-3 h-3 md:w-4 md:h-4 ml-2" />
                   إضافة المستخدم
                 </Button>
               </div>
@@ -874,37 +875,37 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
       </div>
 
       {/* الإحصائيات */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 md:pt-6">
             <div className="text-center">
-              <p className="text-sm text-gray-600">إجمالي المستخدمين</p>
-              <p className="text-3xl mt-2 text-blue-600">{stats.total}</p>
+              <p className="text-xs md:text-sm text-gray-600">إجمالي المستخدمين</p>
+              <p className="text-2xl md:text-3xl mt-2 text-blue-600">{stats.total}</p>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 md:pt-6">
             <div className="text-center">
-              <p className="text-sm text-gray-600">المستخدمون النشطون</p>
-              <p className="text-3xl mt-2 text-green-600">{stats.active}</p>
+              <p className="text-xs md:text-sm text-gray-600">نشطون</p>
+              <p className="text-2xl md:text-3xl mt-2 text-green-600">{stats.active}</p>
               <Progress value={(stats.active / stats.total) * 100} className="h-2 mt-2" />
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 md:pt-6">
             <div className="text-center">
-              <p className="text-sm text-gray-600">المعلقون</p>
-              <p className="text-3xl mt-2 text-red-600">{stats.suspended}</p>
+              <p className="text-xs md:text-sm text-gray-600">معلقون</p>
+              <p className="text-2xl md:text-3xl mt-2 text-red-600">{stats.suspended}</p>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 md:pt-6">
             <div className="text-center">
-              <p className="text-sm text-gray-600">قيد المراجعة</p>
-              <p className="text-3xl mt-2 text-yellow-600">{stats.pending}</p>
+              <p className="text-xs md:text-sm text-gray-600">قيد المراجعة</p>
+              <p className="text-2xl md:text-3xl mt-2 text-yellow-600">{stats.pending}</p>
             </div>
           </CardContent>
         </Card>
@@ -930,39 +931,41 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
               <CardTitle>البحث والتصفية</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex flex-col gap-2 md:gap-4">
                 <div className="flex-1 relative">
                   <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
-                    placeholder="البحث بالاسم، البريد، أو الجوال..."
+                    placeholder="البحث..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pr-10"
+                    className="pr-10 text-sm"
                   />
                 </div>
-                <Select value={selectedRole} onValueChange={setSelectedRole}>
-                  <SelectTrigger className="w-full md:w-48">
-                    <SelectValue placeholder="جميع الأدوار" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">جميع الأدوار</SelectItem>
-                    <SelectItem value="مشرف">مشرف ({stats.byRole['مشرف']})</SelectItem>
-                    <SelectItem value="معلم">معلم ({stats.byRole['معلم']})</SelectItem>
-                    <SelectItem value="طالب">طالب ({stats.byRole['طالب']})</SelectItem>
-                    <SelectItem value="ولي أمر">ولي أمر ({stats.byRole['ولي أمر']})</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                  <SelectTrigger className="w-full md:w-48">
-                    <SelectValue placeholder="جميع الحالات" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">جميع الحالات</SelectItem>
-                    <SelectItem value="نشط">نشط</SelectItem>
-                    <SelectItem value="معلق">معلق</SelectItem>
-                    <SelectItem value="قيد المراجعة">قيد المراجعة</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex flex-col md:flex-row gap-2">
+                  <Select value={selectedRole} onValueChange={setSelectedRole}>
+                    <SelectTrigger className="w-full text-sm">
+                      <SelectValue placeholder="جميع الأدوار" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">جميع الأدوار</SelectItem>
+                      <SelectItem value="مشرف">مشرف ({stats.byRole['مشرف']})</SelectItem>
+                      <SelectItem value="معلم">معلم ({stats.byRole['معلم']})</SelectItem>
+                      <SelectItem value="طالب">طالب ({stats.byRole['طالب']})</SelectItem>
+                      <SelectItem value="ولي أمر">ولي أمر ({stats.byRole['ولي أمر']})</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                    <SelectTrigger className="w-full text-sm">
+                      <SelectValue placeholder="جميع الحالات" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">جميع الحالات</SelectItem>
+                      <SelectItem value="نشط">نشط</SelectItem>
+                      <SelectItem value="معلق">معلق</SelectItem>
+                      <SelectItem value="قيد المراجعة">قيد المراجعة</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -973,131 +976,169 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
               <CardTitle>قائمة المستخدمين ({filteredUsers.length})</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-right">المستخدم</TableHead>
-                      <TableHead className="text-right hidden md:table-cell">معلومات التواصل</TableHead>
-                      <TableHead className="text-right">الدور</TableHead>
-                      <TableHead className="text-right hidden lg:table-cell">تفاصيل إضافية</TableHead>
-                      <TableHead className="text-right">الحالة</TableHead>
-                      <TableHead className="text-right hidden md:table-cell">آخر نشاط</TableHead>
-                      <TableHead className="text-right">الإجراءات</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredUsers.map((user) => {
-                      const RoleIcon = getRoleIcon(user.role);
-                      return (
-                        <TableRow key={user.id}>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                                <RoleIcon className="w-5 h-5 text-gray-600" />
+              <div className="space-y-3 md:space-y-0">
+                <div className="hidden md:block overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-right text-xs">المستخدم</TableHead>
+                        <TableHead className="text-right text-xs hidden md:table-cell">معلومات التواصل</TableHead>
+                        <TableHead className="text-right text-xs">الدور</TableHead>
+                        <TableHead className="text-right text-xs hidden lg:table-cell">تفاصيل</TableHead>
+                        <TableHead className="text-right text-xs">الحالة</TableHead>
+                        <TableHead className="text-right text-xs hidden lg:table-cell">آخر نشاط</TableHead>
+                        <TableHead className="text-right text-xs">إجراءات</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredUsers.map((user) => {
+                        const RoleIcon = getRoleIcon(user.role);
+                        return (
+                          <TableRow key={user.id}>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                  <RoleIcon className="w-4 h-4 text-gray-600" />
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="font-medium text-xs md:text-sm truncate">{user.name}</p>
+                                  <p className="text-xs text-gray-500">{user.gender}</p>
+                                </div>
                               </div>
-                              <div>
-                                <p className="font-medium">{user.name}</p>
-                                <p className="text-xs text-gray-500">{user.gender}</p>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            <div className="space-y-1 text-sm">
-                              <p className="flex items-center gap-1" dir="ltr">
-                                <Mail className="w-3 h-3" />
-                                <span className="text-right">{user.email}</span>
-                              </p>
-                              {user.phone && (
-                                <p className="flex items-center gap-1" dir="ltr">
-                                  <Phone className="w-3 h-3" />
-                                  <span className="text-right">{user.phone}</span>
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell">
+                              <div className="space-y-1 text-xs">
+                                <p className="flex items-center gap-1 truncate" dir="ltr">
+                                  <Mail className="w-3 h-3 flex-shrink-0" />
+                                  <span className="text-right truncate">{user.email}</span>
                                 </p>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={getRoleBadgeColor(user.role)}>{user.role}</Badge>
-                          </TableCell>
-                          <TableCell className="hidden lg:table-cell">
-                            <div className="text-sm text-gray-600">
-                              {user.role === 'معلم' && user.circlesCount && (
-                                <p>{user.circlesCount} حلقات • {user.studentsCount} طالب</p>
-                              )}
-                              {user.role === 'طالب' && user.circle && (
-                                <p>{user.circle}</p>
-                              )}
-                              {user.role === 'ولي أمر' && user.childrenCount && (
-                                <p>{user.childrenCount} أبناء</p>
-                              )}
-                              {user.role === 'مشرف' && user.circlesCount && (
-                                <p>يشرف على {user.circlesCount} حلقات</p>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={getStatusColor(user.status)}>{user.status}</Badge>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            <p className="text-sm text-gray-600">{user.lastActive}</p>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-1">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleViewUser(user)}
-                                title="عرض التفاصيل"
-                              >
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleEditUser(user)}
-                                title="تعديل"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              {user.status === 'نشط' ? (
+                                {user.phone && (
+                                  <p className="flex items-center gap-1 truncate" dir="ltr">
+                                    <Phone className="w-3 h-3 flex-shrink-0" />
+                                    <span className="text-right truncate">{user.phone}</span>
+                                  </p>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={`${getRoleBadgeColor(user.role)} text-xs`}>{user.role}</Badge>
+                            </TableCell>
+                            <TableCell className="hidden lg:table-cell">
+                              <div className="text-xs text-gray-600">
+                                {user.role === 'معلم' && user.circlesCount && (
+                                  <p>{user.circlesCount} حلقات</p>
+                                )}
+                                {user.role === 'طالب' && user.circle && (
+                                  <p>{user.circle}</p>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={`${getStatusColor(user.status)} text-xs`}>{user.status}</Badge>
+                            </TableCell>
+                            <TableCell className="hidden lg:table-cell">
+                              <p className="text-xs text-gray-600">{user.lastActive}</p>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-0.5">
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => handleSuspendUser(user.id)}
-                                  title="تعليق"
+                                  onClick={() => handleViewUser(user)}
+                                  title="عرض"
+                                  className="h-8 w-8 p-0"
                                 >
-                                  <Ban className="w-4 h-4 text-orange-600" />
+                                  <Eye className="w-3 h-3" />
                                 </Button>
-                              ) : (
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => handleActivateUser(user.id)}
-                                  title="تفعيل"
+                                  onClick={() => handleEditUser(user)}
+                                  title="تعديل"
+                                  className="h-8 w-8 p-0"
                                 >
-                                  <CheckCircle className="w-4 h-4 text-green-600" />
+                                  <Edit className="w-3 h-3" />
                                 </Button>
-                              )}
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDeleteUser(user.id)}
-                                title="حذف"
-                              >
-                                <Trash2 className="w-4 h-4 text-red-600" />
-                              </Button>
+                                {user.status === 'نشط' ? (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleSuspendUser(user.id)}
+                                    title="تعليق"
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <Ban className="w-3 h-3 text-orange-600" />
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleActivateUser(user.id)}
+                                    title="تفعيل"
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <CheckCircle className="w-3 h-3 text-green-600" />
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+                <div className="md:hidden space-y-2">
+                  {filteredUsers.map((user) => {
+                    const RoleIcon = getRoleIcon(user.role);
+                    return (
+                      <div key={user.id} className="border rounded-lg p-3 space-y-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                              <RoleIcon className="w-4 h-4 text-gray-600" />
                             </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                            <div className="min-w-0">
+                              <p className="font-medium text-sm truncate">{user.name}</p>
+                              <Badge className={`${getRoleBadgeColor(user.role)} text-xs`}>{user.role}</Badge>
+                            </div>
+                          </div>
+                          <Badge className={`${getStatusColor(user.status)} text-xs flex-shrink-0`}>{user.status}</Badge>
+                        </div>
+                        <div className="text-xs text-gray-600 space-y-1 pl-10">
+                          <p dir="ltr">{user.email}</p>
+                          {user.phone && <p dir="ltr">{user.phone}</p>}
+                          <p>{user.gender}</p>
+                        </div>
+                        <div className="flex gap-1 pt-2 border-t">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleViewUser(user)}
+                            className="flex-1 h-7 text-xs"
+                          >
+                            <Eye className="w-3 h-3 ml-1" />
+                            عرض
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditUser(user)}
+                            className="flex-1 h-7 text-xs"
+                          >
+                            <Edit className="w-3 h-3 ml-1" />
+                            تعديل
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
               {filteredUsers.length === 0 && (
-                <div className="text-center py-12 text-gray-500">
-                  <User className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                  <p>لا توجد نتائج مطابقة للبحث</p>
+                <div className="text-center py-8 md:py-12 text-gray-500">
+                  <User className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-3 md:mb-4 text-gray-400" />
+                  <p className="text-sm">لا توجد نتائج مطابقة للبحث</p>
                 </div>
               )}
             </CardContent>
@@ -1112,60 +1153,58 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
               <CardDescription>راجع ووافق على طلبات الانضمام الجديدة</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {pendingRequests.map((request) => (
-                  <div key={request.id} className="border rounded-lg p-4">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                            <UserPlus className="w-6 h-6 text-gray-600" />
-                          </div>
-                          <div>
-                            <h3 className="font-medium text-lg">{request.name}</h3>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge className={getRoleBadgeColor(request.role)}>{request.role}</Badge>
-                              <Badge variant="secondary">{request.gender}</Badge>
-                            </div>
-                          </div>
+                  <div key={request.id} className="border rounded-lg p-3 md:p-4">
+                    <div className="flex flex-col gap-3 md:gap-4">
+                      <div className="flex items-start gap-2 md:gap-3">
+                        <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <UserPlus className="w-5 h-5 md:w-6 md:h-6 text-gray-600" />
                         </div>
-                        <div className="mr-15 space-y-2">
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Mail className="w-4 h-4" />
-                            <span dir="ltr">{request.email}</span>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-sm md:text-lg">{request.name}</h3>
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            <Badge className={`${getRoleBadgeColor(request.role)} text-xs`}>{request.role}</Badge>
+                            <Badge variant="secondary" className="text-xs">{request.gender}</Badge>
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Phone className="w-4 h-4" />
-                            <span dir="ltr">{request.phone}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Calendar className="w-4 h-4" />
-                            <span>تاريخ التقديم: {request.requestDate}</span>
-                          </div>
-                          {request.notes && (
-                            <Alert>
-                              <AlertCircle className="h-4 w-4" />
-                              <AlertDescription>{request.notes}</AlertDescription>
-                            </Alert>
-                          )}
                         </div>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="space-y-1 md:space-y-2 text-xs md:text-sm text-gray-600 pl-12 md:pl-0">
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                          <span dir="ltr" className="truncate">{request.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                          <span dir="ltr">{request.phone}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                          <span>تاريخ التقديم: {request.requestDate}</span>
+                        </div>
+                        {request.notes && (
+                          <Alert className="mt-2">
+                            <AlertCircle className="h-3 h-3 md:h-4 md:w-4" />
+                            <AlertDescription className="text-xs">{request.notes}</AlertDescription>
+                          </Alert>
+                        )}
+                      </div>
+                      <div className="flex flex-col md:flex-row gap-2 pt-2 border-t">
                         <Button
                           size="sm"
-                          className="bg-green-600 hover:bg-green-700"
+                          className="bg-green-600 hover:bg-green-700 w-full md:w-auto text-xs md:text-sm"
                           onClick={() => handleApproveRequest(request.id)}
                         >
-                          <CheckCircle className="w-4 h-4 ml-2" />
+                          <CheckCircle className="w-3 h-3 md:w-4 md:h-4 ml-2" />
                           موافقة
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
-                          className="text-red-600 hover:bg-red-50"
+                          className="text-red-600 hover:bg-red-50 w-full md:w-auto text-xs md:text-sm"
                           onClick={() => handleRejectRequest(request.id)}
                         >
-                          <XCircle className="w-4 h-4 ml-2" />
+                          <XCircle className="w-3 h-3 md:w-4 md:h-4 ml-2" />
                           رفض
                         </Button>
                       </div>
@@ -1173,9 +1212,9 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                   </div>
                 ))}
                 {pendingRequests.length === 0 && (
-                  <div className="text-center py-12 text-gray-500">
-                    <Clock className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                    <p>لا توجد طلبات قيد المراجعة</p>
+                  <div className="text-center py-8 md:py-12 text-gray-500">
+                    <Clock className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-3 md:mb-4 text-gray-400" />
+                    <p className="text-sm">لا توجد طلبات قيد المراجعة</p>
                   </div>
                 )}
               </div>
