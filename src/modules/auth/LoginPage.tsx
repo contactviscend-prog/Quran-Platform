@@ -28,9 +28,15 @@ export function LoginPage({ organization, onBack, onRegister }: LoginPageProps) 
     setLoading(true);
 
     try {
-      await signIn(email, password);
+      // Pass the organization slug to validate user belongs to this organization
+      await signIn(email, password, organization.slug);
     } catch (error: any) {
-      setError('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+      // Check if it's an organization mismatch error
+      if (error.message.includes('ينتمي لمؤسسة أخرى')) {
+        setError(error.message);
+      } else {
+        setError('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+      }
     } finally {
       setLoading(false);
     }
@@ -135,8 +141,8 @@ export function LoginPage({ organization, onBack, onRegister }: LoginPageProps) 
                   {error}
                 </div>
               )}
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-emerald-600 hover:bg-emerald-700"
                 disabled={loading}
               >
