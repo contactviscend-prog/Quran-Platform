@@ -483,7 +483,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentSection('attendance')}
+                  onClick={() => setCurrentSection('attendance-recorder')}
                 >
                   عرض كامل
                 </Button>
