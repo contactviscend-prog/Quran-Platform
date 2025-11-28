@@ -6,7 +6,7 @@ import { Toaster } from './components/ui/sonner';
 
 const LandingPage = lazy(() => import('./modules/site/LandingPage').then(m => ({ default: m.LandingPage })));
 const OrganizationSelector = lazy(() => import('./modules/site/OrganizationSelector').then(m => ({ default: m.OrganizationSelector })));
-const LoginPage = lazy(() => import('./modules/auth/LoginPage').then(m => ({ default: m.LoginPage })));
+const LoginPageComponent = lazy(() => import('./modules/auth/LoginPage').then(m => ({ default: m.LoginPage })));
 const JoinRequestForm = lazy(() => import('./modules/site/JoinRequestForm').then(m => ({ default: m.JoinRequestForm })));
 const AdminDashboard = lazy(() => import('./modules/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
 const SupervisorDashboard = lazy(() => import('./modules/supervisor/SupervisorDashboard').then(m => ({ default: m.SupervisorDashboard })));
