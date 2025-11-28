@@ -70,7 +70,7 @@ export function StudentQRCode({ studentId, studentName }: StudentQRCodeProps) {
       if (navigator.share) {
         await navigator.share({
           title: `رمز الاستجابة السريعة - ${studentName}`,
-          text: 'استخدم هذا الرم�� للمسح السريع',
+          text: 'استخدم هذا الرمز للمسح السريع',
           url: qrCodeUrl,
         });
       } else {
