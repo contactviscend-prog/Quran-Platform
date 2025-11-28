@@ -51,6 +51,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<ExtendedUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // حالة النموذج المعدل
   const [editFormData, setEditFormData] = useState<{
@@ -62,126 +63,8 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
     gender: 'ذكر' | 'أنثى';
   } | null>(null);
 
-  const [users, setUsers] = useState<ExtendedUser[]>([
-    {
-      id: '1',
-      name: 'أحمد المعلم',
-      email: 'ahmed@example.com',
-      phone: '0501234567',
-      role: 'معلم',
-      gender: 'ذكر',
-      status: 'نشط',
-      joinDate: '1445-07-15',
-      lastActive: '1446-03-20',
-      circlesCount: 3,
-      studentsCount: 45
-    },
-    {
-      id: '2',
-      name: 'فاطمة الطالبة',
-      email: 'fatima@example.com',
-      phone: '0509876543',
-      role: 'طالب',
-      gender: 'أنثى',
-      status: 'نشط',
-      joinDate: '1445-08-20',
-      lastActive: '1446-03-20',
-      circle: 'حلقة الفجر'
-    },
-    {
-      id: '3',
-      name: 'عبدالله ولي الأمر',
-      email: 'abdullah@example.com',
-      phone: '0505551234',
-      role: 'ولي أمر',
-      gender: 'ذكر',
-      status: 'نشط',
-      joinDate: '1445-08-21',
-      lastActive: '1446-03-19',
-      childrenCount: 2
-    },
-    {
-      id: '4',
-      name: 'خالد المشرف',
-      email: 'khaled@example.com',
-      phone: '0507778899',
-      role: 'مشرف',
-      gender: 'ذكر',
-      status: 'نشط',
-      joinDate: '1445-07-10',
-      lastActive: '1446-03-20',
-      circlesCount: 8
-    },
-    {
-      id: '5',
-      name: 'محمد الجديد',
-      email: 'mohamed@example.com',
-      phone: '0503334455',
-      role: 'طالب',
-      gender: 'ذكر',
-      status: 'قيد المراجعة',
-      joinDate: '1446-03-01',
-      lastActive: '1446-03-01'
-    },
-    {
-      id: '6',
-      name: 'نورة المعلمة',
-      email: 'noura@example.com',
-      phone: '0508889999',
-      role: 'معلم',
-      gender: 'أن��ى',
-      status: 'نشط',
-      joinDate: '1445-07-18',
-      lastActive: '1446-03-20',
-      circlesCount: 2,
-      studentsCount: 30
-    },
-    {
-      id: '7',
-      name: 'سارة الطالبة',
-      email: 'sara@example.com',
-      phone: '0509998888',
-      role: 'طالب',
-      gender: 'أنثى',
-      status: 'معلق',
-      joinDate: '1445-09-10',
-      lastActive: '1446-02-15',
-      circle: 'حلقة العصر'
-    },
-  ]);
-
-  const [pendingRequests, setPendingRequests] = useState([
-    {
-      id: '1',
-      name: 'سارة أحمد',
-      email: 'sara2@example.com',
-      phone: '0501112233',
-      role: 'طالب',
-      gender: 'أنثى',
-      requestDate: '1446-03-05',
-      notes: 'طالبة جديدة ترغب في الانضمام'
-    },
-    {
-      id: '2',
-      name: 'يوسف محمد',
-      email: 'yousef@example.com',
-      phone: '0504445566',
-      role: 'معلم',
-      gender: 'ذكر',
-      requestDate: '1446-03-06',
-      notes: 'معلم خبرة 5 سنوات'
-    },
-    {
-      id: '3',
-      name: 'نورة عبدالله',
-      email: 'noura2@example.com',
-      phone: '0507778888',
-      role: 'ولي أمر',
-      gender: 'أنثى',
-      requestDate: '1446-03-07',
-      notes: 'لديها طفلان'
-    },
-  ]);
+  const [users, setUsers] = useState<ExtendedUser[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<any[]>([]);
 
   const [newUser, setNewUser] = useState({
     name: '',
@@ -463,7 +346,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
           targetType: 'join_request',
           targetId: id,
           targetName: request.name,
-          notes: `تم رفض طلب الانضمام كـ ${request.role}`,
+          notes: `تم رف�� طلب الانضمام كـ ${request.role}`,
         }
       );
     }
@@ -555,7 +438,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                     <Label htmlFor="user-gender">الجنس *</Label>
                     <Select value={newUser.gender} onValueChange={(value) => setNewUser({ ...newUser, gender: value })}>
                       <SelectTrigger id="user-gender">
-                        <SelectValue placeholder="اختر ��لجنس" />
+                        <SelectValue placeholder="اختر الجنس" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="ذكر">ذكر</SelectItem>
@@ -684,7 +567,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                     <SelectValue placeholder="جميع الأدوار" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">جميع الأدوار</SelectItem>
+                    <SelectItem value="all">جم��ع الأدوار</SelectItem>
                     <SelectItem value="مشرف">مشرف ({stats.byRole['مشرف']})</SelectItem>
                     <SelectItem value="معلم">معلم ({stats.byRole['معلم']})</SelectItem>
                     <SelectItem value="طالب">طالب ({stats.byRole['طالب']})</SelectItem>
@@ -769,7 +652,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                               {user.role === 'ولي أمر' && user.childrenCount && (
                                 <p>{user.childrenCount} أبناء</p>
                               )}
-                              {user.role === '��شرف' && user.circlesCount && (
+                              {user.role === 'مشرف' && user.circlesCount && (
                                 <p>يشرف على {user.circlesCount} حلقات</p>
                               )}
                             </div>
@@ -1079,7 +962,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                   </div>
                 </div>
 
-                {/* معاينة التغييرا�� */}
+                {/* معاينة التغييرات */}
                 {(selectedUser.role !== editFormData.role || selectedUser.status !== editFormData.status) && (
                   <div className="border border-orange-200 bg-orange-50 p-4 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
