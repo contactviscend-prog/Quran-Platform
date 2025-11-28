@@ -1,11 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Organization, UserRole, supabase, isDemoMode } from './lib/supabase';
 import { Toaster } from './components/ui/sonner';
-
-// Lazy load pages
-import { lazy, Suspense } from 'react';
 
 const LandingPage = lazy(() => import('./modules/site/LandingPage').then(m => ({ default: m.LandingPage })));
 const OrganizationSelector = lazy(() => import('./modules/site/OrganizationSelector').then(m => ({ default: m.OrganizationSelector })));
