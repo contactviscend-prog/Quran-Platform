@@ -33,7 +33,7 @@ export function IndividualStudentReports({ organizationId }: IndividualStudentRe
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [isReportOpen, setIsReportOpen] = useState(false);
 
-  // قائمة الط��اب
+  // قائمة الطلاب
   const [students] = useState<Student[]>([
     {
       id: '1',
