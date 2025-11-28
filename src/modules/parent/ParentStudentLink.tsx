@@ -146,7 +146,7 @@ export function ParentStudentLink({ organizationId }: ParentStudentLinkProps) {
 
     try {
       const { error } = await supabase
-        .from('parent_students')
+        .from('parent_student_links')
         .delete()
         .eq('parent_id', parentId)
         .eq('student_id', studentId);
