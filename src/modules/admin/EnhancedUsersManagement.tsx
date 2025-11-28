@@ -1152,60 +1152,58 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
               <CardDescription>راجع ووافق على طلبات الانضمام الجديدة</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {pendingRequests.map((request) => (
-                  <div key={request.id} className="border rounded-lg p-4">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                            <UserPlus className="w-6 h-6 text-gray-600" />
-                          </div>
-                          <div>
-                            <h3 className="font-medium text-lg">{request.name}</h3>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge className={getRoleBadgeColor(request.role)}>{request.role}</Badge>
-                              <Badge variant="secondary">{request.gender}</Badge>
-                            </div>
-                          </div>
+                  <div key={request.id} className="border rounded-lg p-3 md:p-4">
+                    <div className="flex flex-col gap-3 md:gap-4">
+                      <div className="flex items-start gap-2 md:gap-3">
+                        <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <UserPlus className="w-5 h-5 md:w-6 md:h-6 text-gray-600" />
                         </div>
-                        <div className="mr-15 space-y-2">
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Mail className="w-4 h-4" />
-                            <span dir="ltr">{request.email}</span>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-sm md:text-lg">{request.name}</h3>
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            <Badge className={`${getRoleBadgeColor(request.role)} text-xs`}>{request.role}</Badge>
+                            <Badge variant="secondary" className="text-xs">{request.gender}</Badge>
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Phone className="w-4 h-4" />
-                            <span dir="ltr">{request.phone}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Calendar className="w-4 h-4" />
-                            <span>تاريخ التقديم: {request.requestDate}</span>
-                          </div>
-                          {request.notes && (
-                            <Alert>
-                              <AlertCircle className="h-4 w-4" />
-                              <AlertDescription>{request.notes}</AlertDescription>
-                            </Alert>
-                          )}
                         </div>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="space-y-1 md:space-y-2 text-xs md:text-sm text-gray-600 pl-12 md:pl-0">
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                          <span dir="ltr" className="truncate">{request.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                          <span dir="ltr">{request.phone}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                          <span>تاريخ التقديم: {request.requestDate}</span>
+                        </div>
+                        {request.notes && (
+                          <Alert className="mt-2">
+                            <AlertCircle className="h-3 h-3 md:h-4 md:w-4" />
+                            <AlertDescription className="text-xs">{request.notes}</AlertDescription>
+                          </Alert>
+                        )}
+                      </div>
+                      <div className="flex flex-col md:flex-row gap-2 pt-2 border-t">
                         <Button
                           size="sm"
-                          className="bg-green-600 hover:bg-green-700"
+                          className="bg-green-600 hover:bg-green-700 w-full md:w-auto text-xs md:text-sm"
                           onClick={() => handleApproveRequest(request.id)}
                         >
-                          <CheckCircle className="w-4 h-4 ml-2" />
+                          <CheckCircle className="w-3 h-3 md:w-4 md:h-4 ml-2" />
                           موافقة
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
-                          className="text-red-600 hover:bg-red-50"
+                          className="text-red-600 hover:bg-red-50 w-full md:w-auto text-xs md:text-sm"
                           onClick={() => handleRejectRequest(request.id)}
                         >
-                          <XCircle className="w-4 h-4 ml-2" />
+                          <XCircle className="w-3 h-3 md:w-4 md:h-4 ml-2" />
                           رفض
                         </Button>
                       </div>
@@ -1213,9 +1211,9 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                   </div>
                 ))}
                 {pendingRequests.length === 0 && (
-                  <div className="text-center py-12 text-gray-500">
-                    <Clock className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                    <p>لا توجد طلبات قيد المراجعة</p>
+                  <div className="text-center py-8 md:py-12 text-gray-500">
+                    <Clock className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-3 md:mb-4 text-gray-400" />
+                    <p className="text-sm">لا توجد طلبات قيد المراجعة</p>
                   </div>
                 )}
               </div>
