@@ -53,7 +53,7 @@ export function JoinRequestsManagement({ organizationId, userId }: JoinRequestsM
       if (isDemoMode()) {
         console.log('⚠️ وضع العرض التوضيحي - لا توجد بيانات حقيقية');
       } else {
-        toast.error('فشل تح��يل الطلبات');
+        toast.error('فشل تحويل الطلبات');
       }
     } finally {
       setLoading(false);
