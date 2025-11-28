@@ -28,15 +28,9 @@ export function LoginPage({ organization, onBack, onRegister }: LoginPageProps) 
     setLoading(true);
 
     try {
-      // Pass the organization slug to validate user belongs to this organization
-      await signIn(email, password, organization.slug);
+      await signIn(email, password);
     } catch (error: any) {
-      // Check if it's an organization mismatch error
-      if (error.message.includes('ينتمي لمؤسسة أخرى')) {
-        setError(error.message);
-      } else {
-        setError('البريد الإلكتروني أو كلمة المرور غير صحيحة');
-      }
+      setError('البريد الإلكتروني أو كلمة المرور غير صحيحة');
     } finally {
       setLoading(false);
     }
