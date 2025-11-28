@@ -23,7 +23,11 @@ interface Student {
   totalRecitations: number;
 }
 
-export function IndividualStudentReports() {
+interface IndividualStudentReportsProps {
+  organizationId?: string;
+}
+
+export function IndividualStudentReports({ organizationId }: IndividualStudentReportsProps = {}) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCircle, setSelectedCircle] = useState('all');
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
