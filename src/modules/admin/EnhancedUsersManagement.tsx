@@ -171,18 +171,6 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
             notes: 'طالبة جديدة ترغب في الانضمام'
           },
         ]);
-        setPendingRequests([
-          {
-            id: '1',
-            name: 'سارة أحمد',
-            email: 'sara2@example.com',
-            phone: '0501112233',
-            role: 'طالب',
-            gender: 'أنثى',
-            requestDate: '1446-03-05',
-            notes: 'طالبة جديدة ترغب في الانضمام'
-          },
-        ]);
         setLoading(false);
         return;
       }
