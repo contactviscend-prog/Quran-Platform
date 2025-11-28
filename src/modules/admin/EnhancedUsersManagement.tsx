@@ -201,41 +201,89 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
     return matchesSearch && matchesRole && matchesStatus;
   });
 
-  const handleAddUser = () => {
+  const handleAddUser = async () => {
     if (!newUser.name || !newUser.email || !newUser.gender) {
       toast.error('الرجاء ملء جميع الحقول المطلوبة');
       return;
     }
 
-    const user: ExtendedUser = {
-      id: String(users.length + 1),
-      name: newUser.name,
-      email: newUser.email,
-      phone: newUser.phone,
-      role: newUser.role,
-      gender: newUser.gender as 'ذكر' | 'أنثى',
-      status: 'نشط',
-      joinDate: '1446-03-20',
-      lastActive: '1446-03-20',
-    };
-    setUsers([...users, user]);
-    setNewUser({ name: '', email: '', phone: '', role: 'طالب', gender: '' });
-    setIsAddDialogOpen(false);
-    toast.success('تم إضافة المستخدم بنجاح');
-
-    // تسجيل في Audit Log
-    logAuditAction(
-      organizationId,
-      currentUserProfile?.id || '',
-      currentUserProfile?.full_name || 'مدير',
-      'USER_CREATED',
-      {
-        targetType: 'user',
-        targetId: user.id,
-        targetName: user.name,
-        newValue: { role: user.role, status: user.status },
+    try {
+      if (isDemoMode()) {
+        const user: ExtendedUser = {
+          id: String(Date.now()),
+          name: newUser.name,
+          email: newUser.email,
+          phone: newUser.phone,
+          role: newUser.role,
+          gender: newUser.gender as 'ذكر' | 'أنثى',
+          status: 'نشط',
+          joinDate: new Date().toISOString().split('T')[0],
+          lastActive: new Date().toISOString().split('T')[0],
+        };
+        setUsers([...users, user]);
+        setNewUser({ name: '', email: '', phone: '', role: 'طالب', gender: '' });
+        setIsAddDialogOpen(false);
+        toast.success('تم إضافة المستخدم بنجاح (Demo Mode)');
+        return;
       }
-    );
+
+      const roleMap: { [key: string]: string } = {
+        'معلم': 'teacher',
+        'طالب': 'student',
+        'مشرف': 'supervisor',
+        'ولي أمر': 'parent',
+      };
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert([
+          {
+            organization_id: organizationId,
+            full_name: newUser.name,
+            email: newUser.email,
+            phone: newUser.phone,
+            gender: newUser.gender === 'ذكر' ? 'male' : 'female',
+            role: roleMap[newUser.role] || 'student',
+            status: 'active',
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setUsers([...users, {
+        id: data.id,
+        name: data.full_name,
+        email: data.email || '',
+        phone: data.phone || '',
+        role: newUser.role,
+        gender: newUser.gender as 'ذكر' | 'أنثى',
+        status: 'نشط',
+        joinDate: data.created_at?.split('T')[0] || '',
+        lastActive: data.updated_at?.split('T')[0] || '',
+      }]);
+
+      setNewUser({ name: '', email: '', phone: '', role: 'طالب', gender: '' });
+      setIsAddDialogOpen(false);
+      toast.success('تم إضافة المستخدم بنجاح');
+
+      await logAuditAction(
+        organizationId,
+        currentUserProfile?.id || '',
+        currentUserProfile?.full_name || 'مدير',
+        'USER_CREATED',
+        {
+          targetType: 'user',
+          targetId: data.id,
+          targetName: newUser.name,
+          newValue: { role: newUser.role, status: 'نشط' },
+        }
+      );
+    } catch (error) {
+      console.error('Error adding user:', error);
+      toast.error('فشل إضافة المستخدم');
+    }
   };
 
   const handleEditUser = (user: ExtendedUser) => {
@@ -621,7 +669,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
-              <p className="text-sm text-gray-600">المعلقون</p>
+              <p className="text-sm text-gray-600">المع��قون</p>
               <p className="text-3xl mt-2 text-red-600">{stats.suspended}</p>
             </div>
           </CardContent>
@@ -995,7 +1043,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent dir="rtl" className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>تعديل صلاحيا�� المستخدم</DialogTitle>
+              <DialogTitle>تعديل صلاحيات المستخدم</DialogTitle>
               <DialogDescription>تحديث الدور والحالة للمستخدم</DialogDescription>
             </DialogHeader>
             <div className="space-y-6">
@@ -1086,7 +1134,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                         <div className="flex items-center gap-2">
                           <span className="text-gray-600">الحالة:</span>
                           <Badge className={getStatusColor(selectedUser.status)}>{selectedUser.status}</Badge>
-                          <span className="text-gray-400">���</span>
+                          <span className="text-gray-400">←</span>
                           <Badge className={getStatusColor(editFormData.status)}>{editFormData.status}</Badge>
                         </div>
                       )}
