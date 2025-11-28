@@ -33,7 +33,7 @@ export function OrganizationSelector({ onSelectOrg }: OrganizationSelectorProps)
         .order('name');
 
       if (error) {
-        console.error('❌ خطأ ��ن Supabase:', error);
+        console.error('❌ خطأ من Supabase:', error);
         throw error;
       }
 
