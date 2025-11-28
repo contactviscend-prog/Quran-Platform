@@ -468,13 +468,13 @@ export function RecitationsPage({ organizationId, userRole, userId }: Recitation
                         <SelectItem value="very_good">جيد جداً</SelectItem>
                         <SelectItem value="good">جيد</SelectItem>
                         <SelectItem value="acceptable">مقبول</SelectItem>
-                        <SelectItem value="needs_improvement">يحتاج تح��ين</SelectItem>
+                        <SelectItem value="needs_improvement">يحتاج تحسين</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="mistakes">عدد الأخ��اء</Label>
+                    <Label htmlFor="mistakes">عدد الأخطاء</Label>
                     <Input
                       id="mistakes"
                       type="number"
@@ -508,7 +508,7 @@ export function RecitationsPage({ organizationId, userRole, userId }: Recitation
                     إلغاء
                   </Button>
                   <Button type="submit">
-                    تسجيل الت��ميع
+                    تسجيل التسميع
                   </Button>
                 </div>
               </form>
