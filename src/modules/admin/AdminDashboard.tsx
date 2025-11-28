@@ -12,7 +12,7 @@ import { supabase, isDemoMode, Profile, Organization, UserRole, getRoleLabel, ge
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { CirclesManagement } from './CirclesManagement';
 import { EnhancedUsersManagement } from './EnhancedUsersManagement';
-import { RecitationsPage } from '../shared/RecitationsPage';
+import { EnhancedRecitationPage } from '../shared/EnhancedRecitationPage';
 import { ReportsPage } from '../shared/ReportsPage';
 import { ParentStudentLink } from '../parent/ParentStudentLink';
 import { SettingsPage } from '../shared/SettingsPage';
@@ -760,7 +760,7 @@ export function AdminDashboard({ user, organization }: AdminDashboardProps) {
         {/* الحلقات الأخيرة */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">الحلقات الأخيرة</CardTitle>
+            <CardTitle className="text-lg">الح��قات الأخيرة</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
