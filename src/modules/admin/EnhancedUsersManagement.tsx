@@ -51,6 +51,11 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<ExtendedUser | null>(null);
+  const [isRoleChangeConfirmOpen, setIsRoleChangeConfirmOpen] = useState(false);
+  const [pendingRoleChange, setPendingRoleChange] = useState<{
+    user: ExtendedUser;
+    newRole: string;
+  } | null>(null);
 
   // حالة النموذج المعدل
   const [editFormData, setEditFormData] = useState<{
