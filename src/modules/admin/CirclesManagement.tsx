@@ -120,10 +120,13 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
         .eq('status', 'active')
         .order('full_name');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching teachers:', error.message || error);
+        return;
+      }
       setTeachers(data || []);
     } catch (error: any) {
-      console.error('Error fetching teachers:', error);
+      console.error('Error fetching teachers:', error?.message || error);
     }
   };
 
