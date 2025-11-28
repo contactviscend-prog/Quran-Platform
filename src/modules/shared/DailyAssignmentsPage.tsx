@@ -335,7 +335,7 @@ export function DailyAssignmentsPage({ userId, userRole, organizationId }: Daily
           <CardContent className="pt-6 text-center">
             <CheckCircle className="w-8 h-8 mx-auto text-green-600 mb-2" />
             <div className="text-2xl font-semibold text-green-700">{stats.completed}</div>
-            <div className="text-sm text-green-600">مكتمل��</div>
+            <div className="text-sm text-green-600">مكتمل</div>
           </CardContent>
         </Card>
         <Card className="border-red-200 bg-red-50">
