@@ -352,7 +352,7 @@ export function AssignmentManager({ circleId, students }: AssignmentManagerProps
       <Card>
         <CardHeader>
           <CardTitle>التكاليف الحالية</CardTitle>
-          <CardDescription>جميع تكا��يف الحفظ والمراجعة المعينة للطلاب</CardDescription>
+          <CardDescription>جميع تكاليف الحفظ والمراجعة المعينة للطلاب</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
