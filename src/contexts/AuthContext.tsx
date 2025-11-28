@@ -160,13 +160,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // Sign in
-  const signIn = async (email: string, password: string) => {
+  // Sign in with organization validation
+  const signIn = async (email: string, password: string, expectedOrgSlug?: string) => {
     try {
       // Demo mode login
       if (isDemoMode()) {
         const mockUser = mockUsers[email];
         if (mockUser && mockUser.password === password) {
+          // Check if user's organization matches the expected organization
+          if (expectedOrgSlug && mockUser.profile.organization!.slug !== expectedOrgSlug) {
+            console.warn(`⚠️ المستخدم من مؤسسة ${mockUser.profile.organization!.slug}، لكن محاولة الدخول من ${expectedOrgSlug}`);
+            throw new Error(`هذا الحساب ينتمي لمؤسسة أخرى (${mockUser.profile.organization!.name}). الرجاء استخدام بوابة مؤسستك الصحيحة.`);
+          }
+
           const demoUser = {
             id: mockUser.profile.id,
             email: mockUser.email,
@@ -183,7 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Real Supabase login
-      console.log('🔐 جاري محاولة تسجيل الدخول:', email);
+      console.log('🔐 جاري محاولة تسجيل الدخول:', email, 'من مؤسسة:', expectedOrgSlug);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -196,7 +202,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.user) {
         console.log('🔐 تم تسجيل الدخول - جاري جلب البيانات...');
         await fetchProfile(data.user.id);
-        console.log('✅ تم تسجيل الدخول والحصول على البيانات بنجاح');
+
+        // Validate that user belongs to the expected organization
+        if (expectedOrgSlug && profile) {
+          console.log('🔍 التحقق من أن المستخدم ينتمي لمؤسسة:', expectedOrgSlug);
+
+          // Get the organization of the user
+          const { data: userOrg, error: orgError } = await supabase
+            .from('organizations')
+            .select('*')
+            .eq('id', profile.organization_id)
+            .single();
+
+          if (orgError || !userOrg) {
+            console.error('❌ لم يتمكن من جلب بيانات مؤسسة المستخدم');
+            throw new Error('حدث خطأ في التحقق من المؤسسة');
+          }
+
+          if (userOrg.slug !== expectedOrgSlug) {
+            console.warn(`⚠️ المستخدم من مؤسسة ${userOrg.slug}، لكن محاولة الدخول من ${expectedOrgSlug}`);
+            // Sign out the user since they're trying to access wrong organization
+            await supabase.auth.signOut();
+            setUser(null);
+            setProfile(null);
+            setOrganization(null);
+            throw new Error(`هذا الحساب ينتمي لمؤسسة أخرى (${userOrg.name}). الرجاء استخدام بوابة مؤسستك الصحيحة.`);
+          }
+        }
+
+        console.log('✅ تم التحقق من المؤسسة بنجاح - تم تسجيل الدخول');
         toast.success('تم تسجيل الدخول بنجاح');
       }
     } catch (error: any) {
