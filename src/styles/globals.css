@@ -67,7 +67,11 @@
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig"1, "calt"1;
+    font-family: "Cairo", "Inter", system-ui, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 }
 
