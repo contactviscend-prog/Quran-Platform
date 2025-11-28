@@ -803,19 +803,20 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
               </DialogHeader>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="user-name">الاسم الكامل *</Label>
+                  <div className="space-y-1 md:space-y-2">
+                    <Label htmlFor="user-name" className="text-xs md:text-sm">الاسم الكامل *</Label>
                     <Input
                       id="user-name"
                       placeholder="محمد أحمد"
                       value={newUser.name}
                       onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                      className="text-sm"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="user-gender">الجنس *</Label>
+                  <div className="space-y-1 md:space-y-2">
+                    <Label htmlFor="user-gender" className="text-xs md:text-sm">الجنس *</Label>
                     <Select value={newUser.gender} onValueChange={(value) => setNewUser({ ...newUser, gender: value })}>
-                      <SelectTrigger id="user-gender">
+                      <SelectTrigger id="user-gender" className="text-sm">
                         <SelectValue placeholder="اختر الجنس" />
                       </SelectTrigger>
                       <SelectContent>
@@ -825,8 +826,8 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                     </Select>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="user-email">البريد الإلكتروني *</Label>
+                <div className="space-y-1 md:space-y-2">
+                  <Label htmlFor="user-email" className="text-xs md:text-sm">البريد الإلكتروني *</Label>
                   <Input
                     id="user-email"
                     type="email"
@@ -834,11 +835,11 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                     value={newUser.email}
                     onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                     dir="ltr"
-                    className="text-right"
+                    className="text-right text-sm"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="user-phone">رقم الجوال</Label>
+                <div className="space-y-1 md:space-y-2">
+                  <Label htmlFor="user-phone" className="text-xs md:text-sm">رقم الجوال</Label>
                   <Input
                     id="user-phone"
                     type="tel"
@@ -846,13 +847,13 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                     value={newUser.phone}
                     onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
                     dir="ltr"
-                    className="text-right"
+                    className="text-right text-sm"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="user-role">الدور *</Label>
+                <div className="space-y-1 md:space-y-2">
+                  <Label htmlFor="user-role" className="text-xs md:text-sm">الدور *</Label>
                   <Select value={newUser.role} onValueChange={(value) => setNewUser({ ...newUser, role: value })}>
-                    <SelectTrigger id="user-role">
+                    <SelectTrigger id="user-role" className="text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -863,8 +864,8 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                     </SelectContent>
                   </Select>
                 </div>
-                <Button onClick={handleAddUser} className="w-full bg-emerald-600 hover:bg-emerald-700">
-                  <UserPlus className="w-4 h-4 ml-2" />
+                <Button onClick={handleAddUser} className="w-full bg-emerald-600 hover:bg-emerald-700 text-sm md:text-base">
+                  <UserPlus className="w-3 h-3 md:w-4 md:h-4 ml-2" />
                   إضافة المستخدم
                 </Button>
               </div>
