@@ -139,7 +139,7 @@ export function UsersManagement() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="user-email">��لبريد الإلكتروني</Label>
+                <Label htmlFor="user-email">البريد الإلكتروني</Label>
                 <Input
                   id="user-email"
                   type="email"
