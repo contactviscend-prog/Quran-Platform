@@ -119,7 +119,10 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
         .eq('status', 'active')
         .order('full_name');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching teachers:', error.message || error);
+        return;
+      }
       setTeachers((data as any[])?.map(item => ({
         id: item.id,
         full_name: item.full_name,
@@ -130,7 +133,7 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
         updated_at: new Date().toISOString()
       })) || []);
     } catch (error: any) {
-      console.error('Error fetching teachers:', error);
+      console.error('Error fetching teachers:', error?.message || error);
     }
   };
 
@@ -143,7 +146,7 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
 
       // Demo mode - simulate save
       if (isDemoMode()) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 100));
         if (editingCircle) {
           toast.success('تم تحديث الحلقة بنجاح (Demo Mode)');
         } else {

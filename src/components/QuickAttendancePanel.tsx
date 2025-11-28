@@ -95,7 +95,7 @@ export function QuickAttendancePanel({
         const excused = students.filter(s => s.attendance === 'excused').length;
         const late = students.filter(s => s.attendance === 'late').length;
 
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 100));
         toast.success(`تم تسجيل الحضور:\nحاضر: ${present}\nغائب: ${absent}\nمتأخر: ${late}\nبعذر: ${excused}`);
         setHasChanges(false);
         onAttendanceUpdate?.();

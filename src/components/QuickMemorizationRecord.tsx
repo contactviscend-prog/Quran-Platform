@@ -122,7 +122,7 @@ export function QuickMemorizationRecord({
 
     try {
       if (isDemoMode()) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 100));
         toast.success('تم تسجيل التسميع بنجاح');
         setShowRecitationDialog(false);
         fetchStudents();

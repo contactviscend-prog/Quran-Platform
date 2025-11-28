@@ -74,7 +74,7 @@ export function SupportPage() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 100));
     
     setIsSubmitting(false);
     setSubmitted(true);

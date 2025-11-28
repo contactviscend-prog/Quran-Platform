@@ -61,7 +61,11 @@ export function SupervisorTeachersPage({ organizationId }: SupervisorTeachersPag
         .eq('role', 'teacher')
         .order('full_name');
 
-      if (teachersError) throw teachersError;
+      if (teachersError) {
+        console.error('Error fetching teachers:', teachersError.message || teachersError);
+        toast.error('فشل تحميل قائمة المعلمين');
+        return;
+      }
 
       if (!teachersData || teachersData.length === 0) {
         setTeachers([]);
@@ -78,7 +82,10 @@ export function SupervisorTeachersPage({ organizationId }: SupervisorTeachersPag
         .eq('organization_id', organizationId)
         .in('teacher_id', teacherIds);
 
-      if (circlesError) throw circlesError;
+      if (circlesError) {
+        console.error('Error fetching circles:', circlesError.message || circlesError);
+        return;
+      }
 
       // Fetch all enrollments for these circles in one query
       const activeCircleIds = allCircles
@@ -92,7 +99,10 @@ export function SupervisorTeachersPage({ organizationId }: SupervisorTeachersPag
           .select('circle_id')
           .in('circle_id', activeCircleIds);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching enrollments:', error.message || error);
+          return;
+        }
         enrollmentsData = data || [];
       }
 
@@ -103,7 +113,10 @@ export function SupervisorTeachersPage({ organizationId }: SupervisorTeachersPag
         .eq('organization_id', organizationId)
         .in('teacher_id', teacherIds);
 
-      if (recitationsError) throw recitationsError;
+      if (recitationsError) {
+        console.error('Error fetching recitations:', recitationsError.message || recitationsError);
+        return;
+      }
 
       // Build lookup maps
       const circlesByTeacher = new Map<string, any[]>();

@@ -36,7 +36,7 @@ export function RegisterPage({ organization, onBack, onSuccess }: RegisterPagePr
     setIsSubmitting(true);
     
     // محاكاة إرسال الطلب
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 100));
     
     setIsSubmitting(false);
     setSuccess(true);
