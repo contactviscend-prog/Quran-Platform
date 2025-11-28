@@ -130,15 +130,51 @@ export function DashboardLayout({ user, organization, role, children, currentSec
                 {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
 
-              {/* Dropdown Menu - Fixed positioning above header */}
+              {/* Dropdown Menu - Positioned above header */}
               {isMenuOpen && (
-                <div className="fixed left-0 right-0 top-16 bg-white border-b border-gray-200 shadow-2xl z-40 max-h-[70vh] overflow-y-auto">
-                  <div className="flex flex-col">
-                    {currentMenuItems.map((item, index) => (
+                <div className="fixed left-0 right-0 top-0 bg-white shadow-2xl z-40 max-h-screen overflow-y-auto">
+                  {/* Close button area */}
+                  <div className="flex items-center justify-between px-4 py-3 border-b">
+                    <button
+                      onClick={() => setIsMenuOpen(false)}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                    <h3 className="text-base font-semibold">{organization.name}</h3>
+                    <div className="w-6" />
+                  </div>
+
+                  {/* Organization info */}
+                  <div className="px-4 py-4 border-b">
+                    <p className="text-sm text-gray-600">منصة تحفيظ القرآن الكريم</p>
+                  </div>
+
+                  {/* Dashboard button */}
+                  <div className="px-4 py-2">
+                    <button
+                      onClick={() => {
+                        if (onSectionChange) {
+                          onSectionChange('overview');
+                        }
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg py-3 px-4 flex items-center justify-center gap-2 font-medium transition-colors"
+                    >
+                      <LayoutDashboard className="w-5 h-5" />
+                      <span>لوحة التحكم</span>
+                    </button>
+                  </div>
+
+                  {/* Menu items */}
+                  <div className="px-4 py-2 space-y-1">
+                    {currentMenuItems.slice(1).map((item, index) => (
                       <button
                         key={index}
-                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-right hover:bg-gray-50 transition-colors border-b border-gray-100 ${
-                          currentSection === item.section ? 'bg-emerald-50 text-emerald-700 font-medium' : ''
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-right rounded-lg transition-colors ${
+                          currentSection === item.section
+                            ? 'bg-emerald-50 text-emerald-700 font-medium'
+                            : 'text-gray-700 hover:bg-gray-50'
                         }`}
                         onClick={() => {
                           if (onSectionChange) {
@@ -151,12 +187,16 @@ export function DashboardLayout({ user, organization, role, children, currentSec
                         <span>{item.label}</span>
                       </button>
                     ))}
+                  </div>
+
+                  {/* Logout button */}
+                  <div className="px-4 py-4 border-t mt-4">
                     <button
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-right text-red-600 hover:bg-red-50 transition-colors border-t border-gray-200"
                       onClick={handleLogout}
+                      className="w-full flex items-center justify-end gap-2 px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
                     >
-                      <LogOut className="w-4 h-4 flex-shrink-0" />
                       <span>تسجيل الخروج</span>
+                      <LogOut className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
