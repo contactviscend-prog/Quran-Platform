@@ -120,8 +120,8 @@ function LoginRoute() {
 }
 
 function LoginPageWrapper({ orgSlug, onBack, onRegister }: { orgSlug: string; onBack: () => void; onRegister: () => void }) {
-  const [organization, setOrganization] = require('react').useState<Organization | null>(null);
-  const [loading, setLoading] = require('react').useState(true);
+  const [organization, setOrganization] = useState<Organization | null>(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
