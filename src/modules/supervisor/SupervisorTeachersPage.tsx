@@ -270,7 +270,7 @@ export function SupervisorTeachersPage({ organizationId }: SupervisorTeachersPag
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>قائمة ا��معلمين</CardTitle>
+            <CardTitle>قائمة المعلمين</CardTitle>
             <div className="relative">
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
@@ -357,7 +357,7 @@ export function SupervisorTeachersPage({ organizationId }: SupervisorTeachersPag
         <DialogContent dir="rtl" className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>تفاصيل المعلم: {selectedTeacher?.full_name}</DialogTitle>
-            <DialogDescription>معلومات شامل�� عن أداء المعلم و إحصائياته</DialogDescription>
+            <DialogDescription>معلومات شاملة عن أداء المعلم و إحصائياته</DialogDescription>
           </DialogHeader>
           {selectedTeacher && (
             <div className="space-y-4">
