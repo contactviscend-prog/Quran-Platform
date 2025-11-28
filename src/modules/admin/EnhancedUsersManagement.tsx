@@ -215,7 +215,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
           email: newUser.email,
           phone: newUser.phone,
           role: newUser.role,
-          gender: newUser.gender as 'ذك��' | 'أنثى',
+          gender: newUser.gender as 'ذكر' | 'أنثى',
           status: 'نشط',
           joinDate: new Date().toISOString().split('T')[0],
           lastActive: new Date().toISOString().split('T')[0],
@@ -406,47 +406,83 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
   };
 
   const handleSuspendUser = async (id: string) => {
-    const user = users.find(u => u.id === id);
-    if (!user) return;
+    try {
+      const user = users.find(u => u.id === id);
+      if (!user) return;
 
-    setUsers(users.map(u => u.id === id ? { ...u, status: 'معلق' as const } : u));
-    toast.success('تم تعليق المستخدم');
-
-    await logAuditAction(
-      organizationId,
-      currentUserProfile?.id || '',
-      currentUserProfile?.full_name || 'مدير',
-      'USER_SUSPENDED',
-      {
-        targetType: 'user',
-        targetId: id,
-        targetName: user.name,
-        oldValue: { status: user.status },
-        newValue: { status: 'معلق' },
+      if (isDemoMode()) {
+        setUsers(users.map(u => u.id === id ? { ...u, status: 'معلق' as const } : u));
+        toast.success('تم تعليق المستخدم (Demo Mode)');
+        return;
       }
-    );
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ status: 'suspended' })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setUsers(users.map(u => u.id === id ? { ...u, status: 'معلق' as const } : u));
+      toast.success('تم تعليق المستخدم');
+
+      await logAuditAction(
+        organizationId,
+        currentUserProfile?.id || '',
+        currentUserProfile?.full_name || 'مدير',
+        'USER_SUSPENDED',
+        {
+          targetType: 'user',
+          targetId: id,
+          targetName: user.name,
+          oldValue: { status: user.status },
+          newValue: { status: 'معلق' },
+        }
+      );
+    } catch (error) {
+      console.error('Error suspending user:', error);
+      toast.error('فشل تعليق المستخدم');
+    }
   };
 
   const handleActivateUser = async (id: string) => {
-    const user = users.find(u => u.id === id);
-    if (!user) return;
+    try {
+      const user = users.find(u => u.id === id);
+      if (!user) return;
 
-    setUsers(users.map(u => u.id === id ? { ...u, status: 'نشط' as const } : u));
-    toast.success('تم تفعيل المستخدم');
-
-    await logAuditAction(
-      organizationId,
-      currentUserProfile?.id || '',
-      currentUserProfile?.full_name || 'مدير',
-      'USER_ACTIVATED',
-      {
-        targetType: 'user',
-        targetId: id,
-        targetName: user.name,
-        oldValue: { status: user.status },
-        newValue: { status: 'نشط' },
+      if (isDemoMode()) {
+        setUsers(users.map(u => u.id === id ? { ...u, status: 'نشط' as const } : u));
+        toast.success('تم تفعيل المستخدم (Demo Mode)');
+        return;
       }
-    );
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ status: 'active' })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setUsers(users.map(u => u.id === id ? { ...u, status: 'نشط' as const } : u));
+      toast.success('تم تفعيل المستخدم');
+
+      await logAuditAction(
+        organizationId,
+        currentUserProfile?.id || '',
+        currentUserProfile?.full_name || 'مدير',
+        'USER_ACTIVATED',
+        {
+          targetType: 'user',
+          targetId: id,
+          targetName: user.name,
+          oldValue: { status: user.status },
+          newValue: { status: 'نشط' },
+        }
+      );
+    } catch (error) {
+      console.error('Error activating user:', error);
+      toast.error('فشل تفعيل المستخدم');
+    }
   };
 
   const handleDeleteUser = async (id: string) => {
@@ -805,7 +841,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
       {/* التبويبات */}
       <Tabs defaultValue="active" className="space-y-4">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="active">المستخدم��ن النشطون ({stats.active})</TabsTrigger>
+          <TabsTrigger value="active">المستخدمون النشطون ({stats.active})</TabsTrigger>
           <TabsTrigger value="pending">
             الطلبات قيد المراجعة
             {pendingRequests.length > 0 && (
