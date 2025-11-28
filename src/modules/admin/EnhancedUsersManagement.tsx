@@ -302,78 +302,102 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
   const handleSaveEditUser = async () => {
     if (!selectedUser || !editFormData) return;
 
-    const oldData = {
-      role: selectedUser.role,
-      status: selectedUser.status,
-      name: selectedUser.name,
-    };
+    try {
+      const oldData = {
+        role: selectedUser.role,
+        status: selectedUser.status,
+        name: selectedUser.name,
+      };
 
-    const newData = {
-      role: editFormData.role,
-      status: editFormData.status,
-      name: editFormData.name,
-    };
+      const newData = {
+        role: editFormData.role,
+        status: editFormData.status,
+        name: editFormData.name,
+      };
 
-    // تحديث البيانات
-    setUsers(users.map(u =>
-      u.id === selectedUser.id
-        ? { ...u, ...editFormData }
-        : u
-    ));
+      if (isDemoMode()) {
+        setUsers(users.map(u =>
+          u.id === selectedUser.id
+            ? { ...u, ...editFormData }
+            : u
+        ));
+        setIsEditDialogOpen(false);
+        toast.success('تم تحديث بيانات المستخدم بنجاح (Demo Mode)');
+        return;
+      }
 
-    // تسجيل في Audit Log
-    if (oldData.role !== newData.role) {
-      await logAuditAction(
-        organizationId,
-        currentUserProfile?.id || '',
-        currentUserProfile?.full_name || 'مدير',
-        'USER_ROLE_CHANGED',
-        {
-          targetType: 'user',
-          targetId: selectedUser.id,
-          targetName: selectedUser.name,
-          oldValue: { role: oldData.role },
-          newValue: { role: newData.role },
-          notes: `تم تغيير الدور من "${oldData.role}" إلى "${newData.role}"`,
-        }
-      );
+      const roleMap: { [key: string]: string } = {
+        'معلم': 'teacher',
+        'طالب': 'student',
+        'مشرف': 'supervisor',
+        'ولي أمر': 'parent',
+      };
+
+      const statusMap: { [key: string]: string } = {
+        'نشط': 'active',
+        'مع��ق': 'suspended',
+        'قيد المراجعة': 'pending',
+      };
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: editFormData.name,
+          email: editFormData.email,
+          phone: editFormData.phone,
+          role: roleMap[editFormData.role] || 'student',
+          status: statusMap[editFormData.status] || 'active',
+        })
+        .eq('id', selectedUser.id);
+
+      if (error) throw error;
+
+      setUsers(users.map(u =>
+        u.id === selectedUser.id
+          ? { ...u, ...editFormData }
+          : u
+      ));
+
+      if (oldData.role !== newData.role) {
+        await logAuditAction(
+          organizationId,
+          currentUserProfile?.id || '',
+          currentUserProfile?.full_name || 'مدير',
+          'USER_ROLE_CHANGED',
+          {
+            targetType: 'user',
+            targetId: selectedUser.id,
+            targetName: selectedUser.name,
+            oldValue: { role: oldData.role },
+            newValue: { role: newData.role },
+            notes: `تم تغيير الدور من "${oldData.role}" إلى "${newData.role}"`,
+          }
+        );
+      }
+
+      if (oldData.status !== newData.status) {
+        await logAuditAction(
+          organizationId,
+          currentUserProfile?.id || '',
+          currentUserProfile?.full_name || 'مدير',
+          'USER_STATUS_CHANGED',
+          {
+            targetType: 'user',
+            targetId: selectedUser.id,
+            targetName: selectedUser.name,
+            oldValue: { status: oldData.status },
+            newValue: { status: newData.status },
+            notes: `تم تغيير الحالة من "${oldData.status}" إلى "${newData.status}"`,
+          }
+        );
+      }
+
+      setIsEditDialogOpen(false);
+      toast.success('تم تحديث بيانات المستخدم بنجاح');
+    } catch (error) {
+      console.error('Error updating user:', error);
+      toast.error('فشل تحديث بيانات المستخدم');
     }
-
-    if (oldData.status !== newData.status) {
-      await logAuditAction(
-        organizationId,
-        currentUserProfile?.id || '',
-        currentUserProfile?.full_name || 'مدير',
-        'USER_STATUS_CHANGED',
-        {
-          targetType: 'user',
-          targetId: selectedUser.id,
-          targetName: selectedUser.name,
-          oldValue: { status: oldData.status },
-          newValue: { status: newData.status },
-          notes: `تم تغيير الحالة من "${oldData.status}" إلى "${newData.status}"`,
-        }
-      );
-    }
-
-    if (oldData.name !== newData.name || oldData.role !== newData.role || oldData.status !== newData.status) {
-      await logAuditAction(
-        organizationId,
-        currentUserProfile?.id || '',
-        currentUserProfile?.full_name || 'مدير',
-        'USER_UPDATED',
-        {
-          targetType: 'user',
-          targetId: selectedUser.id,
-          targetName: selectedUser.name,
-          oldValue: oldData,
-          newValue: newData,
-        }
-      );
-    }
-
-    setIsEditDialogOpen(false);
-    toast.success('تم تحديث بيانات المستخدم بنجاح');
   };
 
   const handleViewUser = (user: ExtendedUser) => {
@@ -482,7 +506,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
   };
 
   const handleRejectRequest = async (id: string) => {
-    if (confirm('هل أنت متأكد من رفض هذا الطلب؟')) {
+    if (confirm('هل أنت متأكد من رفض هذا الط��ب؟')) {
       const request = pendingRequests.find(r => r.id === id);
       if (!request) return;
 
@@ -669,7 +693,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
-              <p className="text-sm text-gray-600">المع��قون</p>
+              <p className="text-sm text-gray-600">المعلقون</p>
               <p className="text-3xl mt-2 text-red-600">{stats.suspended}</p>
             </div>
           </CardContent>
@@ -1092,7 +1116,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="edit-status">الحالة</Label>
+                    <Label htmlFor="edit-status">��لحالة</Label>
                     <Select
                       value={editFormData.status}
                       onValueChange={(value) => setEditFormData({ ...editFormData, status: value as any })}
