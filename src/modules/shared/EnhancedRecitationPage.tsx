@@ -337,7 +337,7 @@ export function EnhancedRecitationPage({ user, organization }: EnhancedRecitatio
         <CardContent className="pt-6">
           <div className="grid md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label>التا��يخ</Label>
+              <Label>التاريخ</Label>
               <Input
                 type="date"
                 value={selectedDate}
