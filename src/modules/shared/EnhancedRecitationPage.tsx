@@ -199,7 +199,7 @@ export function EnhancedRecitationPage({ user, organization }: EnhancedRecitatio
 
     try {
       if (isDemoMode()) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 100));
         toast.success('تم تسجيل التسميع بنجاح');
         setShowRecitationDialog(false);
         fetchStudentsWithAttendance();
