@@ -7,6 +7,9 @@ export interface ReportData {
   summary?: Record<string, any>;
   sections?: ReportSection[];
   tableData?: TableData;
+  generatedAt?: string;
+  stats?: Record<string, any>;
+  data?: any[];
 }
 
 export interface ReportSection {
