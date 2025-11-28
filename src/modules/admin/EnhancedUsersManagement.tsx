@@ -491,19 +491,74 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
   };
 
   const handleApproveRequest = async (id: string) => {
-    const request = pendingRequests.find(r => r.id === id);
-    if (request) {
+    try {
+      const request = pendingRequests.find(r => r.id === id);
+      if (!request) return;
+
+      if (isDemoMode()) {
+        const newUser: ExtendedUser = {
+          id: String(Date.now()),
+          name: request.name,
+          email: request.email,
+          phone: request.phone,
+          role: request.role,
+          gender: request.gender as 'ذكر' | 'أنثى',
+          status: 'نشط',
+          joinDate: new Date().toISOString().split('T')[0],
+          lastActive: new Date().toISOString().split('T')[0],
+        };
+        setUsers([...users, newUser]);
+        setPendingRequests(pendingRequests.filter(r => r.id !== id));
+        toast.success('تمت الموافقة على الطلب (Demo Mode)');
+        return;
+      }
+
+      const roleMap: { [key: string]: string } = {
+        'معلم': 'teacher',
+        'طالب': 'student',
+        'مشرف': 'supervisor',
+        'ولي أمر': 'parent',
+      };
+
+      const { data, error: updateError } = await supabase
+        .from('join_requests')
+        .update({ status: 'approved' })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (updateError) throw updateError;
+
+      const { data: newUserData, error: insertError } = await supabase
+        .from('profiles')
+        .insert([
+          {
+            organization_id: organizationId,
+            full_name: request.name,
+            email: request.email,
+            phone: request.phone,
+            gender: request.gender === 'ذكر' ? 'male' : 'female',
+            role: roleMap[request.role] || 'student',
+            status: 'active',
+          }
+        ])
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+
       const newUser: ExtendedUser = {
-        id: String(users.length + 1),
-        name: request.name,
-        email: request.email,
-        phone: request.phone,
+        id: newUserData.id,
+        name: newUserData.full_name,
+        email: newUserData.email || '',
+        phone: newUserData.phone || '',
         role: request.role,
         gender: request.gender as 'ذكر' | 'أنثى',
         status: 'نشط',
-        joinDate: '1446-03-20',
-        lastActive: '1446-03-20',
+        joinDate: newUserData.created_at?.split('T')[0] || '',
+        lastActive: newUserData.updated_at?.split('T')[0] || '',
       };
+
       setUsers([...users, newUser]);
       setPendingRequests(pendingRequests.filter(r => r.id !== id));
       toast.success('تمت الموافقة على الطلب');
@@ -520,6 +575,9 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
           newValue: { role: newUser.role, status: newUser.status },
         }
       );
+    } catch (error) {
+      console.error('Error approving request:', error);
+      toast.error('فشل الموافقة على الطلب');
     }
   };
 
@@ -614,7 +672,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
             </DialogTrigger>
             <DialogContent dir="rtl">
               <DialogHeader>
-                <DialogTitle>إضافة مستخدم جديد</DialogTitle>
+                <DialogTitle>إضافة م��تخدم جديد</DialogTitle>
                 <DialogDescription>أضف مستخدم جديد مباشرة إلى المنصة</DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
@@ -729,7 +787,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
       {/* التبويبات */}
       <Tabs defaultValue="active" className="space-y-4">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="active">الم��تخدمون النشطون ({stats.active})</TabsTrigger>
+          <TabsTrigger value="active">المستخدمون النشطون ({stats.active})</TabsTrigger>
           <TabsTrigger value="pending">
             الطلبات قيد المراجعة
             {pendingRequests.length > 0 && (
@@ -776,7 +834,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                     <SelectItem value="all">جميع الحالات</SelectItem>
                     <SelectItem value="نشط">نشط</SelectItem>
                     <SelectItem value="معلق">معلق</SelectItem>
-                    <SelectItem value="قيد المراجعة">قيد ال��راجعة</SelectItem>
+                    <SelectItem value="قيد المراجعة">قيد المراجعة</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1032,7 +1090,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                   <p className="font-medium" dir="ltr">{selectedUser.phone || 'غير محدد'}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-gray-600">الجنس</p>
+                  <p className="text-sm text-gray-600">ال��نس</p>
                   <p className="font-medium">{selectedUser.gender}</p>
                 </div>
                 <div className="space-y-1">
@@ -1184,7 +1242,7 @@ export function EnhancedUsersManagement({ organizationId }: { organizationId: st
                   </div>
                 )}
 
-                {/* معلومات إضافية */}
+                {/* معلومات إ��افية */}
                 <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg text-sm">
                   <div>
                     <p className="text-gray-600">الجنس</p>
