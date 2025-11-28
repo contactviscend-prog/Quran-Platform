@@ -26,25 +26,65 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   // Fetch user profile
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string): Promise<{ profile: Profile; organization: Organization } | null> => {
     try {
-      const { data, error } = await supabase
+      console.log('🔍 جاري جلب profile للمستخدم:', userId);
+
+      // First, fetch the profile without nested select
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          organization:organizations(*)
-        `)
+        .select('*')
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
-
-      if (data) {
-        setProfile(data);
-        setOrganization(data.organization);
+      if (profileError) {
+        console.error('❌ خطأ في جلب profile:', profileError);
+        console.error('خطأ الـ RLS - تحقق من الـ Policies في Supabase');
+        throw profileError;
       }
+
+      if (!profileData) {
+        console.warn('⚠️ لم يتم جلب profile - قد لا يكون موجوداً');
+        throw new Error('Profile not found');
+      }
+
+      console.log('✅ تم جلب profile:', profileData);
+
+      // Then, fetch the organization separately
+      let orgData: Organization | null = null;
+      if (profileData.organization_id) {
+        console.log('🔍 جاري جلب organization:', profileData.organization_id);
+        const { data, error: orgError } = await supabase
+          .from('organizations')
+          .select('*')
+          .eq('id', profileData.organization_id)
+          .single();
+
+        if (orgError) {
+          console.error('❌ خطأ في جلب organization:', orgError);
+          throw orgError;
+        }
+
+        if (!data) {
+          console.warn('⚠️ لم يتم جلب organization - قد لا يكون موجوداً');
+          throw new Error('Organization not found');
+        }
+
+        orgData = data as Organization;
+        console.log('✅ تم جلب organization:', orgData);
+      }
+
+      // Set both states
+      setProfile(profileData);
+      if (orgData) {
+        setOrganization(orgData);
+      }
+
+      console.log('✅ تم جلب جميع البيانات بنجاح');
+      return { profile: profileData, organization: orgData || {} as Organization };
     } catch (error: any) {
-      console.error('Error fetching profile:', error.message);
+      console.error('❌ Error fetching profile:', error?.message || error);
+      return null;
     }
   };
 
@@ -97,11 +137,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (isMounted) {
+          console.log('🔄 تغيير في حالة المصادقة:', event, session?.user?.id);
           setSession(session);
           setUser(session?.user ?? null);
 
           if (session?.user) {
-            await fetchProfile(session.user.id);
+            try {
+              await fetchProfile(session.user.id);
+              console.log('✅ تم جلب profile بعد تغيير حالة المصادقة');
+            } catch (error: any) {
+              console.error('⚠️ فشل جلب profile بعد auth change:', error);
+              // لا نرمي خطأ هنا - نترك البيانات كما هي
+            }
           } else {
             setProfile(null);
             setOrganization(null);
@@ -118,13 +165,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // Sign in
-  const signIn = async (email: string, password: string) => {
+  // Sign in with organization validation
+  const signIn = async (email: string, password: string, expectedOrgSlug?: string) => {
     try {
       // Demo mode login
       if (isDemoMode()) {
         const mockUser = mockUsers[email];
         if (mockUser && mockUser.password === password) {
+          // Check if user's organization matches the expected organization
+          if (expectedOrgSlug && mockUser.profile.organization!.slug !== expectedOrgSlug) {
+            console.warn(`⚠️ المستخدم من مؤسسة ${mockUser.profile.organization!.slug}، لكن محاولة الدخول من ${expectedOrgSlug}`);
+            throw new Error(`هذا الحساب ينتمي لمؤسسة أخرى (${mockUser.profile.organization!.name}). الرجاء استخدام بوابة مؤسستك الصحيحة.`);
+          }
+
           const demoUser = {
             id: mockUser.profile.id,
             email: mockUser.email,
@@ -141,6 +194,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Real Supabase login
+      console.log('🔐 جاري محاولة تسجيل الدخول:', email, 'من مؤسسة:', expectedOrgSlug);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -148,12 +202,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error) throw error;
 
+      console.log('✅ نجح تسجيل الدخول للمستخدم:', data.user?.id);
+
       if (data.user) {
-        await fetchProfile(data.user.id);
+        console.log('🔐 تم تسجيل الدخول - جاري جلب البيانات...');
+        const profileData = await fetchProfile(data.user.id);
+
+        if (!profileData) {
+          throw new Error('فشل جلب بيانات المستخدم');
+        }
+
+        // Validate that user belongs to the expected organization
+        if (expectedOrgSlug) {
+          console.log('🔍 التحقق من أن المستخدم ينتمي لمؤسسة:', expectedOrgSlug);
+
+          if (!profileData.organization) {
+            console.error('❌ لم يتمكن من جلب بيانات مؤسسة المستخدم');
+            throw new Error('حدث خطأ في التحقق من المؤسسة');
+          }
+
+          if (profileData.organization.slug !== expectedOrgSlug) {
+            console.warn(`⚠️ المستخدم من مؤسسة ${profileData.organization.slug}، لكن محاولة الدخول من ${expectedOrgSlug}`);
+            // Sign out the user since they're trying to access wrong organization
+            await supabase.auth.signOut();
+            setUser(null);
+            setProfile(null);
+            setOrganization(null);
+            throw new Error(`هذا الحساب ينتمي لمؤسسة أخرى (${profileData.organization.name}). الرجاء استخدام بوابة مؤسستك الصحيحة.`);
+          }
+        }
+
+        console.log('✅ تم التحقق من المؤسسة بنجاح - تم تسجيل الدخول');
         toast.success('تم تسجيل الدخول بنجاح');
       }
     } catch (error: any) {
-      console.error('Error signing in:', error.message);
+      console.error('❌ Error signing in:', error.message);
       toast.error('خطأ في تسجيل الدخول: ' + error.message);
       throw error;
     }
