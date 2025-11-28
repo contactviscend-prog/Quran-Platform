@@ -215,7 +215,7 @@ export function CirclesManagement({ organizationId }: CirclesManagementProps) {
   };
 
   const handleDelete = async (circleId: string) => {
-    if (!confirm('هل أنت متأكد من ح��ف هذه الحلقة؟')) return;
+    if (!confirm('هل أنت متأكد من حذف هذه الحلقة؟')) return;
 
     try {
       if (isDemoMode()) {
