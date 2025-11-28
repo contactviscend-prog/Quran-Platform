@@ -61,10 +61,10 @@ export function ParentDashboard({ user, organization }: ParentDashboardProps) {
       // Real Supabase fetch
       // Get linked children for this parent
       const { data: links, error: linksError } = await supabase
-        .from('parent_children_links')
+        .from('parent_students')
         .select(`
           student_id,
-          student:profiles!parent_children_links_student_id_fkey(
+          student:profiles!parent_students_student_id_fkey(
             id,
             full_name
           )
