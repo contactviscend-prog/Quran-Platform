@@ -185,8 +185,6 @@ function LoginPageWrapper({ orgSlug, onBack, onRegister }: { orgSlug: string; on
 function RegisterRoute() {
   const navigate = useNavigate();
   const { user, profile, organization: authOrg } = useAuth();
-  const pathname = window.location.pathname;
-  const orgSlug = pathname.split('/')[2]; // /register/:orgSlug
 
   // Auto-redirect if already logged in
   useEffect(() => {
@@ -194,6 +192,10 @@ function RegisterRoute() {
       navigate(`/${authOrg.slug}/dashboard`, { replace: true });
     }
   }, [user, profile, authOrg, navigate]);
+
+  // Get orgSlug from URL
+  const pathname = window.location.pathname;
+  const orgSlug = pathname.split('/')[2]; // /register/:orgSlug
 
   return (
     <Suspense fallback={<LoadingScreen />}>
