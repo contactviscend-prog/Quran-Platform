@@ -183,7 +183,7 @@ export function SettingsPage({ user }: SettingsPageProps) {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>الرسائل النصية</Label>
-                    <p className="text-sm text-gray-500">ا��تقبال الإشعارات عبر الرسائل النصية</p>
+                    <p className="text-sm text-gray-500">استقبال الإشعارات عبر الرسائل النصية</p>
                   </div>
                   <Switch
                     checked={notifications.smsNotifications}
@@ -263,7 +263,7 @@ export function SettingsPage({ user }: SettingsPageProps) {
                     value={passwordData.newPassword}
                     onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
                   />
-                  <p className="text-xs text-gray-500">يجب ��ن تحتوي على 8 أحرف على الأقل</p>
+                  <p className="text-xs text-gray-500">يجب ان تحتوي على 8 أحرف على الأقل</p>
                 </div>
 
                 <div className="space-y-2">
@@ -290,7 +290,7 @@ export function SettingsPage({ user }: SettingsPageProps) {
                   <div className="flex items-center justify-between p-3 border rounded-lg">
                     <div>
                       <p className="text-sm font-medium">Chrome على Windows</p>
-                      <p className="text-xs text-gray-500">الجل��ة الحالية • الرياض، السعودية</p>
+                      <p className="text-xs text-gray-500">الجلسة الحالية • الرياض، السعودية</p>
                     </div>
                     <Badge className="bg-green-100 text-green-800">نشطة</Badge>
                   </div>
