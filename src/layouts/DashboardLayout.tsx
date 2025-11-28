@@ -198,10 +198,10 @@ export function DashboardLayout({ user, organization, role, children, currentSec
       </header>
 
       {/* Mobile Horizontal Navigation */}
-      <div className="lg:hidden bg-white border-b sticky top-[73px] z-30 overflow-x-auto flex items-center">
+      <div className="lg:hidden bg-white border-b sticky top-[73px] z-30 overflow-x-auto">
         <nav
           ref={navScrollRef}
-          className="flex gap-2 p-3 overflow-x-auto scrollbar-hide flex-1"
+          className="flex gap-2 p-3 overflow-x-auto scrollbar-hide"
         >
           {currentMenuItems.map((item, index) => (
             <Button
@@ -222,51 +222,6 @@ export function DashboardLayout({ user, organization, role, children, currentSec
             </Button>
           ))}
         </nav>
-
-        {/* Menu Button */}
-        <div className="relative flex-shrink-0 border-r pr-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="hover:bg-gray-100"
-          >
-            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </Button>
-
-          {/* Dropdown Menu */}
-          {isMenuOpen && (
-            <div className="absolute left-0 top-full mt-0 bg-white border border-gray-200 rounded-lg shadow-2xl z-50 min-w-[200px]">
-              <div className="py-1 max-h-[calc(100vh-300px)] overflow-y-auto">
-                {currentMenuItems.map((item, index) => (
-                  <button
-                    key={index}
-                    className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-right hover:bg-gray-50 transition-colors ${
-                      currentSection === item.section ? 'bg-emerald-50 text-emerald-700 font-medium' : ''
-                    }`}
-                    onClick={() => {
-                      if (onSectionChange) {
-                        onSectionChange(item.section);
-                      }
-                      setIsMenuOpen(false);
-                    }}
-                  >
-                    <item.icon className="w-4 h-4 flex-shrink-0" />
-                    <span>{item.label}</span>
-                  </button>
-                ))}
-                <div className="border-t my-1"></div>
-                <button
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-right text-red-600 hover:bg-red-50 transition-colors"
-                  onClick={handleLogout}
-                >
-                  <LogOut className="w-4 h-4 flex-shrink-0" />
-                  <span>تسجيل الخروج</span>
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
       </div>
 
       <div className="flex">
