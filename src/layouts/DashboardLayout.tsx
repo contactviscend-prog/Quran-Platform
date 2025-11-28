@@ -233,9 +233,11 @@ export function DashboardLayout({ user, organization, role, children, currentSec
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-4 lg:p-8">
-          <div className="max-w-7xl mx-auto">
-            {children}
+        <main className="flex-1 w-full min-h-screen overflow-x-hidden">
+          <div className="px-3 py-4 sm:px-4 sm:py-6 lg:px-8 lg:py-8 w-full">
+            <div className="max-w-7xl mx-auto w-full">
+              {children}
+            </div>
           </div>
         </main>
       </div>
