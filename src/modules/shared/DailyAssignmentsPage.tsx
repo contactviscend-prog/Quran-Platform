@@ -138,27 +138,26 @@ export function DailyAssignmentsPage({ userId, userRole, organizationId }: Daily
 
       // Real database fetch
       let query = supabase
-        .from('daily_assignments')
+        .from('assignments')
         .select(`
           id,
           title,
           description,
           circle:circles(id, name),
-          teacher:profiles!daily_assignments_teacher_id_fkey(full_name),
-          surah_from,
-          verse_from,
-          surah_to,
-          verse_to,
+          teacher:profiles!assignments_teacher_id_fkey(full_name),
+          surah_number,
+          from_ayah,
+          to_ayah,
           due_date,
           status,
           completed_at,
-          notes
+          completion_notes
         `)
         .eq('organization_id', organizationId);
 
       // Filter by user role
       if (userRole === 'student') {
-        query = query.eq('assigned_to_student', userId);
+        query = query.eq('student_id', userId);
       } else if (userRole === 'teacher') {
         query = query.eq('teacher_id', userId);
       }
@@ -171,21 +170,26 @@ export function DailyAssignmentsPage({ userId, userRole, organizationId }: Daily
         return;
       }
 
-      const formattedAssignments: Assignment[] = (data || []).map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        description: item.description,
-        circle_name: item.circle?.name || 'بدون حلقة',
-        teacher_name: item.teacher?.full_name || 'بدون معلم',
-        surah_from: item.surah_from,
-        verse_from: item.verse_from,
-        surah_to: item.surah_to,
-        verse_to: item.verse_to,
-        due_date: item.due_date,
-        status: item.status,
-        completed_at: item.completed_at,
-        notes: item.notes,
-      }));
+      const formattedAssignments: Assignment[] = (data || []).map((item: any) => {
+        const quranSurahs = ['', 'الفاتحة', 'البقرة', 'آل عمران', 'النساء', 'المائدة'];
+        const surahName = quranSurahs[item.surah_number] || `سورة ${item.surah_number}`;
+
+        return {
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          circle_name: item.circle?.name || 'بدون حلقة',
+          teacher_name: item.teacher?.full_name || 'بدون معلم',
+          surah_from: surahName,
+          verse_from: item.from_ayah,
+          surah_to: surahName,
+          verse_to: item.to_ayah,
+          due_date: item.due_date,
+          status: item.status,
+          completed_at: item.completed_at,
+          notes: item.completion_notes,
+        };
+      });
 
       setAssignments(formattedAssignments);
     } catch (error: any) {

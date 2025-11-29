@@ -48,30 +48,64 @@ export function StudentMemorizationPage({ studentId, organizationId }: StudentMe
     try {
       setLoading(true);
 
-      // Initialize 30 juz with random progress for demo
-      const juzData: JuzProgress[] = Array.from({ length: 30 }, (_, i) => {
-        const juzNum = i + 1;
-        let progress = 0;
-        let status: JuzProgress['status'] = 'not_started';
+      let juzData: JuzProgress[];
 
-        // For demo, make first 5 juz have some progress
-        if (juzNum <= 3) {
-          progress = 100;
-          status = 'completed';
-        } else if (juzNum === 4) {
-          progress = 65;
-          status = 'in_progress';
-        } else if (juzNum === 5) {
-          progress = 30;
-          status = 'in_progress';
+      if (isDemoMode()) {
+        // Initialize 30 juz with random progress for demo
+        juzData = Array.from({ length: 30 }, (_, i) => {
+          const juzNum = i + 1;
+          let progress = 0;
+          let status: JuzProgress['status'] = 'not_started';
+
+          // For demo, make first 5 juz have some progress
+          if (juzNum <= 3) {
+            progress = 100;
+            status = 'completed';
+          } else if (juzNum === 4) {
+            progress = 65;
+            status = 'in_progress';
+          } else if (juzNum === 5) {
+            progress = 30;
+            status = 'in_progress';
+          }
+
+          return {
+            juzNumber: juzNum,
+            progress,
+            status,
+          };
+        });
+      } else {
+        // Fetch from database
+        const { data: progressData } = await supabase
+          .from('student_progress')
+          .select('memorization_details, parts_memorized, surahs_completed')
+          .eq('student_id', studentId)
+          .eq('organization_id', organizationId)
+          .single();
+
+        if (progressData?.memorization_details) {
+          const memorization = progressData.memorization_details;
+          // Build juz progress from memorization details
+          juzData = Array.from({ length: 30 }, (_, i) => {
+            const juzNum = i + 1;
+            const juzData = memorization[`juz_${juzNum}`];
+
+            return {
+              juzNumber: juzNum,
+              progress: juzData?.progress || 0,
+              status: (juzData?.status || 'not_started') as JuzProgress['status'],
+            };
+          });
+        } else {
+          // Initialize with empty progress if no data
+          juzData = Array.from({ length: 30 }, (_, i) => ({
+            juzNumber: i + 1,
+            progress: 0,
+            status: 'not_started' as const,
+          }));
         }
-
-        return {
-          juzNumber: juzNum,
-          progress,
-          status,
-        };
-      });
+      }
 
       setJuzProgress(juzData);
 
@@ -82,7 +116,9 @@ export function StudentMemorizationPage({ studentId, organizationId }: StudentMe
       setTotalProgress(total);
     } catch (error: any) {
       console.error('Error fetching memorization progress:', error);
-      toast.error('فشل تحميل بيانات الحفظ');
+      if (!isDemoMode()) {
+        toast.error('فشل تحميل بيانات الحفظ');
+      }
     } finally {
       setLoading(false);
     }

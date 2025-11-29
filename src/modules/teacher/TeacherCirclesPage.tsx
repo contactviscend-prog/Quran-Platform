@@ -90,15 +90,37 @@ export function TeacherCirclesPage({ teacherId, organizationId }: TeacherCircles
           const { count: studentCount } = await supabase
             .from('circle_enrollments')
             .select('*', { count: 'exact', head: true })
-            .eq('circle_id', circle.id);
+            .eq('circle_id', circle.id)
+            .eq('status', 'active');
 
-          // Get average progress (mock for now)
-          const averageProgress = Math.floor(Math.random() * 40) + 60; // 60-100%
+          // Get average progress from student progress
+          const { data: progressData } = await supabase
+            .from('circle_enrollments')
+            .select('student_id')
+            .eq('circle_id', circle.id)
+            .eq('status', 'active');
+
+          let averageProgress = 0;
+          if (progressData && progressData.length > 0) {
+            const studentIds = progressData.map((e: any) => e.student_id);
+            const { data: studentProgress } = await supabase
+              .from('student_progress')
+              .select('memorization_details')
+              .in('student_id', studentIds);
+
+            if (studentProgress && studentProgress.length > 0) {
+              const totalProgress = studentProgress.reduce((sum: number, sp: any) => {
+                const progress = sp.memorization_details?.progress || 0;
+                return sum + progress;
+              }, 0);
+              averageProgress = Math.round(totalProgress / studentProgress.length);
+            }
+          }
 
           return {
             ...circle,
             student_count: studentCount || 0,
-            average_progress: averageProgress,
+            average_progress: Math.max(averageProgress, 0),
           };
         })
       );

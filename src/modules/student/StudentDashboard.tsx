@@ -83,30 +83,91 @@ export function StudentDashboard({ user, organization }: StudentDashboardProps) 
       }
 
       // Real Supabase fetch
-      // Get student's circle and teacher
+      // Step 1: Get student's circle and teacher
       const { data: enrollment } = await supabase
         .from('circle_enrollments')
         .select('circle:circles(name, teacher:profiles!circles_teacher_id_fkey(full_name))')
         .eq('student_id', user.id)
         .single();
 
+      const currentCircle = (enrollment as any)?.circle?.name || null;
+      const currentTeacher = (enrollment as any)?.circle?.teacher?.[0]?.full_name || null;
+
+      // Step 2: Get total recitations count
+      const { count: totalRecitationsCount } = await supabase
+        .from('recitations')
+        .select('*', { count: 'exact', head: true })
+        .eq('student_id', user.id)
+        .eq('organization_id', organization.id);
+
+      // Step 3: Get attendance stats
+      const { count: attendanceDays } = await supabase
+        .from('attendance')
+        .select('*', { count: 'exact', head: true })
+        .eq('student_id', user.id)
+        .eq('organization_id', organization.id)
+        .eq('status', 'present');
+
+      const { count: totalAttendanceDays } = await supabase
+        .from('attendance')
+        .select('*', { count: 'exact', head: true })
+        .eq('student_id', user.id)
+        .eq('organization_id', organization.id);
+
+      // Step 4: Get weekly recitations (last 7 days)
+      const sevenDaysAgo = new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0];
+      const { count: weeklyRecitationsCount } = await supabase
+        .from('recitations')
+        .select('*', { count: 'exact', head: true })
+        .eq('student_id', user.id)
+        .eq('organization_id', organization.id)
+        .gte('date', sevenDaysAgo);
+
+      // Step 5: Get student progress
+      const { data: progressData } = await supabase
+        .from('student_progress')
+        .select('*')
+        .eq('student_id', user.id)
+        .eq('organization_id', organization.id)
+        .single();
+
+      // Step 6: Get recent recitations
+      const { data: recentRecitationsData } = await supabase
+        .from('recitations')
+        .select('id, surah_name, from_ayah, to_ayah, grade, date')
+        .eq('student_id', user.id)
+        .eq('organization_id', organization.id)
+        .order('date', { ascending: false })
+        .limit(5);
+
+      const attendanceRate = totalAttendanceDays && totalAttendanceDays > 0
+        ? Math.round(((attendanceDays || 0) / totalAttendanceDays) * 100)
+        : 0;
+
       setStats({
-        currentCircle: (enrollment as any)?.circle?.name || null,
-        currentTeacher: (enrollment as any)?.circle?.teacher?.[0]?.full_name || null,
-        totalRecitations: 0,
+        currentCircle,
+        currentTeacher,
+        totalRecitations: totalRecitationsCount || 0,
         weeklyGoal: 5,
-        weeklyProgress: 0,
-        attendanceRate: 0,
-        totalAttendanceDays: 0,
-        points: 0,
-        savedRatings: 0,
+        weeklyProgress: weeklyRecitationsCount || 0,
+        attendanceRate,
+        totalAttendanceDays: totalAttendanceDays || 0,
+        points: (totalRecitationsCount || 0) * 10,
+        savedRatings: recentRecitationsData?.filter((r: any) => r.grade === 'excellent').length || 0,
         currentGoal: {
-          surah: 'سورة البقرة',
-          fromAyah: 1,
-          toAyah: 10,
-          progress: 0,
+          surah: progressData?.current_surah ? `سورة رقم ${progressData.current_surah}` : 'سورة البقرة',
+          fromAyah: progressData?.current_ayah || 1,
+          toAyah: Math.min((progressData?.current_ayah || 1) + 10, 6236),
+          progress: progressData?.memorization_details?.progress || 0,
         },
-        recentRecitations: [],
+        recentRecitations: (recentRecitationsData || []).map((r: any) => ({
+          id: r.id,
+          surah_name: r.surah_name,
+          from_ayah: r.from_ayah,
+          to_ayah: r.to_ayah,
+          grade: r.grade,
+          date: r.date,
+        })),
       });
     } catch (error: any) {
       console.error('Error fetching stats:', error);

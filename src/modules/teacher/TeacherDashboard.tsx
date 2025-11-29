@@ -233,7 +233,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
           to_ayah,
           grade,
           mistakes_count,
-          profiles!student_id(full_name)
+          student:profiles!recitations_student_id_fkey(full_name)
         `)
         .eq('organization_id', organization.id)
         .eq('teacher_id', user.id)
@@ -244,7 +244,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
         setRecentRecitations(
           recitationsData.map((r: any) => ({
             id: r.id,
-            student_name: r.profiles?.full_name || 'Unknown',
+            student_name: r.student?.full_name || 'Unknown',
             surah_name: r.surah_name,
             from_ayah: r.from_ayah,
             to_ayah: r.to_ayah,
@@ -273,7 +273,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
             id,
             date,
             status,
-            profiles!student_id(full_name)
+            student:profiles!attendance_student_id_fkey(full_name)
           `)
           .in('circle_id', circleIds)
           .order('date', { ascending: false })
@@ -283,7 +283,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
           setRecentAttendance(
             attendanceData.map((a: any) => ({
               id: a.id,
-              studentName: a.profiles?.full_name || 'Unknown',
+              studentName: a.student?.full_name || 'Unknown',
               date: a.date,
               status: a.status,
             }))

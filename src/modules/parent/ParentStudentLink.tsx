@@ -77,8 +77,7 @@ export function ParentStudentLink({ organizationId }: ParentStudentLinkProps) {
           student_id,
           student:profiles!parent_student_links_student_id_fkey(id, full_name),
           parent:profiles!parent_student_links_parent_id_fkey(id, full_name)
-        `)
-        .eq('organization_id', organizationId);
+        `);
 
       setParents(parentsData || []);
       setStudents(studentsData || []);
@@ -123,9 +122,9 @@ export function ParentStudentLink({ organizationId }: ParentStudentLinkProps) {
       const { error } = await supabase
         .from('parent_student_links')
         .insert({
-          organization_id: organizationId,
           parent_id: selectedParent,
           student_id: selectedStudent,
+          relationship: 'guardian',
         });
 
       if (error) throw error;

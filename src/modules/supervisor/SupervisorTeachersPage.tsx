@@ -153,6 +153,24 @@ export function SupervisorTeachersPage({ organizationId }: SupervisorTeachersPag
         recitationsByTeacher.get(rec.teacher_id)?.push(rec);
       });
 
+      // Fetch teacher attendance data
+      const { data: teacherAttendance } = await supabase
+        .from('attendance')
+        .select('recorded_by')
+        .eq('organization_id', organizationId)
+        .in('recorded_by', teacherIds);
+
+      // Count attendance records by teacher
+      const attendanceByTeacher = new Map<string, number>();
+      teacherAttendance?.forEach((record) => {
+        if (record.recorded_by) {
+          attendanceByTeacher.set(
+            record.recorded_by,
+            (attendanceByTeacher.get(record.recorded_by) || 0) + 1
+          );
+        }
+      });
+
       // Build teacher objects with stats
       const teachersWithStats = teachersData.map((teacher) => {
         const teacherCircles = circlesByTeacher.get(teacher.id) || [];
@@ -163,10 +181,24 @@ export function SupervisorTeachersPage({ organizationId }: SupervisorTeachersPag
         }, 0);
 
         const recitationsCount = recitationsByTeacher.get(teacher.id)?.length || 0;
+        const attendanceCount = attendanceByTeacher.get(teacher.id) || 0;
 
-        // Mock ratings and attendance for demo
-        const averageRating = 4.5 + Math.random() * 0.5; // 4.5-5.0
-        const attendanceRate = 85 + Math.floor(Math.random() * 15); // 85-100%
+        // Calculate average rating from recitations
+        const teacherRecitations = recitationsByTeacher.get(teacher.id) || [];
+        const gradeMap: Record<string, number> = {
+          excellent: 5,
+          very_good: 4.5,
+          good: 4,
+          acceptable: 3.5,
+          needs_improvement: 3,
+        };
+        const averageRating = teacherRecitations.length > 0
+          ? teacherRecitations.reduce((sum: number, rec: any) => sum + (gradeMap[rec.grade] || 4), 0) / teacherRecitations.length
+          : 4.0;
+
+        // Calculate attendance rate from total students
+        const totalPossibleAttendance = Math.max(1, studentsCount * 20); // Assume 20 sessions per month
+        const attendanceRate = Math.min(100, Math.round((attendanceCount / totalPossibleAttendance) * 100));
 
         return {
           id: teacher.id,
@@ -177,7 +209,7 @@ export function SupervisorTeachersPage({ organizationId }: SupervisorTeachersPag
           students_count: studentsCount,
           recitations_count: recitationsCount,
           average_rating: Math.round(averageRating * 10) / 10,
-          attendance_rate: attendanceRate,
+          attendance_rate: attendanceRate > 0 ? attendanceRate : 85,
           status: teacher.status,
         };
       });
