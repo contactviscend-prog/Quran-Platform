@@ -185,7 +185,82 @@ export function EnhancedRecitationPage({ user, organization }: EnhancedRecitatio
         return;
       }
 
-      // Real Supabase fetch - would need to join attendance with student progress data
+      // Real Supabase fetch - join attendance with student progress data
+      // Step 1: Get all students enrolled in this circle
+      const { data: enrollments, error: enrollmentsError } = await supabase
+        .from('circle_enrollments')
+        .select('student_id, student:profiles!circle_enrollments_student_id_fkey(id, full_name)')
+        .eq('circle_id', selectedCircle)
+        .eq('status', 'active');
+
+      if (enrollmentsError) throw enrollmentsError;
+
+      if (!enrollments || enrollments.length === 0) {
+        setStudents([]);
+        setLoading(false);
+        return;
+      }
+
+      const studentIds = enrollments.map((e: any) => e.student_id);
+
+      // Step 2: Get attendance for today for all students
+      const { data: attendanceData } = await supabase
+        .from('attendance')
+        .select('student_id, status')
+        .eq('circle_id', selectedCircle)
+        .eq('date', selectedDate)
+        .in('student_id', studentIds);
+
+      // Step 3: Get recitations for today for all students
+      const { data: recitationsData } = await supabase
+        .from('recitations')
+        .select('student_id, type, grade, mistakes_count')
+        .eq('circle_id', selectedCircle)
+        .eq('date', selectedDate)
+        .in('student_id', studentIds);
+
+      // Step 4: Get student progress
+      const { data: progressData } = await supabase
+        .from('student_progress')
+        .select('student_id, current_surah, current_ayah, memorization_details')
+        .in('student_id', studentIds);
+
+      // Build maps for quick lookup
+      const attendanceMap = new Map(attendanceData?.map((a: any) => [a.student_id, a.status]) || []);
+      const recitationMap = new Map(recitationsData?.map((r: any) => [r.student_id, r]) || []);
+      const progressMap = new Map(progressData?.map((p: any) => [p.student_id, p]) || []);
+
+      // Step 5: Build student list
+      const studentsList: StudentAttendance[] = enrollments.map((enrollment: any) => {
+        const studentId = enrollment.student_id;
+        const attendance = attendanceMap.get(studentId);
+        const recitation = recitationMap.get(studentId);
+        const progress = progressMap.get(studentId);
+
+        const currentSurah = progress?.current_surah || 1;
+        const currentAyah = progress?.current_ayah || 1;
+        const nextSurah = currentSurah + (currentAyah > 100 ? 1 : 0);
+        const nextAyah = currentAyah > 100 ? 1 : currentAyah + 1;
+
+        return {
+          student_id: studentId,
+          student_name: enrollment.student?.full_name || 'غير معروف',
+          status: (attendance?.status as AttendanceStatus) || 'absent',
+          can_recite: attendance?.status === 'present' || attendance?.status === 'late',
+          current_surah: currentSurah,
+          current_ayah_from: currentAyah,
+          current_ayah_to: Math.min(currentAyah + 4, 6236),
+          next_surah: nextSurah,
+          next_ayah_from: nextAyah,
+          next_ayah_to: Math.min(nextAyah + 4, 6236),
+          recitation_recorded: !!recitation,
+          recitation_type: (recitation?.type as RecitationType) || undefined,
+          recitation_grade: (recitation?.grade as RecitationGrade) || undefined,
+          mistakes_count: recitation?.mistakes_count || 0,
+        };
+      });
+
+      setStudents(studentsList);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching students:', error);
