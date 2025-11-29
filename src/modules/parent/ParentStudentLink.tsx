@@ -77,8 +77,7 @@ export function ParentStudentLink({ organizationId }: ParentStudentLinkProps) {
           student_id,
           student:profiles!parent_student_links_student_id_fkey(id, full_name),
           parent:profiles!parent_student_links_parent_id_fkey(id, full_name)
-        `)
-        .eq('organization_id', organizationId);
+        `);
 
       setParents(parentsData || []);
       setStudents(studentsData || []);
