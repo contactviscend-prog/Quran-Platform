@@ -170,21 +170,26 @@ export function DailyAssignmentsPage({ userId, userRole, organizationId }: Daily
         return;
       }
 
-      const formattedAssignments: Assignment[] = (data || []).map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        description: item.description,
-        circle_name: item.circle?.name || 'بدون حلقة',
-        teacher_name: item.teacher?.full_name || 'بدون معلم',
-        surah_from: item.surah_from,
-        verse_from: item.verse_from,
-        surah_to: item.surah_to,
-        verse_to: item.verse_to,
-        due_date: item.due_date,
-        status: item.status,
-        completed_at: item.completed_at,
-        notes: item.notes,
-      }));
+      const formattedAssignments: Assignment[] = (data || []).map((item: any) => {
+        const quranSurahs = ['', 'الفاتحة', 'البقرة', 'آل عمران', 'النساء', 'المائدة'];
+        const surahName = quranSurahs[item.surah_number] || `سورة ${item.surah_number}`;
+
+        return {
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          circle_name: item.circle?.name || 'بدون حلقة',
+          teacher_name: item.teacher?.full_name || 'بدون معلم',
+          surah_from: surahName,
+          verse_from: item.from_ayah,
+          surah_to: surahName,
+          verse_to: item.to_ayah,
+          due_date: item.due_date,
+          status: item.status,
+          completed_at: item.completed_at,
+          notes: item.completion_notes,
+        };
+      });
 
       setAssignments(formattedAssignments);
     } catch (error: any) {
