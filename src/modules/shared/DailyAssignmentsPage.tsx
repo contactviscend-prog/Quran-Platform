@@ -138,27 +138,26 @@ export function DailyAssignmentsPage({ userId, userRole, organizationId }: Daily
 
       // Real database fetch
       let query = supabase
-        .from('daily_assignments')
+        .from('assignments')
         .select(`
           id,
           title,
           description,
           circle:circles(id, name),
-          teacher:profiles!daily_assignments_teacher_id_fkey(full_name),
-          surah_from,
-          verse_from,
-          surah_to,
-          verse_to,
+          teacher:profiles!assignments_teacher_id_fkey(full_name),
+          surah_number,
+          from_ayah,
+          to_ayah,
           due_date,
           status,
           completed_at,
-          notes
+          completion_notes
         `)
         .eq('organization_id', organizationId);
 
       // Filter by user role
       if (userRole === 'student') {
-        query = query.eq('assigned_to_student', userId);
+        query = query.eq('student_id', userId);
       } else if (userRole === 'teacher') {
         query = query.eq('teacher_id', userId);
       }
