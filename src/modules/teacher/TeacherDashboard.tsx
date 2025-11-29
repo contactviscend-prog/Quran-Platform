@@ -273,7 +273,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
             id,
             date,
             status,
-            profiles!student_id(full_name)
+            student:profiles!attendance_student_id_fkey(full_name)
           `)
           .in('circle_id', circleIds)
           .order('date', { ascending: false })
@@ -283,7 +283,7 @@ export function TeacherDashboard({ user, organization }: TeacherDashboardProps) 
           setRecentAttendance(
             attendanceData.map((a: any) => ({
               id: a.id,
-              studentName: a.profiles?.full_name || 'Unknown',
+              studentName: a.student?.full_name || 'Unknown',
               date: a.date,
               status: a.status,
             }))
